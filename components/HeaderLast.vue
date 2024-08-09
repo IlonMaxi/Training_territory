@@ -1,0 +1,112 @@
+<template>
+    <header>
+        <nav>
+            <div class="logo">
+                <h1>TRENING TERRITORY</h1>
+            </div>
+            <div class="navbar">
+                <ul>
+                    <li><a href="#" id="index"><i class="fa-solid fa-dumbbell"></i>
+                            <p>Тренеру</p>
+                        </a></li>
+                    <li><a href="#" id="index2"><i class="fa-solid fa-user-check"></i>
+                            <p>Клиенту</p>
+                        </a></li>
+                    <li><a href="#" id="login" @click.prevent="openLoginModal"><i class="fa-solid fa-user"></i>
+                            <p>Вход</p>
+                        </a></li>
+                    <li><a href="#" id="register" @click.prevent="openRegisterModal"><i
+                                class="fa-solid fa-user-plus"></i>
+                            <p>Регистрация</p>
+                        </a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+</template>
+
+<script>
+export default {
+    name: 'HeaderLast',
+    methods: {
+        openLoginModal() {
+            this.$emit('open-login-modal');
+        },
+        openRegisterModal() {
+            this.$emit('open-register-modal');
+        }
+    }
+}
+</script>
+
+<style scoped>
+header {
+    background-size: cover;
+    background-position: center;
+    height: 20vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+nav {
+    width: 80%;
+    background-color: #272827;
+    padding: 20px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px;
+}
+
+.logo h1 {
+    margin: 0;
+    color: white;
+    font-size: 24px;
+}
+
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.navbar ul li {
+    margin-left: 40px;
+    font-size: 18px;
+}
+
+.navbar ul li:first-child {
+    margin-left: 0;
+}
+
+.navbar ul li a {
+    text-decoration: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.navbar p {
+    padding-left: 10px;
+}
+
+.navbar ul li a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background-color: white;
+    transition: width 0.3s ease;
+}
+
+.navbar ul li a:hover::after {
+    width: 100%;
+}
+</style>
