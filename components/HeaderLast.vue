@@ -74,7 +74,7 @@ nav {
 }
 
 .navbar ul li {
-    margin-left: 40px;
+    margin-left: 5vw;
     font-size: 18px;
 }
 
@@ -97,7 +97,7 @@ nav {
 .navbar ul li a::after {
     content: '';
     position: absolute;
-    bottom: -2px;
+    bottom: 0px;
     left: 50%;
     transform: translateX(-50%);
     width: 0;
@@ -108,5 +108,49 @@ nav {
 
 .navbar ul li a:hover::after {
     width: 100%;
+}
+
+@media screen and (max-width: 940px) {
+    .logo h1 {
+        margin: 0;
+        color: white;
+        font-size: 20px;
+    }
+}
+
+@media screen and (max-width: 820px) {
+    nav {
+        width: 90%;
+        padding: 15px;
+    }
+
+    .logo h1 {
+        font-size: 20px;
+    }
+
+    .navbar ul {
+        align-items: center;
+    }
+
+    .navbar ul li {
+        margin-left: 20px;
+        font-size: 16px;
+    }
+
+    .navbar ul li:first-child {
+        margin-left: 0;
+    }
+
+    .navbar ul li a {
+        justify-content: center;
+    }
+
+    .navbar p {
+        display: none;
+    }
+
+    .navbar ul li a::after {
+        bottom: -8px;
+    }
 }
 </style>
