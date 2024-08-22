@@ -6,17 +6,20 @@
             </div>
             <div class="navbar">
                 <ul>
-                    <li><a href="#" id="index"><i class="fa-solid fa-dumbbell"></i>
+                    <li><a href="#" @click.prevent="activateTrainFlip" :class="{ active: isTrainFlipActive }">
+                            <i class="fa-solid fa-dumbbell"></i>
                             <p>Тренеру</p>
                         </a></li>
-                    <li><a href="#" id="index2"><i class="fa-solid fa-user-check"></i>
+                    <li><a href="#" @click.prevent="activateClientFlip" :class="{ active: !isTrainFlipActive }">
+                            <i class="fa-solid fa-user-check"></i>
                             <p>Клиенту</p>
                         </a></li>
-                    <li><a href="#" id="login" @click.prevent="openLoginModal"><i class="fa-solid fa-user"></i>
+                    <li><a href="#" @click.prevent="openLoginModal">
+                            <i class="fa-solid fa-user"></i>
                             <p>Вход</p>
                         </a></li>
-                    <li><a href="#" id="register" @click.prevent="openRegisterModal"><i
-                                class="fa-solid fa-user-plus"></i>
+                    <li><a href="#" @click.prevent="openRegisterModal">
+                            <i class="fa-solid fa-user-plus"></i>
                             <p>Регистрация</p>
                         </a></li>
                 </ul>
@@ -28,12 +31,19 @@
 <script>
 export default {
     name: 'HeaderLast',
+    props: ['isTrainFlipActive'],
     methods: {
         openLoginModal() {
             this.$emit('open-login-modal');
         },
         openRegisterModal() {
             this.$emit('open-register-modal');
+        },
+        activateTrainFlip() {
+            this.$emit('activate-train-flip');
+        },
+        activateClientFlip() {
+            this.$emit('activate-client-flip');
         }
     }
 }
@@ -43,7 +53,6 @@ export default {
 header {
     background-size: cover;
     background-position: center;
-    height: 20vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -88,6 +97,7 @@ nav {
     display: flex;
     align-items: center;
     position: relative;
+    transition: color 0.3s ease; /* Добавляем плавный переход для цвета текста */
 }
 
 .navbar p {
@@ -108,6 +118,15 @@ nav {
 
 .navbar ul li a:hover::after {
     width: 100%;
+}
+
+.navbar ul li a.active {
+    font-weight: bold;
+    color: #DD7548;
+}
+
+.navbar ul li a.active::after {
+    background-color: #DD7548;
 }
 
 @media screen and (max-width: 940px) {
@@ -153,4 +172,5 @@ nav {
         bottom: -8px;
     }
 }
+
 </style>

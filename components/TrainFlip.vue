@@ -1,0 +1,587 @@
+<template>
+    <main>
+        <p>Здесь вы найдете все необходимое для успешной работы тренера в спорте</p>
+
+        <div class="btn-container">
+            <button class="coach-btn">
+                <a href="#trainer-section">ТРЕНЕРСТВО</a>
+            </button>
+            <button class="schedule-btn">
+                <a href="#schedule-section">РАСПИСАНИЕ</a>
+            </button>
+        </div>
+
+        <div id="trainer-section" class="trainer-container">
+            <div class="background-rectangle"></div>
+            <img src="https://thumbs.dreamstime.com/b/close-up-man-feet-treadmill-male-legs-running-blurred-motion-71101484.jpg"
+                alt="Running on Treadmill">
+            <div class="trainer-info">
+                <h2>ЭФФЕКТИВНО ЛЕГКО УДОБНО</h2>
+                <p>У нас вы всегда будете в курсе актуальных новостей и событий в нашей индустрии. Мы предлагаем вам
+                    возможность вступить в наше уникальное комьюнити, где вы найдете не только возможности для
+                    взаимодействия, но и погружение в мир эффективности и профессионального роста. Здесь вы получите не
+                    только новейшие идеи от специалистов, но и будете вдохновлены для достижения новых высот в вашей
+                    работе. Наше комьюнити стремится предоставить вам инструменты и методики, которые окажутся
+                    незаменимыми в вашей работе и помогут вам достичь высоких результатов. </p>
+            </div>
+        </div>
+
+        <div class="advantage-container">
+            <h2 class="advantage-heading">В чем преимущество?<span class="line"></span></h2>
+            <div class="advantage-content">
+                <div class="advantage-block">
+                    <div class="icon">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
+                    <p>Строй своё рабочее расписание, определяй время работы с клиентами, перерывов, тренировками и
+                        другими задачами. Это поможет организовать рабочий день в наиболее эффективный и удобный для них
+                        способ.</p>
+                </div>
+                <div class="advantage-block">
+                    <div class="icon">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                    <p>Записывай и отслеживай свои задачи, а также отмечай их выполнение. Это поможет лучше планировать
+                        и контролировать свою работу, а также не забывать о важных делах.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="schedule-section" class="schedule-section">
+            <h2>Расписание</h2>
+            <p>Насколько оно важно для клиента?</p>
+
+            <div class="schedule-images">
+                <div class="background-rectangle"></div>
+
+                <div class="image-container">
+                    <div class="flip-card">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <img src="https://i.pinimg.com/originals/bb/13/ac/bb13ac3dd63fd93fe3b16b8d0fb635c9.jpg"
+                                    alt="Изображение 1" width="300" height="500" class="flip-image">
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="text-on-back">
+                                    <p>7:00 – Пробуждение <br> <br>
+                                        8:00-8:30 – Завтрак<br> <br>
+                                        9:00-11:00 – Работа с клиентом 1<br> <br>
+                                        11:30-13:30 – Работа с клиентом 2<br> <br>
+                                        13:30-14:30 – Обед<br><br>
+                                        14:30-16:30 – Работа с клиентом 3<br><br>
+                                        16:30-18:30 – Тренировка<br> <br>
+                                        19:00-20:00 – Ужин<br><br>
+                                        22:00 – Ложиться спать</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-container">
+                    <div class="flip-card">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <img src="https://i.pinimg.com/originals/5e/95/37/5e953797561655e176b16ba054548400.png"
+                                    alt="Изображение 1" width="300" height="500" class="flip-image">
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="text-on-back">
+                                    <p>Завтрак:<br>
+                                        1. Белковый смузи<br>
+                                        2. Омлет с овощами<br>
+                                        3. Тост с авокадо и лососем<br>
+                                        <br>
+                                        Обед:<br>
+                                        1. Куриные грудки с картофельным пюре<br>
+                                        2. Греческий йогурт с орехами и медом<br>
+                                        3. Киноа с овощами и куриной грудкой<br>
+                                        <br>
+                                        Ужин:<br>
+                                        1. Тунец на гриле с овощами<br>
+                                        2. Зеленый салат с крабовыми палочками<br>
+                                        3. Бруссельская капуста с куриным филе
+                                    </p>
+                                    <p></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-container">
+                    <div class="flip-card">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <img src="https://sun9-44.userapi.com/impg/rvI4M_XCHB9H3TlKQ6RA6r2c6-fLUY5YiZwviQ/KcstCwpM87Y.jpg?size=453x604&amp;quality=95&amp;sign=f6db54fc6c5152f645891bd5d556517f&amp;c_uniq_tag=rhl55Pcp69zwtPywQYPY5m4qFPzqRWoGxgAp868jfic&amp;type=album"
+                                    alt="Изображение 1" width="300" height="500" class="flip-image">
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="text-on-back">
+                                    <p>1. Приседания со штангой: для развития нижней части тела
+                                        <br><br>
+                                        2. Жим штанги лежа: развивает грудные мышцы, плечи и трицепсы
+                                        <br><br>
+                                        3. Тяга штанги к подбородку: работает с верхней частью тела и развивает спину,
+                                        плечи и бицепсы
+                                        <br><br>
+                                        4. Фронтальные подтягивания: тренировка силы и выносливости
+                                        <br><br>
+                                        5. Флеш-пресс: работает с мышцами кора
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="text-block">
+            <p>
+                Определите свои приоритеты, учтите свою энергетику, включите перерывы для отдыха, запланируйте время на
+                личные дела, оставьте «окно для неожиданностей» и постоянно анализируйте и адаптируйте свое расписание
+                для обеспечения эффективности и достижения поставленных задач.
+            </p>
+        </div>
+
+        <div class="useful-info">
+            <div class="icon">
+                <i class="fa-solid fa-sitemap"></i>
+            </div>
+            <div class="info-text">
+                <p>
+                    Treining territory представляет собой чёткую и интуитивно понятную платформу, которая позволяет
+                    клиентам выбрать тренера, <br>просмотреть его профиль, а также ознакомиться с предложенными
+                    программами тренировок
+                </p>
+            </div>
+        </div>
+
+        <div class="useful-info">
+            <div class="icon">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+            </div>
+            <div class="info-text">
+                <p>
+                    Мы предоставляем тренерам возможность задавать свою цену за тренировку, а также устанавливать гибкий
+                    график работы. <br>Это позволяет тренерам иметь полный контроль над своим доходом и гибкость в
+                    организации своей работы. <br>Наша платформа также поддерживает прозрачность и удобство в расчетах.
+                </p>
+            </div>
+        </div>
+    </main>
+</template>
+
+
+<style scoped>
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    padding: 0 15px;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+}
+
+a:hover {
+    color: #DD7548;
+}
+
+.btn-container {
+    margin-bottom: 20px;
+}
+
+.btn-container button {
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 18px;
+}
+
+.coach-btn {
+    background-color: #434343;
+    box-shadow: 0px 5px 0px #DD7548;
+    border: none;
+    color: white;
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 18px;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease-out;
+}
+
+.coach-btn:hover {
+    transform: translateY(-5px);
+}
+
+.coach-btn:hover a {
+    color: #DD7548;
+}
+
+.schedule-btn {
+    background-color: transparent;
+    border: none;
+    color: white;
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 18px;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease-out;
+}
+
+.schedule-btn:hover {
+    background-color: #434343;
+    transform: translateY(-5px);
+}
+
+.schedule-btn:hover a {
+    color: #DD7548;
+}
+
+.schedule-images img {
+    border-radius: 20px;
+    margin-right: 10px;
+}
+
+.trainer-container {
+    display: flex;
+    position: relative;
+    width: 90%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.background-rectangle {
+    position: absolute;
+    background-color: #454645;
+    height: 250px;
+    width: 90%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    border-radius: 10px;
+    z-index: -1;
+    margin-top: 25vh;
+}
+
+.trainer-container img {
+    width: 300px;
+    height: 400px;
+    border-radius: 10px;
+    margin-right: 50px;
+}
+
+.trainer-info {
+    width: 60%;
+}
+
+.trainer-info p {
+    color: white;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.advantage-container {
+    text-align: center;
+    margin-top: 10px;
+    width: 90%;
+    max-width: 1000px;
+}
+
+.advantage-heading {
+    color: #ffffff;
+    font-size: 32px;
+}
+
+.line {
+    display: inline-block;
+    width: 30px;
+    height: 2px;
+    background-color: #DD7548;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.advantage-block {
+    width: 48%;
+}
+
+.fa-solid,
+.fas {
+    font-weight: 900;
+}
+
+.fa-classic,
+.fa-regular,
+.fa-solid,
+.far,
+.fas {
+    font-family: "Font Awesome 6 Free";
+}
+
+.fa,
+.fa-brands,
+.fa-classic,
+.fa-regular,
+.fa-sharp,
+.fa-solid,
+.fab,
+.far,
+.fas {
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    display: var(--fa-display, inline-block);
+    font-style: normal;
+    font-variant: normal;
+    line-height: 1;
+    text-rendering: auto;
+}
+
+.icon i.fa-solid.fa-sitemap,
+.fa-file-invoice-dollar,
+.fa-calendar-check,
+.fa-clipboard-list {
+    font-size: 70px;
+    color: #DD7548;
+    margin: 30px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.icon i:hover {
+    animation: rotateIcon 0.6s ease-in-out forwards;
+}
+
+@keyframes rotateIcon {
+    0% {
+        transform: rotate(0);
+    }
+
+    33% {
+        transform: rotate(-15deg);
+    }
+
+    66% {
+        transform: rotate(12deg);
+    }
+
+    100% {
+        transform: rotate(0);
+    }
+}
+
+.advantage-content {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.schedule-section {
+    text-align: center;
+    margin-top: 10px;
+    width: 90%;
+    max-width: 1000px;
+    color: white;
+}
+
+.schedule-section h2 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.schedule-section p {
+    font-size: 20px;
+    margin-bottom: 30px;
+}
+
+.schedule-images {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.schedule-images .image-container {
+    position: relative;
+    width: 300px;
+    height: 500px;
+    margin-right: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.flip-card {
+    perspective: 1000px;
+}
+
+.flip-card-inner {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+}
+
+.flip-card-back {
+    transform: rotateY(180deg);
+    background-color: #f1f1f1;
+}
+
+.text-on-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 470px;
+    padding: 20px;
+    text-align: center;
+}
+
+.text-block {
+    width: 80%;
+    margin: 20px auto;
+    text-align: center;
+    color: white;
+}
+
+.useful-info {
+    display: flex;
+    align-items: center;
+    margin-top: 50px;
+    width: 90vw;
+}
+
+.info-text p {
+    font-size: 18px;
+    line-height: 1.6;
+    color: white;
+    margin-left: 40px;
+}
+
+/* Медиазапросы для адаптации */
+@media screen and (max-width: 1200px) {
+    .trainer-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .trainer-info {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .advantage-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .advantage-block {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .schedule-images {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .schedule-images .image-container {
+        margin-bottom: 20px;
+    }
+
+    .trainer-container img {
+        margin-right: 0;
+    }
+}
+
+@media screen and (max-width: 768px) {
+
+    .background-rectangle {
+        display: none;
+    }
+
+    .trainer-info p {
+        font-size: 14px;
+    }
+
+    .text-block {
+        width: 100%;
+    }
+
+    .info-text p {
+        font-size: 16px;
+        margin-left: 20px;
+    }
+
+    .icon i {
+        font-size: 50px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .trainer-container img {
+        width: 100%;
+        height: auto;
+    }
+
+    .advantage-content {
+        flex-direction: column;
+    }
+
+    .advantage-block {
+        width: 100%;
+    }
+
+    .schedule-images {
+        flex-direction: column;
+    }
+
+    .text-block p {
+        font-size: 14px;
+    }
+
+    .info-text p {
+        font-size: 14px;
+        margin-left: 10px;
+    }
+
+    .icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .icon i {
+        width: 40px;
+        height: 40px;
+        font-size: 40px !important;
+    }
+
+}
+
+@media screen and (max-width: 455px) {
+    .btn-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+}
+</style>
