@@ -20,7 +20,7 @@ const Workout = sequelize.define('Workout', {
     allowNull: true,
   },
   Длительность: {
-    type: DataTypes.INTERVAL,
+    type: DataTypes.STRING, // Хранение как строка
     allowNull: true,
   },
   Дата: {
@@ -31,16 +31,16 @@ const Workout = sequelize.define('Workout', {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
-      model: 'Тренеры', // Имя таблицы, к которой ссылается внешний ключ
-      key: 'coachid',  // Поле, на которое ссылается внешний ключ
+      model: 'Тренеры',
+      key: 'coachid',
     }
   },
   id_упражнения: {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
-      model: 'Упражнения', // Имя таблицы, к которой ссылается внешний ключ
-      key: 'exerciseid', // Поле, на которое ссылается внешний ключ
+      model: 'Упражнения',
+      key: 'exerciseid',
     }
   }
 }, {

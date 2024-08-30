@@ -79,6 +79,6 @@ button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin: 20px 0;
+    margin: 5px 0;
 }
 </style>

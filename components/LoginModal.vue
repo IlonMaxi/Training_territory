@@ -5,26 +5,51 @@
             <h2>Войти</h2>
             <div class="login-section">
                 <div class="branding">
-                    <p>AGAIN</p>
-                    <p>AGAIN</p>
-                    <p>AGAIN</p>
-                    <p>AGAIN</p>
-                    <p>AGAIN</p>
+                    <div>
+                        <p>A</p>
+                        <p>GAIN</p>
+                    </div>
+                    <div>
+                        <p id="p1">A</p>
+                        <p>GAIN</p>
+                    </div>
+                    <div>
+                        <p id="p2">A</p>
+                        <p>GAIN</p>
+                    </div>
+                    <div>
+                        <p id="p3">A</p>
+                        <p>GAIN</p>
+                    </div>
+                    <div>
+                        <p id="p4">A</p>
+                        <p>GAIN</p>
+                    </div>
                 </div>
                 <form @submit.prevent="login">
                     <label>
-                        ЛОГИН
-                        <input type="text" v-model="username" required>
+                        <span class="label-text">ЛОГИН / email И ПАРОЛЬ</span>
+                        <div class="login-password-fields">
+                            <input type="text" id="username" v-model="username" placeholder="Логин или email" required>
+                            <input type="password" id="password" v-model="password" placeholder="Пароль" required>
+                        </div>
                     </label>
                     <label>
-                        ПАРОЛЬ
-                        <input type="password" v-model="password" required>
+                        <span class="label-text">ТИП АККАУНТА</span>
+                        <div class="account-type">
+                            <label>
+                                <input type="radio" v-model="accountType" value="trainer" required>
+                                Тренер
+                            </label>
+                            <label>
+                                <input type="radio" v-model="accountType" value="client" required>
+                                Клиент
+                            </label>
+                        </div>
                     </label>
-                    <button type="submit" class="login-button">ВОЙТИ</button>
-
-                    <div class="register-link">
-                        <p id="notReg">Нет аккаунта?</p>
-                        <button type="button" @click="goToRegister">Регистрация</button>
+                    <div class="button-group">
+                        <button type="submit" class="login-button">ВОЙТИ</button>
+                        <button type="button" class="register-link" @click="goToRegister">НЕТ АККАУНТА</button>
                     </div>
                 </form>
             </div>
@@ -44,7 +69,8 @@ export default {
     data() {
         return {
             username: '',
-            password: ''
+            password: '',
+            accountType: ''  // Добавлено для привязки к выбору типа аккаунта
         };
     },
     methods: {
@@ -53,7 +79,7 @@ export default {
         },
         login() {
             // Логика для входа пользователя
-            console.log('Логин:', this.username, 'Пароль:', this.password);
+            console.log('Логин:', this.username, 'Пароль:', this.password, 'Тип аккаунта:', this.accountType);
             this.closeModal();
         },
         goToRegister() {
@@ -79,17 +105,19 @@ export default {
 }
 
 h2 {
-    padding-left: 45%;
-    padding-right: 45%;
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 .modal {
     background: #333;
     color: white;
-    padding: 20px;
+    padding: 40px;
     border-radius: 10px;
-    width: 400px;
+    width: 70vw;
     position: relative;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .close {
@@ -105,67 +133,141 @@ h2 {
 
 .login-section {
     display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .branding {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     margin-right: 20px;
+    padding-bottom: 30px;
 }
 
 .branding p {
     margin: 0;
     font-size: 24px;
-    color: #666;
+    color: #ffffff;
+    display: inline-block;
+    letter-spacing: 0;
+    /* To ensure no gaps */
+}
+
+#p1 {
+    opacity: 75%;
+}
+
+#p2 {
+    opacity: 50%;
+}
+
+#p3 {
+    opacity: 25%;
+}
+
+#p4 {
+    opacity: 0%;
 }
 
 form {
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
 }
 
 form label {
-    display: block;
+    align-items: flex-start;
     margin-bottom: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: left;
 }
 
-form input {
-    width: 280px;
-    padding: 10px;
+.label-text {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.login-password-fields {
+    display: flex;
+    gap: 10px;
     margin-top: 5px;
+}
+
+.login-password-fields input {
+    flex: 1;
+    padding: 10px;
     border-radius: 5px;
     border: 1px solid #ccc;
     background-color: #444;
     color: white;
 }
 
-.login-button {
-    width: 150px;
+.button-group {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.login-button,
+.register-link {
     padding: 10px;
     background: #FF5733;
     border: none;
     color: white;
-    font-size: 16px;
+    font-size: 14px;
     border-radius: 5px;
     cursor: pointer;
-}
-
-.register-link {
+    width: 50%;
     text-align: center;
 }
 
-.register-link button {
-    width: 150px;
+.register-link {
     background: white;
     color: #FF5733;
     border: 1px solid #FF5733;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
 }
 
-#notReg {
-    font-size: 12px;
+.account-type label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #444;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+    margin-bottom: 0;
+    border: 1px solid #ccc;
 }
-</style>
+
+.account-type {
+    margin-top: 5px;
+    display: flex;
+    gap: 10px;
+}
+
+@media (max-width: 768px) {
+    .branding {
+        display: none;
+    }
+
+    .login-password-fields {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .login-password-fields input {
+        max-width: none;
+    }
+
+    .login-button,
+    .register-link {
+        max-width: none;
+        width: 100%;
+    }
+}
+</style>ы

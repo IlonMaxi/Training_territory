@@ -44,4 +44,4 @@ const ZameryVKg = sequelize.define('KgMeasurement', {
   timestamps: false,
 });
 
-module.exports = KgMeasurement;
+module.exports = ZameryVKg;

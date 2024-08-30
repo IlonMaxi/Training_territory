@@ -40,4 +40,4 @@ const ZameryVSm = sequelize.define('SmMeasurement', {
   timestamps: false,
 });
 
-module.exports = SmMeasurement;
+module.exports = ZameryVSm;

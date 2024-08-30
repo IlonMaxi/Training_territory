@@ -1,6 +1,12 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors'); // Подключаем модуль cors
+
+// Импортируем необходимые модули в начале файла
+const bcrypt = require('bcrypt');
+
+// Импорт моделей
 const Coach = require('../models/Coach');
 const Client = require('../models/Client');
 const Exercise = require('../models/Exercise');
@@ -16,6 +22,15 @@ const Workout = require('../models/Workout');
 const Payment = require('../models/Payment');
 
 const app = express();
+const { Op } = require('sequelize');
+
+
+// Настройка CORS
+app.use(cors({
+    origin: 'http://192.168.0.108:3000' // Укажите ваш фронтенд адрес
+}));
+
+// Поддержка JSON тела запроса
 app.use(bodyParser.json());
 
 // Маршруты для тренеров
@@ -28,14 +43,58 @@ app.get('/coaches', async (req, res) => {
   }
 });
 
-app.post('/coaches', async (req, res) => {
+// Вход для тренера
+app.post('/login/coaches', async (req, res) => {
+  const { Логин, Пароль } = req.body;  // Изменено на Логин и Пароль
   try {
-    const coach = await Coach.create(req.body);
-    res.status(201).json(coach);
+    const coach = await Coach.findOne({
+      where: {
+        [Op.or]: [{ Логин }, { Адрес_электронной_почты: Логин }]  // Поиск по Логину или Email
+      }
+    });
+
+    if (!coach) {
+      return res.status(404).json({ error: 'Тренер не найден' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(Пароль, coach.Пароль);  // Проверка пароля
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Неправильный пароль' });
+    }
+
+    res.status(200).json({ message: 'Вход успешен', user: coach });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
+
+app.post('/coaches', async (req, res) => {
+  const { Фамилия, Имя, Отчество, Логин, Пароль, Номер_телефона, Адрес_электронной_почты, Дата_рождения, Пол } = req.body;
+
+  try {
+      // Хешируем пароль перед сохранением
+      const hashedPassword = await bcrypt.hash(Пароль, 10);
+
+      // Сохраняем тренера с захешированным паролем
+      const newCoach = await Coach.create({
+          Фамилия,
+          Имя,
+          Отчество,
+          Логин,
+          Пароль: hashedPassword, // Захешированный пароль
+          Номер_телефона,
+          Адрес_электронной_почты,
+          Дата_рождения,
+          Пол
+      });
+
+      res.status(201).json(newCoach);
+  } catch (error) {
+      console.error('Ошибка при регистрации:', error);
+      res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
 
 // Маршруты для клиентов
 app.get('/clients', async (req, res) => {
@@ -47,12 +106,56 @@ app.get('/clients', async (req, res) => {
   }
 });
 
-app.post('/clients', async (req, res) => {
+// Вход для клиента
+app.post('/login/clients', async (req, res) => {
+  const { Логин, Пароль } = req.body;  // Изменено на Логин и Пароль
   try {
-    const client = await Client.create(req.body);
-    res.status(201).json(client);
+    const client = await Client.findOne({
+      where: {
+        [Op.or]: [{ Логин }, { Адрес_электронной_почты: Логин }]  // Поиск по Логину или Email
+      }
+    });
+
+    if (!client) {
+      return res.status(404).json({ error: 'Пользователь не найден' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(Пароль, client.Пароль);  // Проверка пароля
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Неправильный пароль' });
+    }
+
+    res.status(200).json({ message: 'Вход успешен', user: client });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Пример обработки маршрута для регистрации пользователя
+app.post('/clients', async (req, res) => {
+  const { Фамилия, Имя, Отчество, Логин, Пароль, Номер_телефона, Адрес_электронной_почты, Дата_рождения, Пол } = req.body;
+
+  try {
+      // Хешируем пароль перед сохранением
+      const hashedPassword = await bcrypt.hash(Пароль, 10);
+
+      // Сохраняем пользователя с захешированным паролем
+      const newUser = await Client.create({
+          Фамилия,
+          Имя,
+          Отчество,
+          Логин,
+          Пароль: hashedPassword, // Захешированный пароль
+          Номер_телефона,
+          Адрес_электронной_почты,
+          Дата_рождения,
+          Пол
+      });
+
+      res.status(201).json(newUser);
+  } catch (error) {
+      console.error('Ошибка при регистрации:', error);
+      res.status(500).json({ error: 'Ошибка сервера' });
   }
 });
 
@@ -262,6 +365,35 @@ app.post('/payments', async (req, res) => {
     res.status(201).json(payment);
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+});
+
+// Регистрация пользователя
+app.post('/register', async (req, res) => {
+  const { name, email, password, userType } = req.body;
+
+  try {
+      // Хеширование пароля перед сохранением
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      let user;
+      if (userType === 'coach') {
+          user = await Coach.create({
+              Имя: name,
+              Адрес_электронной_почты: email,
+              Пароль: hashedPassword // Сохраняем захешированный пароль
+          });
+      } else {
+          user = await Client.create({
+              Имя: name,
+              Адрес_электронной_почты: email,
+              Пароль: hashedPassword // Сохраняем захешированный пароль
+          });
+      }
+
+      res.status(201).json(user);
+  } catch (error) {
+      res.status(400).json({ error: error.message });
   }
 });
 

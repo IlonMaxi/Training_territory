@@ -9,7 +9,9 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "core-js": "^3.25.3",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "nuxt": "^2.15.8",
     "pg": "^8.12.0",
