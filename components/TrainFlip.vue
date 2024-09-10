@@ -11,148 +11,76 @@
             </button>
         </div>
 
+        <!-- Секция "Тренерство" с FlipWords -->
         <div id="trainer-section" class="trainer-container">
             <div class="background-rectangle"></div>
             <img src="https://thumbs.dreamstime.com/b/close-up-man-feet-treadmill-male-legs-running-blurred-motion-71101484.jpg"
-                alt="Running on Treadmill">
+                alt="Running on Treadmill" />
             <div class="trainer-info">
-                <h2>ЭФФЕКТИВНО ЛЕГКО УДОБНО</h2>
-                <p>У нас вы всегда будете в курсе актуальных новостей и событий в нашей индустрии. Мы предлагаем вам
-                    возможность вступить в наше уникальное комьюнити, где вы найдете не только возможности для
-                    взаимодействия, но и погружение в мир эффективности и профессионального роста. Здесь вы получите не
-                    только новейшие идеи от специалистов, но и будете вдохновлены для достижения новых высот в вашей
-                    работе. Наше комьюнити стремится предоставить вам инструменты и методики, которые окажутся
-                    незаменимыми в вашей работе и помогут вам достичь высоких результатов. </p>
+                <h2>
+                    <FlipWords :words="['ЭФФЕКТИВНО', 'ЛЕГКО', 'УДОБНО']" />
+                </h2>
+                <p>
+                    У нас вы всегда будете в курсе актуальных новостей и событий в нашей
+                    индустрии. Мы предлагаем вам возможность вступить в наше уникальное
+                    комьюнити, где вы найдете не только возможности для взаимодействия,
+                    но и погружение в мир эффективности и профессионального роста...
+                </p>
             </div>
         </div>
 
+        <!-- Преимущества -->
         <div class="advantage-container">
-            <h2 class="advantage-heading">В чем преимущество?<span class="line"></span></h2>
+            <h2 class="advantage-heading">
+                В чем преимущество?<span class="line"></span>
+            </h2>
             <div class="advantage-content">
                 <div class="advantage-block">
                     <div class="icon">
                         <i class="fa-solid fa-clipboard-list"></i>
                     </div>
-                    <p>Строй своё рабочее расписание, определяй время работы с клиентами, перерывов, тренировками и
-                        другими задачами. Это поможет организовать рабочий день в наиболее эффективный и удобный для них
-                        способ.</p>
+                    <p>
+                        Строй своё рабочее расписание, определяй время работы с клиентами,
+                        перерывов, тренировками и другими задачами...
+                    </p>
                 </div>
                 <div class="advantage-block">
                     <div class="icon">
                         <i class="fa-solid fa-calendar-check"></i>
                     </div>
-                    <p>Записывай и отслеживай свои задачи, а также отмечай их выполнение. Это поможет лучше планировать
-                        и контролировать свою работу, а также не забывать о важных делах.</p>
+                    <p>
+                        Записывай и отслеживай свои задачи, а также отмечай их выполнение...
+                    </p>
                 </div>
             </div>
         </div>
 
+        <!-- Секция с расписанием -->
         <div id="schedule-section" class="schedule-section">
             <h2>Расписание</h2>
             <p>Насколько оно важно для клиента?</p>
-
             <div class="schedule-images">
                 <div class="background-rectangle"></div>
-
-                <div class="image-container">
-                    <div class="flip-card">
-                        <div class="flip-card-inner">
-                            <div class="flip-card-front">
-                                <img src="https://i.pinimg.com/originals/bb/13/ac/bb13ac3dd63fd93fe3b16b8d0fb635c9.jpg"
-                                    alt="Изображение 1" width="300" height="500" class="flip-image">
-                            </div>
-                            <div class="flip-card-back">
-                                <div class="text-on-back">
-                                    <p>7:00 – Пробуждение <br> <br>
-                                        8:00-8:30 – Завтрак<br> <br>
-                                        9:00-11:00 – Работа с клиентом 1<br> <br>
-                                        11:30-13:30 – Работа с клиентом 2<br> <br>
-                                        13:30-14:30 – Обед<br><br>
-                                        14:30-16:30 – Работа с клиентом 3<br><br>
-                                        16:30-18:30 – Тренировка<br> <br>
-                                        19:00-20:00 – Ужин<br><br>
-                                        22:00 – Ложиться спать</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="image-container">
-                    <div class="flip-card">
-                        <div class="flip-card-inner">
-                            <div class="flip-card-front">
-                                <img src="https://i.pinimg.com/originals/5e/95/37/5e953797561655e176b16ba054548400.png"
-                                    alt="Изображение 1" width="300" height="500" class="flip-image">
-                            </div>
-                            <div class="flip-card-back">
-                                <div class="text-on-back">
-                                    <p>Завтрак:<br>
-                                        1. Белковый смузи<br>
-                                        2. Омлет с овощами<br>
-                                        3. Тост с авокадо и лососем<br>
-                                        <br>
-                                        Обед:<br>
-                                        1. Куриные грудки с картофельным пюре<br>
-                                        2. Греческий йогурт с орехами и медом<br>
-                                        3. Киноа с овощами и куриной грудкой<br>
-                                        <br>
-                                        Ужин:<br>
-                                        1. Тунец на гриле с овощами<br>
-                                        2. Зеленый салат с крабовыми палочками<br>
-                                        3. Бруссельская капуста с куриным филе
-                                    </p>
-                                    <p></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="image-container">
-                    <div class="flip-card">
-                        <div class="flip-card-inner">
-                            <div class="flip-card-front">
-                                <img src="https://sun9-44.userapi.com/impg/rvI4M_XCHB9H3TlKQ6RA6r2c6-fLUY5YiZwviQ/KcstCwpM87Y.jpg?size=453x604&amp;quality=95&amp;sign=f6db54fc6c5152f645891bd5d556517f&amp;c_uniq_tag=rhl55Pcp69zwtPywQYPY5m4qFPzqRWoGxgAp868jfic&amp;type=album"
-                                    alt="Изображение 1" width="300" height="500" class="flip-image">
-                            </div>
-                            <div class="flip-card-back">
-                                <div class="text-on-back">
-                                    <p>1. Приседания со штангой: для развития нижней части тела
-                                        <br><br>
-                                        2. Жим штанги лежа: развивает грудные мышцы, плечи и трицепсы
-                                        <br><br>
-                                        3. Тяга штанги к подбородку: работает с верхней частью тела и развивает спину,
-                                        плечи и бицепсы
-                                        <br><br>
-                                        4. Фронтальные подтягивания: тренировка силы и выносливости
-                                        <br><br>
-                                        5. Флеш-пресс: работает с мышцами кора
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+                <!-- Добавьте вашу структуру карт с расписанием здесь -->
             </div>
         </div>
 
+        <!-- Блок текста -->
         <div class="text-block">
             <p>
-                Определите свои приоритеты, учтите свою энергетику, включите перерывы для отдыха, запланируйте время на
-                личные дела, оставьте «окно для неожиданностей» и постоянно анализируйте и адаптируйте свое расписание
-                для обеспечения эффективности и достижения поставленных задач.
+                Определите свои приоритеты, учтите свою энергетику, включите перерывы...
             </p>
         </div>
 
+        <!-- Полезная информация -->
         <div class="useful-info">
             <div class="icon">
                 <i class="fa-solid fa-sitemap"></i>
             </div>
             <div class="info-text">
                 <p>
-                    Treining territory представляет собой чёткую и интуитивно понятную платформу, которая позволяет
-                    клиентам выбрать тренера, <br>просмотреть его профиль, а также ознакомиться с предложенными
-                    программами тренировок
+                    Treining territory представляет собой чёткую и интуитивно понятную
+                    платформу...
                 </p>
             </div>
         </div>
@@ -163,15 +91,16 @@
             </div>
             <div class="info-text">
                 <p>
-                    Мы предоставляем тренерам возможность задавать свою цену за тренировку, а также устанавливать гибкий
-                    график работы. <br>Это позволяет тренерам иметь полный контроль над своим доходом и гибкость в
-                    организации своей работы. <br>Наша платформа также поддерживает прозрачность и удобство в расчетах.
+                    Мы предоставляем тренерам возможность задавать свою цену за тренировку...
                 </p>
             </div>
         </div>
     </main>
 </template>
 
+<script setup>
+import FlipWords from "@/components/FlipWords.vue"; // Компонент с анимацией слов
+</script>
 
 <style scoped>
 main {
@@ -252,7 +181,7 @@ a:hover {
     margin: 0 auto;
 }
 
-.background-rectangle {
+/* .background-rectangle {
     position: absolute;
     background-color: #454645;
     height: 250px;
@@ -262,7 +191,7 @@ a:hover {
     border-radius: 10px;
     z-index: -1;
     margin-top: 25vh;
-}
+} */
 
 .trainer-container img {
     width: 300px;
@@ -461,7 +390,6 @@ a:hover {
     display: flex;
     align-items: center;
     margin-top: 50px;
-    width: 90vw;
 }
 
 .info-text p {
