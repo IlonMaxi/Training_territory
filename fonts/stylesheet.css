@@ -1,0 +1,36 @@
+@font-face {
+    font-family: 'Lekton';
+    src: url('Lekton-Bold.eot');
+    src: local('Lekton-Bold'),
+        url('Lekton-Bold.eot?#iefix') format('embedded-opentype'),
+        url('Lekton-Bold.woff2') format('woff2'),
+        url('Lekton-Bold.woff') format('woff'),
+        url('Lekton-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Lekton';
+    src: url('Lekton-Italic.eot');
+    src: local('Lekton-Italic'),
+        url('Lekton-Italic.eot?#iefix') format('embedded-opentype'),
+        url('Lekton-Italic.woff2') format('woff2'),
+        url('Lekton-Italic.woff') format('woff'),
+        url('Lekton-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Lekton';
+    src: url('Lekton-Regular.eot');
+    src: local('Lekton'), local('Lekton-Regular'),
+        url('Lekton-Regular.eot?#iefix') format('embedded-opentype'),
+        url('Lekton-Regular.woff2') format('woff2'),
+        url('Lekton-Regular.woff') format('woff'),
+        url('Lekton-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+

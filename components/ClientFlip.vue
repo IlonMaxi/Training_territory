@@ -193,6 +193,17 @@ export default {
 };
 </script>
 
+<style>
+body {
+    font-family: 'Lekton', sans-serif;
+}
+
+@font-face {
+    font-family: 'Lekton';
+    src: url(/fonts/Lekton-Regular.woff2)format('woff2'), url(/fonts/Lekton-Regular.woff)format('woff');
+}
+</style>
+
 <style scoped>
 main {
     display: flex;
