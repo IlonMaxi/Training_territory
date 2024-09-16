@@ -69,14 +69,8 @@ export default {
     margin-top: 50px;
 }
 
-@font-face {
-    font-family: 'Lekton';
-    src: url(/fonts/Lekton-Regular.woff2)format('woff2'), url(/fonts/Lekton-Regular.woff)format('woff');
-}
-
 .footer-title {
     margin-bottom: 20px;
-    font-family: 'Lekton', sans-serif;
 }
 
 .footer-links {

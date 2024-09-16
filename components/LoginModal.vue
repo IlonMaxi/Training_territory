@@ -7,23 +7,23 @@
                 <div class="branding">
                     <div>
                         <p>A</p>
-                        <p>G A I N</p>
+                        <p>GAIN</p>
                     </div>
                     <div>
                         <p id="p1">A</p>
-                        <p>G A I N</p>
+                        <p>GAIN</p>
                     </div>
                     <div>
                         <p id="p2">A</p>
-                        <p>G A I N</p>
+                        <p>GAIN</p>
                     </div>
                     <div>
                         <p id="p3">A</p>
-                        <p>G A I N</p>
+                        <p>GAIN</p>
                     </div>
                     <div>
                         <p id="p4">A</p>
-                        <p>G A I N</p>
+                        <p>GAIN</p>
                     </div>
                 </div>
                 <form @submit.prevent="login">
