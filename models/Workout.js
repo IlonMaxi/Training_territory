@@ -1,5 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const Exercise = require('./Exercise'); // Импортируем модель упражнений
 
 const Workout = sequelize.define('Workout', {
   workoutid: {
@@ -23,10 +24,6 @@ const Workout = sequelize.define('Workout', {
     type: DataTypes.STRING, // Хранение как строка
     allowNull: true,
   },
-  Дата: {
-    type: DataTypes.DATE,
-    allowNull: true,
-  },
   id_тренера: {
     type: DataTypes.INTEGER,
     allowNull: true,
@@ -40,12 +37,18 @@ const Workout = sequelize.define('Workout', {
     allowNull: true,
     references: {
       model: 'Упражнения',
-      key: 'exerciseid',
+      key: 'exercisesid',
     }
   }
 }, {
   tableName: 'Тренировки',
   timestamps: false,
+});
+
+// Определение связи с упражнениями
+Workout.belongsTo(Exercise, {
+  foreignKey: 'id_упражнения',
+  as: 'exercise'
 });
 
 module.exports = Workout;

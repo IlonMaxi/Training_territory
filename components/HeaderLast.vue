@@ -97,7 +97,7 @@ nav {
     display: flex;
     align-items: center;
     position: relative;
-    transition: color 0.3s ease; /* Добавляем плавный переход для цвета текста */
+    transition: color 0.3s ease;
 }
 
 .navbar p {

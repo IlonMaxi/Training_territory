@@ -3,35 +3,16 @@
         <div class="modal">
             <button class="close" @click="closeModal">✖</button>
             <h2>Войти</h2>
+
+            <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+
             <div class="login-section">
-                <div class="branding">
-                    <div>
-                        <p>A</p>
-                        <p>GAIN</p>
-                    </div>
-                    <div>
-                        <p id="p1">A</p>
-                        <p>GAIN</p>
-                    </div>
-                    <div>
-                        <p id="p2">A</p>
-                        <p>GAIN</p>
-                    </div>
-                    <div>
-                        <p id="p3">A</p>
-                        <p>GAIN</p>
-                    </div>
-                    <div>
-                        <p id="p4">A</p>
-                        <p>GAIN</p>
-                    </div>
-                </div>
                 <form @submit.prevent="login">
                     <label>
                         <span class="label-text">ЛОГИН / email И ПАРОЛЬ</span>
                         <div class="login-password-fields">
-                            <input type="text" id="username" v-model="username" placeholder="Логин или email" required>
-                            <input type="password" id="password" v-model="password" placeholder="Пароль" required>
+                            <input type="text" v-model="username" placeholder="Логин или email" required>
+                            <input type="password" v-model="password" placeholder="Пароль" required>
                         </div>
                     </label>
                     <label>
@@ -70,25 +51,73 @@ export default {
         return {
             username: '',
             password: '',
-            accountType: ''  // Добавлено для привязки к выбору типа аккаунта
+            accountType: '',
+            errorMessage: '' // Сообщение об ошибке
         };
     },
     methods: {
         closeModal() {
             this.$emit('close');
+            this.errorMessage = ''; // Сброс сообщения об ошибке при закрытии
         },
-        login() {
-            // Логика для входа пользователя
-            console.log('Логин:', this.username, 'Пароль:', this.password, 'Тип аккаунта:', this.accountType);
-            this.closeModal();
+        async login() {
+            this.errorMessage = ''; // Сброс перед новым входом
+            if (this.username && this.password && this.accountType) {
+                const url = this.accountType === 'trainer'
+                    ? 'http://25.22.135.216:3000/api/login/coaches'
+                    : 'http://25.22.135.216:3000/api/login/clients';
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            Логин: this.username,
+                            Пароль: this.password
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        console.log('Вход успешен:', data);
+                        this.closeModal();
+                        this.$router.push({
+                            name: 'TrainerPage', // Если тренер, идем на страницу тренера
+                            params: { coachid: data.user.coachid } // Передаем coachid
+                        });
+                    } else {
+                        this.errorMessage = data.error || 'Произошла ошибка при входе';
+                    }
+                } catch (error) {
+                    this.errorMessage = 'Ошибка сети. Пожалуйста, попробуйте позже.';
+                    console.error('Ошибка сети:', error);
+                }
+            } else {
+                this.errorMessage = 'Не все данные заполнены';
+            }
         },
         goToRegister() {
-            // Логика для перехода к окну регистрации
             this.$emit('go-to-register');
         }
     }
 };
 </script>
+
+<style>
+.error-message {
+    background-color: red;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;  /* Отступ между сообщением об ошибке и формой */
+}
+</style>
 
 <style scoped>
 .modal-overlay {
@@ -107,6 +136,9 @@ export default {
 h2 {
     text-align: center;
     margin-bottom: 20px;
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: x-large;
 }
 
 .modal {
@@ -270,4 +302,4 @@ form label {
         width: 100%;
     }
 }
-</style>ы
+</style>

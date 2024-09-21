@@ -27,7 +27,7 @@ const { Op } = require('sequelize');
 
 // Настройка CORS
 app.use(cors({
-    origin: 'http://192.168.0.108:3000' // Укажите ваш фронтенд адрес
+  origin: 'http://25.22.135.216:3000' // Укажите ваш фронтенд адрес
 }));
 
 // Поддержка JSON тела запроса
@@ -72,26 +72,26 @@ app.post('/coaches', async (req, res) => {
   const { Фамилия, Имя, Отчество, Логин, Пароль, Номер_телефона, Адрес_электронной_почты, Дата_рождения, Пол } = req.body;
 
   try {
-      // Хешируем пароль перед сохранением
-      const hashedPassword = await bcrypt.hash(Пароль, 10);
+    // Хешируем пароль перед сохранением
+    const hashedPassword = await bcrypt.hash(Пароль, 10);
 
-      // Сохраняем тренера с захешированным паролем
-      const newCoach = await Coach.create({
-          Фамилия,
-          Имя,
-          Отчество,
-          Логин,
-          Пароль: hashedPassword, // Захешированный пароль
-          Номер_телефона,
-          Адрес_электронной_почты,
-          Дата_рождения,
-          Пол
-      });
+    // Сохраняем тренера с захешированным паролем
+    const newCoach = await Coach.create({
+      Фамилия,
+      Имя,
+      Отчество,
+      Логин,
+      Пароль: hashedPassword, // Захешированный пароль
+      Номер_телефона,
+      Адрес_электронной_почты,
+      Дата_рождения,
+      Пол
+    });
 
-      res.status(201).json(newCoach);
+    res.status(201).json(newCoach);
   } catch (error) {
-      console.error('Ошибка при регистрации:', error);
-      res.status(500).json({ error: 'Ошибка сервера' });
+    console.error('Ошибка при регистрации:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
   }
 });
 
@@ -136,26 +136,26 @@ app.post('/clients', async (req, res) => {
   const { Фамилия, Имя, Отчество, Логин, Пароль, Номер_телефона, Адрес_электронной_почты, Дата_рождения, Пол } = req.body;
 
   try {
-      // Хешируем пароль перед сохранением
-      const hashedPassword = await bcrypt.hash(Пароль, 10);
+    // Хешируем пароль перед сохранением
+    const hashedPassword = await bcrypt.hash(Пароль, 10);
 
-      // Сохраняем пользователя с захешированным паролем
-      const newUser = await Client.create({
-          Фамилия,
-          Имя,
-          Отчество,
-          Логин,
-          Пароль: hashedPassword, // Захешированный пароль
-          Номер_телефона,
-          Адрес_электронной_почты,
-          Дата_рождения,
-          Пол
-      });
+    // Сохраняем пользователя с захешированным паролем
+    const newUser = await Client.create({
+      Фамилия,
+      Имя,
+      Отчество,
+      Логин,
+      Пароль: hashedPassword, // Захешированный пароль
+      Номер_телефона,
+      Адрес_электронной_почты,
+      Дата_рождения,
+      Пол
+    });
 
-      res.status(201).json(newUser);
+    res.status(201).json(newUser);
   } catch (error) {
-      console.error('Ошибка при регистрации:', error);
-      res.status(500).json({ error: 'Ошибка сервера' });
+    console.error('Ошибка при регистрации:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
   }
 });
 
@@ -292,6 +292,66 @@ app.post('/schedule', async (req, res) => {
   }
 });
 
+app.get('/schedule/:coachid', async (req, res) => {
+  const { coachid } = req.params; // Получаем ID тренера из параметров
+
+  try {
+    const schedule = await Schedule.findAll({
+      where: {
+        id_тренера: coachid // Предполагается, что в вашей модели расписания есть поле coachid
+      }
+    });
+
+    if (!schedule.length) {
+      return res.status(404).json({ error: 'Расписание не найдено для данного тренера.' });
+    }
+
+    res.json(schedule);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Маршруты для тренировок
+app.get('/workouts', async (req, res) => {
+  try {
+    const workouts = await Workout.findAll();
+    res.json(workouts);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/workouts', async (req, res) => {
+  try {
+    const workout = await Workout.create(req.body);
+    res.status(201).json(workout);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.get('/workouts/:coachid', async (req, res) => {
+  const { coachid } = req.params; // Получаем ID тренера из параметров
+
+  try {
+    // Поиск всех тренировок по ID тренера с включением информации об упражнениях
+    const workouts = await Workout.findAll({
+      where: {
+        id_тренера: coachid // Фильтр по ID тренера
+      }
+    });
+
+    if (!workouts.length) {
+      return res.status(404).json({ error: 'Тренировки не найдены для данного тренера.' });
+    }
+
+    res.json(workouts); // Отправляем найденные тренировки в ответе
+  } catch (error) {
+    res.status(500).json({ error: error.message }); // Обработка ошибок
+  }
+});
+
 // Маршруты для единичных замеров
 app.get('/unit-measurements', async (req, res) => {
   try {
@@ -330,25 +390,6 @@ app.post('/weights-on-machines', async (req, res) => {
   }
 });
 
-// Маршруты для тренировок
-app.get('/workouts', async (req, res) => {
-  try {
-    const workouts = await Workout.findAll();
-    res.json(workouts);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/workouts', async (req, res) => {
-  try {
-    const workout = await Workout.create(req.body);
-    res.status(201).json(workout);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
 // Маршруты для оплаты
 app.get('/payments', async (req, res) => {
   try {
@@ -373,27 +414,27 @@ app.post('/register', async (req, res) => {
   const { name, email, password, userType } = req.body;
 
   try {
-      // Хеширование пароля перед сохранением
-      const hashedPassword = await bcrypt.hash(password, 10);
+    // Хеширование пароля перед сохранением
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-      let user;
-      if (userType === 'coach') {
-          user = await Coach.create({
-              Имя: name,
-              Адрес_электронной_почты: email,
-              Пароль: hashedPassword // Сохраняем захешированный пароль
-          });
-      } else {
-          user = await Client.create({
-              Имя: name,
-              Адрес_электронной_почты: email,
-              Пароль: hashedPassword // Сохраняем захешированный пароль
-          });
-      }
+    let user;
+    if (userType === 'coach') {
+      user = await Coach.create({
+        Имя: name,
+        Адрес_электронной_почты: email,
+        Пароль: hashedPassword // Сохраняем захешированный пароль
+      });
+    } else {
+      user = await Client.create({
+        Имя: name,
+        Адрес_электронной_почты: email,
+        Пароль: hashedPassword // Сохраняем захешированный пароль
+      });
+    }
 
-      res.status(201).json(user);
+    res.status(201).json(user);
   } catch (error) {
-      res.status(400).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 });
 

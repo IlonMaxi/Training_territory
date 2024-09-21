@@ -44,6 +44,10 @@ const Client = sequelize.define('Client', {
   id_тренера: {
     type: DataTypes.INTEGER,
     allowNull: true,
+    references: {
+      model: 'Тренеры', // Имя таблицы, к которой ссылается внешний ключ
+      key: 'coachid',  // Поле, на которое ссылается внешний ключ
+    }
   },
 }, {
   tableName: 'Клиенты',

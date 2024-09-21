@@ -156,7 +156,7 @@ export default {
             const path = this.accountType === 'trainer' ? '/api/coaches' : '/api/clients';
 
             try {
-                const response = await fetch(`http://192.168.0.108:3000${path}`, { // Измените на корректный URL при необходимости
+                const response = await fetch(`http://25.22.135.216:3000${path}`, { // Измените на корректный URL при необходимости
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -167,6 +167,13 @@ export default {
                 if (!response.ok) {
                     const errorData = await response.text(); // Получаем текст ошибки
                     throw new Error(`Ошибка при регистрации: ${errorData}`);
+                }
+
+                // Переход на страницу в зависимости от типа аккаунта
+                if (this.accountType === 'client') {
+                    this.$router.push('/ClientPage');  // Переход на страницу клиента
+                } else if (this.accountType === 'trainer') {
+                    this.$router.push('/TrainerPage');  // Переход на страницу тренера
                 }
 
                 const data = await response.json();
@@ -284,8 +291,11 @@ export default {
 }
 
 h2 {
+    text-align: center;
     margin-bottom: 20px;
-    font-size: 24px;
+    margin-top: 20px;
+    font-weight: bold;
+    font-size: x-large;
 }
 
 form {

@@ -23,12 +23,12 @@ const Schedule = sequelize.define('Schedule', {
     type: DataTypes.TIME,
     allowNull: true,
   },
-  id_тренировки: {
+  id_тренеровки: {  // Исправлено название на id_тренеровки, чтобы соответствовать таблице
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Тренировки', // Имя таблицы, к которой ссылается внешний ключ
-      key: 'workoutid',  // Поле, на которое ссылается внешний ключ
+      model: 'Тренировки', // Имя таблицы
+      key: 'workoutid',  // Поле внешнего ключа
     }
   },
   id_тренера: {

@@ -1,4 +1,3 @@
-// models/Exercise.js
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
@@ -27,7 +26,11 @@ const Exercise = sequelize.define('Exercise', {
   id_весов: {
     type: DataTypes.INTEGER,
     allowNull: true,
-  },
+    references: {
+      model: 'Весы_на_тренажере',
+      key: 'mweightid',
+    }
+  }
 }, {
   tableName: 'Упражнения',
   timestamps: false,
