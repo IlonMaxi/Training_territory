@@ -84,10 +84,19 @@ export default {
                     if (response.ok) {
                         console.log('Вход успешен:', data);
                         this.closeModal();
-                        this.$router.push({
-                            name: 'TrainerPage', // Если тренер, идем на страницу тренера
-                            params: { coachid: data.user.coachid } // Передаем coachid
-                        });
+
+                        // Переход на нужную страницу в зависимости от типа аккаунта
+                        if (this.accountType === 'trainer') {
+                            this.$router.push({
+                                name: 'TrainerPage', // Если тренер, идем на страницу тренера
+                                params: { coachid: data.user.coachid } // Передаем coachid
+                            });
+                        } else {
+                            this.$router.push({
+                                name: 'ClientPage', // Если клиент, идем на страницу клиента
+                                params: { clientid: data.user.clientid } // Передаем clientid
+                            });
+                        }
                     } else {
                         this.errorMessage = data.error || 'Произошла ошибка при входе';
                     }
@@ -99,6 +108,7 @@ export default {
                 this.errorMessage = 'Не все данные заполнены';
             }
         },
+
         goToRegister() {
             this.$emit('go-to-register');
         }
@@ -115,7 +125,8 @@ export default {
     font-size: 14px;
     text-align: center;
     font-weight: bold;
-    margin-bottom: 10px;  /* Отступ между сообщением об ошибке и формой */
+    margin-bottom: 10px;
+    /* Отступ между сообщением об ошибке и формой */
 }
 </style>
 

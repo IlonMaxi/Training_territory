@@ -2,38 +2,45 @@
   <div class="schedule">
     <h1 class="title">РАСПИСАНИЕ</h1>
     <div class="date-picker">
-      <button class="arrow-button" @click="prevWeek"><i class="fa-solid fa-chevron-left"></i></button>
+      <button class="arrow-button" @click="prevWeek">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
       <div class="dates">
-        <div 
-          v-for="(day, index) in currentWeek" 
-          :key="index" 
-          :class="['date', { active: isToday(day.date) }]" 
-          @click="selectDay(day)"
-        >
+        <div v-for="(day, index) in currentWeek" :key="index" :class="['date', { active: isToday(day.date) }]"
+          @click="selectDay(day)">
           <p class="day-number">{{ day.date.getDate() }}</p>
           <p class="day-name">{{ getDayName(day.date) }}</p>
         </div>
       </div>
-      <button class="arrow-button" @click="nextWeek"><i class="fa-solid fa-chevron-right"></i></button>
+      <button class="arrow-button" @click="nextWeek">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
     </div>
     <div class="training-list">
-      <div v-for="(session, index) in trainingSessions" :key="index" class="session-wrapper">
+      <div v-for="(session, index) in filteredTrainingSessions" :key="index" class="session-wrapper">
         <div class="bullet-line-wrapper">
           <div class="bullet"></div>
-          <div class="line" v-if="index < trainingSessions.length - 1"></div>
+          <div class="line" v-if="index < filteredTrainingSessions.length - 1"></div>
         </div>
         <div class="session">
           <div class="session-info">
             <div class="session-details">
-              <h2 class="session-title">{{ session.title }}</h2>
+              <h2 class="session-title">Тренировка - {{ session.workout_name }}</h2>
               <ul class="session-description">
-                <li v-for="(item, index) in session.description" :key="index">{{ item }}</li>
+                <li>Место: {{ session.Место }}</li>
+                <li>Описание: {{ session.workout_description }}</li>
+              </ul>
+              <h3>Упражнения:</h3>
+              <ul class="exercises-list">
+                <li>
+                  <strong>{{ session.exercise_name }}</strong>: {{ session.exercise_description }} (Оборудование: {{""}}
+                  {{ session.equipment }})
+                </li>
               </ul>
             </div>
           </div>
           <div class="session-time">
-            <p>{{ session.time }} - {{ session.endtime }}</p>
-            <input type="checkbox" />
+            <p>{{ session.Начало }} - {{ session.Время_окончания }}</p>
           </div>
         </div>
       </div>
@@ -45,26 +52,42 @@
 export default {
   data() {
     const today = new Date();
-    const year = this.generateYear(today);
     return {
-      selectedDay: today,  // Устанавливаем сегодняшнюю дату как активную
+      selectedDay: today,
       currentWeekIndex: this.getWeekIndex(today),
-      year: year,
-      trainingSessions: this.getTrainingSessions(today),
+      year: this.generateYear(today),
+      trainingSessions: []
     };
   },
   computed: {
     currentWeek() {
       const start = this.currentWeekIndex * 7;
       return this.year.slice(start, start + 7);
+    },
+    filteredTrainingSessions() {
+      return this.trainingSessions.filter(session => {
+        const sessionDate = new Date(session.Дата);
+        return sessionDate.toDateString() === this.selectedDay.toDateString();
+      });
     }
   },
   methods: {
+    async fetchSchedule() {
+      try {
+        const clientId = this.$route.params.clientid;
+        const response = await fetch(`http://25.22.135.216:3000/api/schedule/client/${clientId}`);
+        if (!response.ok) {
+          throw new Error(`Ошибка HTTP: ${response.status}`);
+        }
+        const data = await response.json();
+        this.trainingSessions = data;
+      } catch (error) {
+        console.error("Ошибка при получении расписания:", error);
+      }
+    },
     generateYear(startDate) {
       const year = [];
       const startOfYear = new Date(startDate.getFullYear(), 0, 1);
-
-      // Корректируем первый день года на понедельник
       const dayOfWeek = startOfYear.getDay();
       const offset = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
       startOfYear.setDate(startOfYear.getDate() + offset);
@@ -80,8 +103,6 @@ export default {
     },
     getWeekIndex(date) {
       const startOfYear = new Date(date.getFullYear(), 0, 1);
-
-      // Корректируем первый день года на понедельник
       const dayOfWeek = startOfYear.getDay();
       const offset = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
       startOfYear.setDate(startOfYear.getDate() + offset);
@@ -94,10 +115,8 @@ export default {
     },
     selectDay(day) {
       this.selectedDay = day.date;
-      this.trainingSessions = this.getTrainingSessions(day.date);
     },
     isToday(date) {
-      // Проверяем, является ли текущая дата активной
       return this.selectedDay.toDateString() === date.toDateString();
     },
     prevWeek() {
@@ -109,33 +128,10 @@ export default {
       if (this.currentWeekIndex < Math.floor(this.year.length / 7)) {
         this.currentWeekIndex++;
       }
-    },
-    getTrainingSessions(date) {
-      // Пример логики для получения расписания по выбранной дате
-      const day = date.getDate();
-      return [
-        {
-          title: `Тренировка для ${day}-го числа`,
-          description: [
-            "Упражнение 1",
-            "Упражнение 2",
-            "Упражнение 3",
-          ],
-          time: "9:00",
-          endtime: "12:00",
-        },
-        {
-          title: "Индивидуальная тренировка",
-          description: [
-            "Приседания",
-            "Жим лежа",
-            "Становая тяга",
-          ],
-          time: "12:00",
-          endtime: "14:00",
-        }
-      ];
     }
+  },
+  created() {
+    this.fetchSchedule(); // Загружаем расписание после создания компонента
   }
 };
 </script>
@@ -233,11 +229,12 @@ export default {
 }
 
 .line {
-  width: 2px;
-  background-color: #dd7548;
+  width: 4px;
+  background-color: #ffffff;
   position: absolute;
   top: 25%;
-  bottom: -20%;
+  bottom: -90%;
+  border-radius: 50px;
 }
 
 .session {
@@ -260,7 +257,7 @@ export default {
 }
 
 .session-title {
-  font-size: 18px;
+  font-size: 24px;
   margin-bottom: 10px;
 }
 
@@ -268,7 +265,16 @@ export default {
   list-style-type: none;
   padding-left: 0;
   margin: 0;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.exercises-list {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
   font-size: 14px;
+  margin-bottom: 10px;
 }
 
 .session-time {

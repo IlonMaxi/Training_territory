@@ -23,6 +23,7 @@ const UnitMeasurement = require('../models/UnitMeasurement');
 const WeightsOnMachine = require('../models/WeightsOnMachine');
 const Workout = require('../models/Workout');
 const Payment = require('../models/Payment');
+const ClientSchedule = require('../models/ClientSchedule');
 
 const app = express();
 const { Op } = require('sequelize');
@@ -337,6 +338,54 @@ app.get('/schedule/:coachid', async (req, res) => {
   }
 });
 
+app.get('/schedule/client/:clientid', async (req, res) => {
+  const { clientid } = req.params; // Получаем ID клиента из параметров
+
+  try {
+    const schedule = await sequelize.query(`
+      SELECT 
+        s.scheduleid, 
+        s."Дата", 
+        s."Начало", 
+        s."Место", 
+        s."Время_окончания", 
+        w.workoutid, 
+        w."Название" AS workout_name, 
+        w."Описание" AS workout_description,
+        e.exercisesid,
+        e."Название" AS exercise_name,
+        e."Описание" AS exercise_description,
+        e."Тренажёр" AS equipment,
+        c.clientid,
+        c."Фамилия" AS client_lastname,
+        c."Имя" AS client_firstname
+      FROM 
+        "Расписание" AS s
+      JOIN 
+        "Тренировки" AS w ON s.id_тренеровки = w.workoutid
+      JOIN 
+        "Упражнения" AS e ON w.id_упражнения = e.exercisesid
+      JOIN 
+        "Клиенты_Расписание" AS cs ON s.scheduleid = cs.id_расписания
+      JOIN 
+        "Клиенты" AS c ON cs.id_клиента = c.clientid
+      WHERE 
+        c.clientid = :clientid
+    `, {
+      replacements: { clientid },
+      type: Sequelize.QueryTypes.SELECT
+    });
+
+    if (!schedule.length) {
+      return res.status(404).json({ error: 'Расписание не найдено для данного клиента.' });
+    }
+
+    res.json(schedule);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Маршруты для тренировок
 app.get('/workouts', async (req, res) => {
