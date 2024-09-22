@@ -2,6 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors'); // Подключаем модуль cors
+const sequelize = require('../config/database'); // Убедитесь, что путь правильный
+const { Sequelize } = require('sequelize'); // Импортируем Sequelize, если это необходимо
+
 
 // Импортируем необходимые модули в начале файла
 const bcrypt = require('bcrypt');
@@ -296,10 +299,31 @@ app.get('/schedule/:coachid', async (req, res) => {
   const { coachid } = req.params; // Получаем ID тренера из параметров
 
   try {
-    const schedule = await Schedule.findAll({
-      where: {
-        id_тренера: coachid // Предполагается, что в вашей модели расписания есть поле coachid
-      }
+    const schedule = await sequelize.query(`
+      SELECT 
+        s.scheduleid, 
+        s.Дата, 
+        s.Начало, 
+        s.Место, 
+        s.Время_окончания, 
+        w.workoutid, 
+        w.Название AS workout_name, 
+        w.Описание AS workout_description,
+        e.exercisesid,
+        e.Название AS exercise_name,
+        e.Описание AS exercise_description,
+        e.Тренажёр AS equipment
+      FROM 
+        Расписание AS s
+      JOIN 
+        Тренировки AS w ON s.id_тренеровки = w.workoutid
+      JOIN 
+        Упражнения AS e ON w.id_упражнения = e.exercisesid
+      WHERE 
+        s.id_тренера = :coachid
+    `, {
+      replacements: { coachid },
+      type: Sequelize.QueryTypes.SELECT
     });
 
     if (!schedule.length) {
@@ -308,9 +332,11 @@ app.get('/schedule/:coachid', async (req, res) => {
 
     res.json(schedule);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 });
+
 
 // Маршруты для тренировок
 app.get('/workouts', async (req, res) => {
