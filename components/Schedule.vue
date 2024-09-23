@@ -16,6 +16,8 @@
         <i class="fa-solid fa-chevron-right"></i>
       </button>
     </div>
+
+    <!-- Список тренировок -->
     <div class="training-list">
       <div v-for="(session, index) in filteredTrainingSessions" :key="index" class="session-wrapper">
         <div class="bullet-line-wrapper">
@@ -25,16 +27,15 @@
         <div class="session">
           <div class="session-info">
             <div class="session-details">
-              <h2 class="session-title">Тренировка - {{ session.workout_name }}</h2>
+              <h3 class="session-title">Тренировка - {{ session.workout_name }}</h3>
               <ul class="session-description">
                 <li>Место: {{ session.Место }}</li>
                 <li>Описание: {{ session.workout_description }}</li>
               </ul>
-              <h3>Упражнения:</h3>
+              <h4>Упражнения:</h4>
               <ul class="exercises-list">
                 <li>
-                  <strong>{{ session.exercise_name }}</strong>: {{ session.exercise_description }} (Оборудование: {{""}}
-                  {{ session.equipment }})
+                  <strong>{{ session.exercise_name }}</strong>: {{ session.exercise_description }} (Оборудование: {{ session.equipment }})
                 </li>
               </ul>
             </div>
@@ -42,6 +43,26 @@
           <div class="session-time">
             <p>{{ session.Начало }} - {{ session.Время_окончания }}</p>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Список питания -->
+    <div class="nutrition-list">
+      <div v-for="(meal, index) in filteredNutritionData" :key="index" class="meal-wrapper">
+        <div class="bullet-line-wrapper">
+          <div class="bullet"></div>
+          <div class="line" v-if="index < filteredNutritionData.length - 1"></div>
+        </div>
+        <div class="meal">
+          <h3 class="meal-title">{{ meal.food_name }} ({{ meal.calories }} ккал)</h3>
+          <p><strong>Описание:</strong> {{ meal.food_description }}</p>
+          <p><strong>Белки:</strong> {{ meal.proteins }} г, <strong>Жиры:</strong> {{ meal.fats }} г,
+            <strong>Углеводы:</strong> {{ meal.carbohydrates }} г</p>
+          <h4>Рецепт - {{ meal.recipe_name }}</h4>
+          <p><strong>Ингредиенты:</strong> {{ meal.ingredients }}</p>
+          <p><strong>Время приготовления:</strong> {{ meal.preparation_time.minutes }} минут</p>
+          <p><strong>Инструкция:</strong> {{ meal.instructions }}</p>
         </div>
       </div>
     </div>
@@ -56,7 +77,8 @@ export default {
       selectedDay: today,
       currentWeekIndex: this.getWeekIndex(today),
       year: this.generateYear(today),
-      trainingSessions: []
+      trainingSessions: [],
+      nutritionData: [] // Добавляем массив для питания
     };
   },
   computed: {
@@ -69,20 +91,37 @@ export default {
         const sessionDate = new Date(session.Дата);
         return sessionDate.toDateString() === this.selectedDay.toDateString();
       });
+    },
+    filteredNutritionData() {
+      return this.nutritionData.filter(meal => {
+        const mealDate = new Date(meal.food_date);
+        return mealDate.toDateString() === this.selectedDay.toDateString();
+      });
     }
   },
   methods: {
     async fetchSchedule() {
       try {
         const clientId = this.$route.params.clientid;
-        const response = await fetch(`http://25.22.135.216:3000/api/schedule/client/${clientId}`);
-        if (!response.ok) {
-          throw new Error(`Ошибка HTTP: ${response.status}`);
+
+        // Запрос для получения расписания тренировок
+        const scheduleResponse = await fetch(`http://25.22.135.216:3000/api/schedule/client/${clientId}`);
+        if (!scheduleResponse.ok) {
+          throw new Error(`Ошибка HTTP: ${scheduleResponse.status}`);
         }
-        const data = await response.json();
-        this.trainingSessions = data;
+        const scheduleData = await scheduleResponse.json();
+        this.trainingSessions = scheduleData;
+
+        // Запрос для получения питания
+        const nutritionResponse = await fetch(`http://25.22.135.216:3000/api/nutrition/client/${clientId}`);
+        if (!nutritionResponse.ok) {
+          throw new Error(`Ошибка HTTP: ${nutritionResponse.status}`);
+        }
+        const nutritionData = await nutritionResponse.json();
+        this.nutritionData = nutritionData;
+
       } catch (error) {
-        console.error("Ошибка при получении расписания:", error);
+        console.error("Ошибка при получении данных:", error);
       }
     },
     generateYear(startDate) {
@@ -131,7 +170,7 @@ export default {
     }
   },
   created() {
-    this.fetchSchedule(); // Загружаем расписание после создания компонента
+    this.fetchSchedule(); // Загружаем расписание и питание после создания компонента
   }
 };
 </script>
@@ -229,6 +268,54 @@ export default {
 }
 
 .line {
+  width: 4px;
+  background-color: #ffffff;
+  position: absolute;
+  top: 25%;
+  bottom: -90%;
+  border-radius: 50px;
+}
+
+.nutrition-list {
+  margin-top: 20px;
+}
+
+.meal-wrapper {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.meal {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #444;
+  /* Цвет фона блока питания */
+  padding: 15px;
+  border-radius: 10px;
+  color: white;
+  /* Цвет текста */
+}
+
+.meal-title {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.meal-wrapper .bullet-line-wrapper {
+  margin-right: 20px;
+  position: relative;
+  min-height: 100px;
+  margin-top: 30px;
+}
+
+.meal-wrapper .bullet {
+  background-color: #dd7548;
+}
+
+.meal-wrapper .line {
   width: 4px;
   background-color: #ffffff;
   position: absolute;

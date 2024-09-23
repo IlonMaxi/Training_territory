@@ -387,6 +387,47 @@ app.get('/schedule/client/:clientid', async (req, res) => {
   }
 });
 
+app.get('/nutrition/client/:clientid', async (req, res) => {
+  const { clientid } = req.params;
+
+  try {
+    const nutritionData = await sequelize.query(`
+      SELECT 
+        f.foodid, 
+        f."Название" AS food_name,
+        f."Описание" AS food_description,
+        f."Количество_белков" AS proteins, 
+        f."Количество_жиров" AS fats, 
+        f."Количество_углеводов" AS carbohydrates,
+        f."Калории" AS calories,
+        f."Дата" AS food_date,
+        r.recipesid,
+        r."Название" AS recipe_name,
+        r."Ингредиенты" AS ingredients,
+        r."Время_приготовления" AS preparation_time,
+        r."Инструкция" AS instructions
+      FROM 
+        "Питание" AS f
+      LEFT JOIN 
+        "Рецепты" AS r ON f.id_рецепты = r.recipesid
+      WHERE 
+        f.id_клиента = :clientid
+    `, {
+      replacements: { clientid },
+      type: Sequelize.QueryTypes.SELECT
+    });
+
+    if (!nutritionData.length) {
+      return res.status(404).json({ error: 'Питание не найдено для данного клиента.' });
+    }
+
+    res.json(nutritionData);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Маршруты для тренировок
 app.get('/workouts', async (req, res) => {
   try {
