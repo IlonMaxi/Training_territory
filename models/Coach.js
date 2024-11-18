@@ -8,50 +8,57 @@ const Coach = sequelize.define('Coach', {
     autoIncrement: true,
     primaryKey: true,
   },
-  Фамилия: {
+  last_name: {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
-  Имя: {
+  first_name: {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
-  Отчество: {
+  patronymic: {
     type: DataTypes.STRING(255),
     allowNull: true,
   },
-  Дата_рождения: {
+  birth_date: {
     type: DataTypes.DATE,
     allowNull: false,
   },
-  Адрес_электронной_почты: {
+  email: {
     type: DataTypes.TEXT,
     allowNull: false,
+    // Если требуется уникальность email, добавьте `unique: true`
+    // unique: true,
   },
-  Номер_телефона: {
+  phone_number: {
     type: DataTypes.STRING(20),
     allowNull: false,
   },
-  Специализация: {
+  specialization: {
     type: DataTypes.TEXT,
     allowNull: true,
   },
-  Опыт: {
+  experience: {
     type: DataTypes.TEXT,
     allowNull: true,
   },
-  Логин: {
+  username: {
     type: DataTypes.STRING(255),
     allowNull: false,
-    unique: true,
+    unique: true, // Соответствует ограничению UNIQUE в таблице
   },
-  Пароль: {
+  password: {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
+  is_available: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true, // Соответствует значению по умолчанию в таблице
+  }
 }, {
-  tableName: 'Тренеры',
-  timestamps: false,
+  tableName: 'coaches', // Имя таблицы в нижнем регистре
+  timestamps: false,    // Отключаем автоматическое добавление полей createdAt и updatedAt
 });
 
 module.exports = Coach;

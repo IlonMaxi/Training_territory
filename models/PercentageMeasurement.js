@@ -1,43 +1,81 @@
+// models/PercentageMeasurement.js
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const PercentageMeasurement = sequelize.define('PercentageMeasurement', {
-  mpercentageid: {
+  percentageid: { // Соответствует столбцу 'percentageid'
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  Процент_жира: {
+  fat_percentage: { // Соответствует столбцу 'fat_percentage'
     type: DataTypes.NUMERIC(10, 2),
-    allowNull: false,
+    allowNull: true, // В SQL нет ограничения NOT NULL, поэтому allowNull: true
+    validate: {
+      min: 0, // Минимальное значение 0, если применимо
+    },
   },
-  Процент_скелетной_массы: {
+  skeletal_mass_percentage: { // Соответствует столбцу 'skeletal_mass_percentage'
     type: DataTypes.NUMERIC(10, 2),
-    allowNull: false,
+    allowNull: true,
+    validate: {
+      min: 0,
+    },
   },
-  Динамика_мышц: {
+  muscle_dynamics: { // Соответствует столбцу 'muscle_dynamics'
     type: DataTypes.NUMERIC(10, 2),
-    allowNull: false,
+    allowNull: true,
+    validate: {
+      min: 0,
+    },
   },
-  Вода_в_организме: {
+  body_water: { // Соответствует столбцу 'body_water'
     type: DataTypes.NUMERIC(10, 2),
-    allowNull: false,
+    allowNull: true,
+    validate: {
+      min: 0,
+    },
   },
-  Белок: {
+  protein: { // Соответствует столбцу 'protein'
     type: DataTypes.NUMERIC(10, 2),
-    allowNull: false,
+    allowNull: true,
+    validate: {
+      min: 0,
+    },
   },
-  Жирность: {
+  fat_content: { // Соответствует столбцу 'fat_content'
     type: DataTypes.NUMERIC(10, 2),
-    allowNull: false,
+    allowNull: true,
+    validate: {
+      min: 0,
+    },
   },
-  Дата: {
+  date: { // Соответствует столбцу 'date'
     type: DataTypes.DATE,
-    allowNull: false,
-  }
+    allowNull: true,
+    validate: {
+      isDate: true,
+    },
+  },
 }, {
-  tableName: 'Замеры_в_процент',
-  timestamps: false,
+  tableName: 'measurements_in_percentage', // Имя таблицы в нижнем регистре
+  timestamps: false, // Отключаем автоматическое добавление полей createdAt и updatedAt
+  indexes: [
+    {
+      unique: false,
+      fields: ['date'], // Добавляем индекс на поле 'date', если часто используется в запросах
+    },
+    // Добавьте другие индексы по необходимости
+  ],
 });
+
+// Если у вас есть связанные модели, вы можете добавить ассоциации здесь
+PercentageMeasurement.associate = (models) => {
+  // Пример: Связь с моделью Progress
+  // PercentageMeasurement.hasMany(models.Progress, {
+  //   foreignKey: 'percentage_measurement_id',
+  //   as: 'progressRecords',
+  // });
+};
 
 module.exports = PercentageMeasurement;

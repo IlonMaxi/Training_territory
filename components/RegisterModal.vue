@@ -7,9 +7,9 @@
                 <label>
                     <span class="label-text">ФАМИЛИЯ ИМЯ ОТЧЕСТВО</span>
                     <div class="name-fields">
-                        <input type="text" v-model="lastName" placeholder="Фамилия" required>
-                        <input type="text" v-model="firstName" placeholder="Имя" required>
-                        <input type="text" v-model="middleName" placeholder="Отчество" required>
+                        <input type="text" v-model="last_name" placeholder="Фамилия" required>
+                        <input type="text" v-model="first_name" placeholder="Имя" required>
+                        <input type="text" v-model="patronymic" placeholder="Отчество" required>
                     </div>
                 </label>
                 <label>
@@ -27,7 +27,7 @@
                 <label>
                     <span class="label-text">НОМЕР ТЕЛЕФОНА И ЭЛЕКТРОННАЯ ПОЧТА</span>
                     <div class="phone-email-fields">
-                        <input type="tel" v-model="phone" placeholder="+7 (XXX) XXX-XX-XX" required maxlength="11"
+                        <input type="tel" v-model="phone_number" placeholder="+7 (XXX) XXX-XX-XX" required maxlength="11"
                             :class="{ 'invalid': !isPhoneValid }" @input="validatePhone" @keypress="onlyNumbers">
                         <transition name="fade">
                             <div v-if="!isPhoneValid" class="tooltip">Телефон должен содержать 11 цифр и начинаться с 8.
@@ -104,12 +104,12 @@ export default {
     },
     data() {
         return {
-            firstName: '',
-            lastName: '',
-            middleName: '',
+            first_name: '',
+            last_name: '',
+            patronymic: '',
             username: '',
             password: '',
-            phone: '',
+            phone_number: '',
             email: '',
             accountType: '',
             birthDay: '',
@@ -126,7 +126,7 @@ export default {
     },
     computed: {
         isFormValid() {
-            return this.isPasswordValid && this.isPhoneValid && this.isEmailValid && this.phone !== '' && this.password !== '';
+            return this.isPasswordValid && this.isPhoneValid && this.isEmailValid && this.phone_number !== '' && this.password !== '';
         }
     },
     methods: {
@@ -135,28 +135,30 @@ export default {
         },
         async register() {
             this.validateEmail(); // Проверка электронной почты перед регистрацией
+            this.validatePassword(); // Проверка пароля перед регистрацией
+            this.validatePhone(); // Проверка телефона перед регистрацией
+
             if (!this.isFormValid) {
                 alert("Пожалуйста, заполните все поля правильно.");
                 return;
             }
 
             const payload = {
-                Фамилия: this.lastName,
-                Имя: this.firstName,
-                Отчество: this.middleName,
-                Логин: this.username,
-                Пароль: this.password,  // Пароль будет захеширован на сервере
-                Номер_телефона: this.phone,
-                Адрес_электронной_почты: this.email,
-                Дата_рождения: `${this.birthYear}-${this.birthMonth}-${this.birthDay}`,
-                Пол: this.gender,
+                last_name: this.last_name,
+                first_name: this.first_name,
+                patronymic: this.patronymic,
+                username: this.username,
+                password: this.password, // Пароль будет захеширован на сервере
+                phone_number: this.phone_number,
+                email: this.email,
+                birth_date: `${this.birthYear}-${this.birthMonth}-${this.birthDay}`,
+                gender: this.gender,
             };
 
-            // Определяем путь в зависимости от типа аккаунта
             const path = this.accountType === 'trainer' ? '/api/coaches' : '/api/clients';
 
             try {
-                const response = await fetch(`http://25.22.135.216:3000${path}`, { // Измените на корректный URL при необходимости
+                const response = await fetch(`http://26.100.29.243:3000${path}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -165,26 +167,25 @@ export default {
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.text(); // Получаем текст ошибки
+                    const errorData = await response.text();
                     throw new Error(`Ошибка при регистрации: ${errorData}`);
-                }
-
-                // Переход на страницу в зависимости от типа аккаунта
-                if (this.accountType === 'client') {
-                    this.$router.push('/ClientPage');  // Переход на страницу клиента
-                } else if (this.accountType === 'trainer') {
-                    this.$router.push('/TrainerPage');  // Переход на страницу тренера
                 }
 
                 const data = await response.json();
                 console.log('Регистрация успешна', data);
+
+                if (this.accountType === 'client') {
+                    this.$router.push('/ClientPage');
+                } else if (this.accountType === 'trainer') {
+                    this.$router.push('/TrainerPage');
+                }
+
                 this.closeModal(); // Закрываем модальное окно после успешной регистрации
             } catch (error) {
                 console.error('Ошибка:', error);
                 alert(`Ошибка при регистрации. Пожалуйста, попробуйте снова.\n${error.message}`);
             }
         },
-
 
         goToLogin() {
             this.$emit('go-to-login');
@@ -194,11 +195,11 @@ export default {
             this.isPasswordValid = regex.test(this.password);
         },
         validatePhone() {
-            if (!this.phone.startsWith('8')) {
-                this.phone = '8' + this.phone;
+            if (!this.phone_number.startsWith('8')) {
+                this.phone_number = '8' + this.phone_number;
             }
             const phoneRegex = /^8\d{10}$/;
-            this.isPhoneValid = phoneRegex.test(this.phone);
+            this.isPhoneValid = phoneRegex.test(this.phone_number);
         },
         validateEmail() {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

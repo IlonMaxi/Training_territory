@@ -1,7 +1,7 @@
 export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'TRENING TERRITORY',
+    title: 'TRAINING TERRITORY',
     htmlAttrs: {
       lang: 'en'
     },

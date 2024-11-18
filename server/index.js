@@ -24,14 +24,14 @@ const WeightsOnMachine = require('../models/WeightsOnMachine');
 const Workout = require('../models/Workout');
 const Payment = require('../models/Payment');
 const ClientSchedule = require('../models/ClientSchedule');
+const Recipe = require('../models/Recipe');
 
 const app = express();
 const { Op } = require('sequelize');
 
-
 // Настройка CORS
 app.use(cors({
-  origin: 'http://25.22.135.216:3000' // Укажите ваш фронтенд адрес
+  origin: 'http://26.100.29.243:3000' // Укажите ваш фронтенд адрес
 }));
 
 // Поддержка JSON тела запроса
@@ -49,56 +49,53 @@ app.get('/coaches', async (req, res) => {
 
 // Вход для тренера
 app.post('/login/coaches', async (req, res) => {
-  const { Логин, Пароль } = req.body;  // Изменено на Логин и Пароль
+  const { username, password } = req.body;
   try {
     const coach = await Coach.findOne({
       where: {
-        [Op.or]: [{ Логин }, { Адрес_электронной_почты: Логин }]  // Поиск по Логину или Email
+        [Op.or]: [{ username }, { email: username }]
       }
     });
 
     if (!coach) {
-      return res.status(404).json({ error: 'Тренер не найден' });
+      return res.status(404).json({ error: 'Coach not found' });
     }
 
-    const isPasswordValid = await bcrypt.compare(Пароль, coach.Пароль);  // Проверка пароля
+    const isPasswordValid = await bcrypt.compare(password, coach.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Неправильный пароль' });
+      return res.status(401).json({ error: 'Incorrect password' });
     }
 
-    res.status(200).json({ message: 'Вход успешен', user: coach });
+    res.status(200).json({ message: 'Login successful', user: coach });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
 app.post('/coaches', async (req, res) => {
-  const { Фамилия, Имя, Отчество, Логин, Пароль, Номер_телефона, Адрес_электронной_почты, Дата_рождения, Пол } = req.body;
+  const { last_name, first_name, patronymic, username, password, phone_number, email, birth_date, gender } = req.body;
 
   try {
-    // Хешируем пароль перед сохранением
-    const hashedPassword = await bcrypt.hash(Пароль, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Сохраняем тренера с захешированным паролем
     const newCoach = await Coach.create({
-      Фамилия,
-      Имя,
-      Отчество,
-      Логин,
-      Пароль: hashedPassword, // Захешированный пароль
-      Номер_телефона,
-      Адрес_электронной_почты,
-      Дата_рождения,
-      Пол
+      last_name,
+      first_name,
+      patronymic,
+      username,
+      password: hashedPassword,
+      phone_number,
+      email,
+      birth_date,
+      gender
     });
 
     res.status(201).json(newCoach);
   } catch (error) {
-    console.error('Ошибка при регистрации:', error);
-    res.status(500).json({ error: 'Ошибка сервера' });
+    console.error('Error during registration:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
-
 
 // Маршруты для клиентов
 app.get('/clients', async (req, res) => {
@@ -112,54 +109,52 @@ app.get('/clients', async (req, res) => {
 
 // Вход для клиента
 app.post('/login/clients', async (req, res) => {
-  const { Логин, Пароль } = req.body;  // Изменено на Логин и Пароль
+  const { username, password } = req.body;
   try {
     const client = await Client.findOne({
       where: {
-        [Op.or]: [{ Логин }, { Адрес_электронной_почты: Логин }]  // Поиск по Логину или Email
+        [Op.or]: [{ username }, { email: username }]
       }
     });
 
     if (!client) {
-      return res.status(404).json({ error: 'Пользователь не найден' });
+      return res.status(404).json({ error: 'User not found' });
     }
 
-    const isPasswordValid = await bcrypt.compare(Пароль, client.Пароль);  // Проверка пароля
+    const isPasswordValid = await bcrypt.compare(password, client.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Неправильный пароль' });
+      return res.status(401).json({ error: 'Incorrect password' });
     }
 
-    res.status(200).json({ message: 'Вход успешен', user: client });
+    res.status(200).json({ message: 'Login successful', user: client });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Пример обработки маршрута для регистрации пользователя
+// Регистрация клиента
 app.post('/clients', async (req, res) => {
-  const { Фамилия, Имя, Отчество, Логин, Пароль, Номер_телефона, Адрес_электронной_почты, Дата_рождения, Пол } = req.body;
+  const { last_name, first_name, patronymic, username, password, phone_number, email, birth_date, gender } = req.body;
 
   try {
-    // Хешируем пароль перед сохранением
-    const hashedPassword = await bcrypt.hash(Пароль, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Сохраняем пользователя с захешированным паролем
     const newUser = await Client.create({
-      Фамилия,
-      Имя,
-      Отчество,
-      Логин,
-      Пароль: hashedPassword, // Захешированный пароль
-      Номер_телефона,
-      Адрес_электронной_почты,
-      Дата_рождения,
-      Пол
+      last_name,
+      first_name,
+      patronymic,
+      username,
+      password: hashedPassword,
+      phone_number,
+      email,
+      birth_date,
+      gender
     });
 
     res.status(201).json(newUser);
   } catch (error) {
-    console.error('Ошибка при регистрации:', error);
-    res.status(500).json({ error: 'Ошибка сервера' });
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -296,39 +291,39 @@ app.post('/schedule', async (req, res) => {
   }
 });
 
-app.get('/schedule/:coachid', async (req, res) => {
-  const { coachid } = req.params; // Получаем ID тренера из параметров
+app.get('/schedule/:coachId', async (req, res) => {
+  const { coachId } = req.params;
 
   try {
     const schedule = await sequelize.query(`
       SELECT 
-        s.scheduleid, 
-        s.Дата, 
-        s.Начало, 
-        s.Место, 
-        s.Время_окончания, 
-        w.workoutid, 
-        w.Название AS workout_name, 
-        w.Описание AS workout_description,
-        e.exercisesid,
-        e.Название AS exercise_name,
-        e.Описание AS exercise_description,
-        e.Тренажёр AS equipment
+        s.scheduleid AS scheduleId, 
+        s.date, 
+        s.start_time AS startTime, 
+        s.location, 
+        s.end_time AS endTime, 
+        w.workoutid AS workoutId, 
+        w.name AS workout_name, 
+        w.description AS workout_description,
+        e.exerciseid AS exerciseId,
+        e.name AS exercise_name,
+        e.description AS exercise_description,
+        e.machine AS equipment
       FROM 
-        Расписание AS s
+        schedule AS s
       JOIN 
-        Тренировки AS w ON s.id_тренеровки = w.workoutid
+        workouts AS w ON s.workout_id = w.workoutid
       JOIN 
-        Упражнения AS e ON w.id_упражнения = e.exercisesid
+        exercises AS e ON w.exercise_id = e.exerciseid
       WHERE 
-        s.id_тренера = :coachid
+        s.coach_id = :coachId
     `, {
-      replacements: { coachid },
+      replacements: { coachId },
       type: Sequelize.QueryTypes.SELECT
     });
 
     if (!schedule.length) {
-      return res.status(404).json({ error: 'Расписание не найдено для данного тренера.' });
+      return res.status(404).json({ error: 'Расписание не найдено для этого тренера.' });
     }
 
     res.json(schedule);
@@ -338,46 +333,46 @@ app.get('/schedule/:coachid', async (req, res) => {
   }
 });
 
-app.get('/schedule/client/:clientid', async (req, res) => {
-  const { clientid } = req.params; // Получаем ID клиента из параметров
+app.get('/schedule/client/:clientId', async (req, res) => {
+  const { clientId } = req.params;
 
   try {
     const schedule = await sequelize.query(`
       SELECT 
-        s.scheduleid, 
-        s."Дата", 
-        s."Начало", 
-        s."Место", 
-        s."Время_окончания", 
-        w.workoutid, 
-        w."Название" AS workout_name, 
-        w."Описание" AS workout_description,
-        e.exercisesid,
-        e."Название" AS exercise_name,
-        e."Описание" AS exercise_description,
-        e."Тренажёр" AS equipment,
-        c.clientid,
-        c."Фамилия" AS client_lastname,
-        c."Имя" AS client_firstname
+        s.scheduleid AS scheduleId, 
+        s.date, 
+        s.start_time AS startTime, 
+        s.location, 
+        s.end_time AS endTime, 
+        w.workoutid AS workoutId, 
+        w.name AS workout_name, 
+        w.description AS workout_description,
+        e.exerciseid AS exerciseId,
+        e.name AS exercise_name,
+        e.description AS exercise_description,
+        e.machine AS equipment,
+        c.clientid AS clientId,
+        c.last_name AS client_lastname,
+        c.first_name AS client_firstname
       FROM 
-        "Расписание" AS s
+        schedule AS s
       JOIN 
-        "Тренировки" AS w ON s.id_тренеровки = w.workoutid
+        workouts AS w ON s.workout_id = w.workoutid
       JOIN 
-        "Упражнения" AS e ON w.id_упражнения = e.exercisesid
+        exercises AS e ON w.exercise_id = e.exerciseid
       JOIN 
-        "Клиенты_Расписание" AS cs ON s.scheduleid = cs.id_расписания
+        client_schedule AS cs ON s.scheduleid = cs.schedule_id
       JOIN 
-        "Клиенты" AS c ON cs.id_клиента = c.clientid
+        clients AS c ON cs.client_id = c.clientid
       WHERE 
-        c.clientid = :clientid
+        c.clientid = :clientId
     `, {
-      replacements: { clientid },
+      replacements: { clientId },
       type: Sequelize.QueryTypes.SELECT
     });
 
     if (!schedule.length) {
-      return res.status(404).json({ error: 'Расписание не найдено для данного клиента.' });
+      return res.status(404).json({ error: 'Расписание не найдено для этого клиента.' });
     }
 
     res.json(schedule);
@@ -387,38 +382,38 @@ app.get('/schedule/client/:clientid', async (req, res) => {
   }
 });
 
-app.get('/nutrition/client/:clientid', async (req, res) => {
-  const { clientid } = req.params;
+app.get('/nutrition/client/:clientId', async (req, res) => {
+  const { clientId } = req.params;
 
   try {
     const nutritionData = await sequelize.query(`
       SELECT 
-        f.foodid, 
-        f."Название" AS food_name,
-        f."Описание" AS food_description,
-        f."Количество_белков" AS proteins, 
-        f."Количество_жиров" AS fats, 
-        f."Количество_углеводов" AS carbohydrates,
-        f."Калории" AS calories,
-        f."Дата" AS food_date,
-        r.recipesid,
-        r."Название" AS recipe_name,
-        r."Ингредиенты" AS ingredients,
-        r."Время_приготовления" AS preparation_time,
-        r."Инструкция" AS instructions
+        f.foodid AS foodId, 
+        f.name AS food_name,
+        f.description AS food_description,
+        f.protein_amount AS proteins, 
+        f.fat_amount AS fats, 
+        f.carbohydrate_amount AS carbohydrates,
+        f.calories AS calories,
+        f.date AS food_date,
+        r.recipeid AS recipeId,
+        r.name AS recipe_name,
+        r.ingredients AS ingredients,
+        r.preparation_time AS preparation_time,
+        r.instructions AS instructions
       FROM 
-        "Питание" AS f
+        nutrition AS f
       LEFT JOIN 
-        "Рецепты" AS r ON f.id_рецепты = r.recipesid
+        recipes AS r ON f.recipe_id = r.recipeid
       WHERE 
-        f.id_клиента = :clientid
+        f.client_id = :clientId
     `, {
-      replacements: { clientid },
+      replacements: { clientId },
       type: Sequelize.QueryTypes.SELECT
     });
 
     if (!nutritionData.length) {
-      return res.status(404).json({ error: 'Питание не найдено для данного клиента.' });
+      return res.status(404).json({ error: 'Данные о питании не найдены для этого клиента.' });
     }
 
     res.json(nutritionData);
@@ -427,6 +422,47 @@ app.get('/nutrition/client/:clientid', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+app.post('/nutrition/generate/:clientId', async (req, res) => {
+  const { clientId } = req.params;
+  const { startDate } = req.body;
+
+  try {
+    const recipes = await Recipe.findAll();
+    if (!recipes.length) {
+      return res.status(404).json({ error: 'Нет доступных рецептов для генерации питания' });
+    }
+
+    let date = new Date(startDate);
+    const meals = [];
+
+    for (let i = 0; i < 7; i++) {
+      const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
+
+      const meal = await Nutrition.create({
+        name: randomRecipe.name,
+        description: randomRecipe.instructions,
+        protein_amount: Math.random() * 50, // или использовать фиксированные значения
+        fat_amount: Math.random() * 30,
+        carbohydrate_amount: Math.random() * 100,
+        calories: Math.floor(Math.random() * 500 + 200),
+        water_amount: Math.random() * 500,
+        date,
+        client_id: clientId,
+        recipe_id: randomRecipe.recipeid
+      });
+
+      meals.push(meal);
+      date.setDate(date.getDate() + 1);
+    }
+
+    res.status(201).json({ message: 'Nutrition schedule generated successfully', meals });
+  } catch (error) {
+    console.error('Error generating nutrition schedule:', error);
+    res.status(500).json({ error: 'Failed to generate nutrition schedule' });
+  }
+});
+
 
 // Маршруты для тренировок
 app.get('/workouts', async (req, res) => {
@@ -447,24 +483,23 @@ app.post('/workouts', async (req, res) => {
   }
 });
 
-app.get('/workouts/:coachid', async (req, res) => {
-  const { coachid } = req.params; // Получаем ID тренера из параметров
+app.get('/workouts/:coachId', async (req, res) => {
+  const { coachId } = req.params;
 
   try {
-    // Поиск всех тренировок по ID тренера с включением информации об упражнениях
     const workouts = await Workout.findAll({
       where: {
-        id_тренера: coachid // Фильтр по ID тренера
+        coach_id: coachId
       }
     });
 
     if (!workouts.length) {
-      return res.status(404).json({ error: 'Тренировки не найдены для данного тренера.' });
+      return res.status(404).json({ error: 'Workouts not found for this coach.' });
     }
 
-    res.json(workouts); // Отправляем найденные тренировки в ответе
+    res.json(workouts);
   } catch (error) {
-    res.status(500).json({ error: error.message }); // Обработка ошибок
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -527,7 +562,12 @@ app.post('/payments', async (req, res) => {
 
 // Регистрация пользователя
 app.post('/register', async (req, res) => {
-  const { name, email, password, userType } = req.body;
+  const { firstName, lastName, email, password, userType, username, phoneNumber, birthDate } = req.body;
+
+  // Обновленная проверка обязательных полей
+  if (!firstName || !lastName || !email || !password || !userType || !username || !phoneNumber || !birthDate) {
+    return res.status(400).json({ error: 'All fields are required: firstName, lastName, email, password, userType, username, phoneNumber, birthDate' });
+  }
 
   try {
     // Хеширование пароля перед сохранением
@@ -536,15 +576,23 @@ app.post('/register', async (req, res) => {
     let user;
     if (userType === 'coach') {
       user = await Coach.create({
-        Имя: name,
-        Адрес_электронной_почты: email,
-        Пароль: hashedPassword // Сохраняем захешированный пароль
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        username,
+        phoneNumber,
+        birthDate 
       });
     } else {
       user = await Client.create({
-        Имя: name,
-        Адрес_электронной_почты: email,
-        Пароль: hashedPassword // Сохраняем захешированный пароль
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        username,
+        phoneNumber,
+        birthDate
       });
     }
 
@@ -554,5 +602,155 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// Экспортируйте приложение Express как middleware
+// Маршрут для получения клиентов тренера
+app.get('/coaches/:coachId/clients', async (req, res) => {
+  const { coachId } = req.params;
+
+  try {
+    // Проверка существования тренера
+    const coach = await Coach.findByPk(coachId);
+    if (!coach) {
+      return res.status(404).json({ error: 'Тренер не найден' });
+    }
+
+    // Получение клиентов, связанных с тренером
+    const clients = await Client.findAll({
+      where: { coach_id: coachId },
+      attributes: ['clientid', 'first_name', 'last_name'] // Выбираем только необходимые поля
+    });
+
+    res.json(clients);
+  } catch (error) {
+    console.error('Ошибка при получении клиентов:', error);
+    res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
+});
+
+// Маршрут для получения тренировок тренера
+app.get('/coaches/:coachId/workouts', async (req, res) => {
+  const { coachId } = req.params;
+
+  try {
+    // Проверка существования тренера
+    const coach = await Coach.findByPk(coachId);
+    if (!coach) {
+      return res.status(404).json({ error: 'Тренер не найден' });
+    }
+
+    // Получение тренировок, созданных тренером
+    const workouts = await Workout.findAll({
+      where: { coach_id: coachId },
+      attributes: ['workoutid', 'name', 'description', 'difficulty', 'duration', 'workout_type', 'max_participants']
+    });
+
+    res.json(workouts);
+  } catch (error) {
+    console.error('Ошибка при получении тренировок:', error);
+    res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
+});
+
+// Маршрут для назначения новой тренировки клиенту
+app.post('/coaches/:coachId/assign-training', async (req, res) => {
+  const { coachId } = req.params;
+  const { client_id, workout_id, date, start_time, end_time, location } = req.body;
+
+  // Логирование входных данных для отладки
+  console.log('Назначение тренировки, тренер ID:', coachId);
+  console.log('Данные тренировки:', req.body);
+
+  // Проверка наличия всех необходимых полей
+  if (!client_id || !workout_id || !date || !start_time || !end_time || !location) {
+    return res.status(400).json({ error: 'Все поля обязательны для заполнения.' });
+  }
+
+  // Начало транзакции
+  const transaction = await sequelize.transaction();
+
+  try {
+    // Проверка существования тренера
+    const coach = await Coach.findByPk(coachId, { transaction });
+    if (!coach) {
+      await transaction.rollback();
+      return res.status(404).json({ error: 'Тренер не найден.' });
+    }
+
+    // Проверка существования клиента и принадлежности тренеру
+    const client = await Client.findOne({ where: { clientid: client_id, coach_id: coachId }, transaction });
+    if (!client) {
+      await transaction.rollback();
+      return res.status(404).json({ error: 'Клиент не найден или не принадлежит этому тренеру.' });
+    }
+
+    // Проверка существования тренировки и принадлежности тренеру
+    const workout = await Workout.findOne({ where: { workoutid: workout_id, coach_id: coachId }, transaction });
+    if (!workout) {
+      await transaction.rollback();
+      return res.status(404).json({ error: 'Тренировка не найдена или не принадлежит этому тренеру.' });
+    }
+
+    // Дополнительная проверка на конфликт расписания (опционально)
+    const existingSchedule = await Schedule.findOne({
+      where: {
+        coach_id: coachId,
+        date,
+        [Op.or]: [
+          {
+            start_time: {
+              [Op.between]: [start_time, end_time]
+            }
+          },
+          {
+            end_time: {
+              [Op.between]: [start_time, end_time]
+            }
+          },
+          {
+            [Op.and]: [
+              { start_time: { [Op.lte]: start_time } },
+              { end_time: { [Op.gte]: end_time } }
+            ]
+          }
+        ]
+      },
+      transaction
+    });
+
+    if (existingSchedule) {
+      await transaction.rollback();
+      return res.status(400).json({ error: 'В это время уже запланирована другая тренировка.' });
+    }
+
+    // Создание новой записи в расписании
+    const newSchedule = await Schedule.create({
+      date,
+      start_time,
+      end_time,
+      location,
+      workout_id,
+      coach_id: coachId
+    }, { transaction });
+
+    // Связывание клиента с расписанием
+    await ClientSchedule.create({ // Используем правильное имя модели
+      client_id,
+      schedule_id: newSchedule.scheduleid,
+      status: 'scheduled' // Можно изменить статус при необходимости
+    }, { transaction });
+
+    // Фиксация транзакции
+    await transaction.commit();
+
+    res.status(201).json({
+      message: 'Тренировка успешно назначена.',
+      schedule: newSchedule
+    });
+  } catch (error) {
+    // Откат транзакции в случае ошибки
+    await transaction.rollback();
+    console.error('Ошибка при назначении тренировки:', error);
+    res.status(500).json({ error: 'Внутренняя ошибка сервера.' });
+  }
+});
+
 module.exports = app;

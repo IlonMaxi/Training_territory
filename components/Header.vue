@@ -2,7 +2,7 @@
     <header>
         <nav>
             <div class="logo">
-                <h1>TRENING TERRITORY</h1>
+                <h1>TRAINING TERRITORY</h1>
             </div>
             <div class="navbar">
                 <ul>

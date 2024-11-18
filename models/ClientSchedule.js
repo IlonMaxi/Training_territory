@@ -1,30 +1,40 @@
-const { Sequelize, DataTypes } = require('sequelize');
+// models/ClientSchedule.js
+const { Sequelize, DataTypes } = require('sequelize'); 
 const sequelize = require('../config/database');
 
 const ClientSchedule = sequelize.define('ClientSchedule', {
-  client_schedule_id: {
+  clientscheduleid: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  id_клиента: {
+  client_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Клиенты', // Имя таблицы, к которой ссылается внешний ключ
-      key: 'clientid',  // Поле, на которое ссылается внешний ключ
-    }
+      model: 'clients', // Имя таблицы в нижнем регистре
+      key: 'clientid',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
-  id_расписания: {
+  schedule_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Расписание', // Имя таблицы, к которой ссылается внешний ключ
-      key: 'scheduleid',   // Поле, на которое ссылается внешний ключ
-    }
+      model: 'schedule', // Имя таблицы в нижнем регистре
+      key: 'scheduleid',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  },
+  status: {
+    type: DataTypes.STRING(20),
+    allowNull: false,
+    defaultValue: 'scheduled', // Соответствует значению по умолчанию в базе данных
   },
 }, {
-  tableName: 'Клиенты_Расписание',
+  tableName: 'client_schedule', // Имя таблицы в нижнем регистре
   timestamps: false,
 });
 

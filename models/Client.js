@@ -8,50 +8,52 @@ const Client = sequelize.define('Client', {
     autoIncrement: true,
     primaryKey: true,
   },
-  Фамилия: {
+  last_name: {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
-  Имя: {
+  first_name: {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
-  Отчество: {
+  patronymic: {
     type: DataTypes.STRING(255),
     allowNull: true,
   },
-  Дата_рождения: {
+  birth_date: {
     type: DataTypes.DATE,
     allowNull: false,
   },
-  Адрес_электронной_почты: {
+  email: {
     type: DataTypes.TEXT,
-    allowNull: false,
-  },
-  Номер_телефона: {
-    type: DataTypes.STRING(20),
-    allowNull: false,
-  },
-  Логин: {
-    type: DataTypes.STRING(255),
     allowNull: false,
     unique: true,
   },
-  Пароль: {
+  phone_number: {
+    type: DataTypes.STRING(20),
+    allowNull: false,
+  },
+  username: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+    // Если в базе данных поле `username` также уникально, раскомментируйте следующую строку:
+    // unique: true,
+  },
+  password: {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
-  id_тренера: {
+  coach_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
-      model: 'Тренеры', // Имя таблицы, к которой ссылается внешний ключ
-      key: 'coachid',  // Поле, на которое ссылается внешний ключ
-    }
+      model: 'coaches', // Название таблицы в базе данных должно быть в нижнем регистре
+      key: 'coachid',
+    },
   },
 }, {
-  tableName: 'Клиенты',
-  timestamps: false,
+  tableName: 'clients', // Имя таблицы в базе данных в нижнем регистре
+  timestamps: false,    // Отключаем автоматическое добавление полей createdAt и updatedAt
 });
 
 module.exports = Client;

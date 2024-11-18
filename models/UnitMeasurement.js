@@ -1,31 +1,63 @@
+// models/UnitMeasurement.js
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const UnitMeasurement = sequelize.define('UnitMeasurement', {
-  mmeasurementid: {
+  measurementid: { // Соответствует столбцу 'measurementid'
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  bmi: {
+  bmi: { // Соответствует столбцу 'bmi'
     type: DataTypes.NUMERIC(10, 2),
-    allowNull: false,
+    allowNull: true,
+    validate: {
+      min: 0,    // Предполагается, что BMI не может быть отрицательным
+      max: 100,  // Максимальное значение BMI (можно настроить по необходимости)
+    },
   },
-  Метаболизм: {
+  metabolism: { // Соответствует столбцу 'metabolism'
     type: DataTypes.NUMERIC(10, 2),
-    allowNull: false,
+    allowNull: true,
+    validate: {
+      min: 0, // Предполагается, что метаболизм не может быть отрицательным
+    },
   },
-  Возраст_тела: {
+  body_age: { // Соответствует столбцу 'body_age'
     type: DataTypes.NUMERIC(10, 2),
-    allowNull: false,
+    allowNull: true,
+    validate: {
+      min: 0, // Предполагается, что возраст тела не может быть отрицательным
+    },
   },
-  Дата: {
+  date: { // Соответствует столбцу 'date'
     type: DataTypes.DATE,
-    allowNull: false,
-  }
+    allowNull: true,
+    validate: {
+      isDate: true, // Проверка на корректный формат даты
+    },
+  },
 }, {
-  tableName: 'Замеры_в_единицах',
-  timestamps: false,
+  tableName: 'measurements_in_units', // Имя таблицы в нижнем регистре
+  timestamps: false,                  // Отключаем автоматическое добавление полей createdAt и updatedAt
+  indexes: [
+    {
+      unique: false,
+      fields: ['date'], // Добавляем индекс на поле 'date' для ускорения запросов по дате
+    },
+    // Добавьте другие индексы по необходимости
+  ],
 });
+
+// Ассоциации (если применимо)
+UnitMeasurement.associate = (models) => {
+  // Пример: Связь с моделью Progress
+  UnitMeasurement.hasMany(models.Progress, {
+    foreignKey: 'unit_measurement_id',
+    as: 'progressRecords',
+  });
+
+  // Добавьте другие ассоциации, если они необходимы
+};
 
 module.exports = UnitMeasurement;

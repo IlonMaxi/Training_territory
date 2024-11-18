@@ -79,7 +79,7 @@
             </div>
             <div class="info-text">
                 <p>
-                    Treining territory представляет собой чёткую и интуитивно понятную
+                    Training territory представляет собой чёткую и интуитивно понятную
                     платформу...
                 </p>
             </div>

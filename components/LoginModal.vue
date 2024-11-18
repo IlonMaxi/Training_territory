@@ -64,8 +64,8 @@ export default {
             this.errorMessage = ''; // Сброс перед новым входом
             if (this.username && this.password && this.accountType) {
                 const url = this.accountType === 'trainer'
-                    ? 'http://25.22.135.216:3000/api/login/coaches'
-                    : 'http://25.22.135.216:3000/api/login/clients';
+                    ? 'http://26.100.29.243:3000/api/login/coaches'
+                    : 'http://26.100.29.243:3000/api/login/clients';
 
                 try {
                     const response = await fetch(url, {
@@ -74,8 +74,8 @@ export default {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            Логин: this.username,
-                            Пароль: this.password
+                            username: this.username,
+                            password: this.password
                         })
                     });
 
@@ -85,16 +85,20 @@ export default {
                         console.log('Вход успешен:', data);
                         this.closeModal();
 
-                        // Переход на нужную страницу в зависимости от типа аккаунта
+                        // Сохраняем данные в куки
+                        document.cookie = `user=${encodeURIComponent(JSON.stringify(data.user))}; path=/; max-age=86400;`;
+                        document.cookie = `accountType=${this.accountType}; path=/; max-age=86400;`;
+
+                        // Переход на нужную страницу
                         if (this.accountType === 'trainer') {
                             this.$router.push({
-                                name: 'TrainerPage', // Если тренер, идем на страницу тренера
-                                params: { coachid: data.user.coachid } // Передаем coachid
+                                name: 'TrainerPage'
+                                // Если необходимо, можно передать параметры через query или state
                             });
                         } else {
                             this.$router.push({
-                                name: 'ClientPage', // Если клиент, идем на страницу клиента
-                                params: { clientid: data.user.clientid } // Передаем clientid
+                                name: 'ClientPage'
+                                // Аналогично для клиента
                             });
                         }
                     } else {
@@ -115,20 +119,6 @@ export default {
     }
 };
 </script>
-
-<style>
-.error-message {
-    background-color: red;
-    color: white;
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 14px;
-    text-align: center;
-    font-weight: bold;
-    margin-bottom: 10px;
-    /* Отступ между сообщением об ошибке и формой */
-}
-</style>
 
 <style scoped>
 .modal-overlay {

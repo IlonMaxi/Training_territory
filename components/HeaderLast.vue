@@ -2,7 +2,7 @@
     <header>
         <nav>
             <div class="logo">
-                <h1>TRENING TERRITORY</h1>
+                <h1>TRAINING TERRITORY</h1>
             </div>
             <div class="navbar">
                 <ul>
@@ -98,11 +98,7 @@ nav {
     align-items: center;
     position: relative;
     transition: color 0.3s ease;
-}
-
-.navbar p {
-    padding-left: 10px;
-}
+} 
 
 .navbar ul li a::after {
     content: '';

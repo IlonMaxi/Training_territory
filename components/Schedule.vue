@@ -6,8 +6,12 @@
         <i class="fa-solid fa-chevron-left"></i>
       </button>
       <div class="dates">
-        <div v-for="(day, index) in currentWeek" :key="index" :class="['date', { active: isToday(day.date) }]"
-          @click="selectDay(day)">
+        <div
+          v-for="(day, index) in currentWeek"
+          :key="index"
+          :class="['date', { active: isSelected(day.date), today: isToday(day.date) }]"
+          @click="selectDay(day)"
+        >
           <p class="day-number">{{ day.date.getDate() }}</p>
           <p class="day-name">{{ getDayName(day.date) }}</p>
         </div>
@@ -19,7 +23,11 @@
 
     <!-- Список тренировок -->
     <div class="training-list">
-      <div v-for="(session, index) in filteredTrainingSessions" :key="index" class="session-wrapper">
+      <div
+        v-for="(session, index) in filteredTrainingSessions"
+        :key="index"
+        class="session-wrapper"
+      >
         <div class="bullet-line-wrapper">
           <div class="bullet"></div>
           <div class="line" v-if="index < filteredTrainingSessions.length - 1"></div>
@@ -29,27 +37,40 @@
             <div class="session-details">
               <h3 class="session-title">Тренировка - {{ session.workout_name }}</h3>
               <ul class="session-description">
-                <li>Место: {{ session.Место }}</li>
+                <li>Место: {{ session.location }}</li>
                 <li>Описание: {{ session.workout_description }}</li>
               </ul>
               <h4>Упражнения:</h4>
               <ul class="exercises-list">
                 <li>
-                  <strong>{{ session.exercise_name }}</strong>: {{ session.exercise_description }} (Оборудование: {{ session.equipment }})
+                  <strong>{{ session.exercise_name }}</strong>:
+                  {{ session.exercise_description }} (Оборудование: {{ session.equipment }})
                 </li>
               </ul>
             </div>
           </div>
           <div class="session-time">
-            <p>{{ session.Начало }} - {{ session.Время_окончания }}</p>
+            <p>{{ formatTime(session.starttime) }} - {{ formatTime(session.endtime) }}</p>
           </div>
         </div>
+      </div>
+      <!-- Сообщение, если нет тренировок на выбранный день -->
+      <div v-if="filteredTrainingSessions.length === 0 && !error" class="no-sessions">
+        Нет запланированных тренировок на этот день.
+      </div>
+      <!-- Сообщение об ошибке -->
+      <div v-if="error" class="error-message">
+        {{ error }}
       </div>
     </div>
 
     <!-- Список питания -->
     <div class="nutrition-list">
-      <div v-for="(meal, index) in filteredNutritionData" :key="index" class="meal-wrapper">
+      <div
+        v-for="(meal, index) in filteredNutritionData"
+        :key="index"
+        class="meal-wrapper"
+      >
         <div class="bullet-line-wrapper">
           <div class="bullet"></div>
           <div class="line" v-if="index < filteredNutritionData.length - 1"></div>
@@ -57,28 +78,45 @@
         <div class="meal">
           <h3 class="meal-title">{{ meal.food_name }} ({{ meal.calories }} ккал)</h3>
           <p><strong>Описание:</strong> {{ meal.food_description }}</p>
-          <p><strong>Белки:</strong> {{ meal.proteins }} г, <strong>Жиры:</strong> {{ meal.fats }} г,
-            <strong>Углеводы:</strong> {{ meal.carbohydrates }} г</p>
+          <p>
+            <strong>Белки:</strong> {{ meal.proteins }} г,
+            <strong>Жиры:</strong> {{ meal.fats }} г,
+            <strong>Углеводы:</strong> {{ meal.carbohydrates }} г
+          </p>
           <h4>Рецепт - {{ meal.recipe_name }}</h4>
           <p><strong>Ингредиенты:</strong> {{ meal.ingredients }}</p>
-          <p><strong>Время приготовления:</strong> {{ meal.preparation_time.minutes }} минут</p>
+          <p><strong>Время приготовления:</strong> {{ meal.preparation_time }} минут</p>
           <p><strong>Инструкция:</strong> {{ meal.instructions }}</p>
         </div>
+      </div>
+      <!-- Сообщение, если нет питания на выбранный день -->
+      <div v-if="filteredNutritionData.length === 0 && !error" class="no-meals">
+        Нет запланированного питания на этот день.
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import dayjs from 'dayjs';
+import 'dayjs/locale/ru'; // Убедитесь, что локаль подключена
+
 export default {
+  props: {
+    user: {
+      type: Object,
+      required: true
+    }
+  },
   data() {
     const today = new Date();
     return {
       selectedDay: today,
-      currentWeekIndex: this.getWeekIndex(today),
-      year: this.generateYear(today),
+      currentWeekIndex: 0, // Инициализируем позже в created
+      year: [],
       trainingSessions: [],
-      nutritionData: [] // Добавляем массив для питания
+      nutritionData: [],
+      error: null, // Для отображения ошибок
     };
   },
   computed: {
@@ -88,90 +126,149 @@ export default {
     },
     filteredTrainingSessions() {
       return this.trainingSessions.filter(session => {
-        const sessionDate = new Date(session.Дата);
-        return sessionDate.toDateString() === this.selectedDay.toDateString();
+        const sessionDate = dayjs(session.date).startOf('day');
+        const selected = dayjs(this.selectedDay).startOf('day');
+        return sessionDate.isSame(selected, 'day');
       });
     },
     filteredNutritionData() {
       return this.nutritionData.filter(meal => {
-        const mealDate = new Date(meal.food_date);
-        return mealDate.toDateString() === this.selectedDay.toDateString();
+        const mealDate = dayjs(meal.food_date).startOf('day'); // Убедитесь, что поле food_date правильно
+        const selected = dayjs(this.selectedDay).startOf('day');
+        return mealDate.isSame(selected, 'day');
       });
-    }
+    },
   },
   methods: {
     async fetchSchedule() {
+      if (!this.user || !this.user.clientid) {
+        this.error = "Отсутствует идентификатор клиента.";
+        return;
+      }
+
       try {
-        const clientId = this.$route.params.clientid;
+        const clientId = this.user.clientid;
 
         // Запрос для получения расписания тренировок
-        const scheduleResponse = await fetch(`http://25.22.135.216:3000/api/schedule/client/${clientId}`);
+        const scheduleResponse = await fetch(`http://26.100.29.243:3000/api/schedule/client/${clientId}`);
         if (!scheduleResponse.ok) {
           throw new Error(`Ошибка HTTP: ${scheduleResponse.status}`);
         }
         const scheduleData = await scheduleResponse.json();
+        console.log('Полученные данные расписания:', scheduleData); // Для отладки
         this.trainingSessions = scheduleData;
 
         // Запрос для получения питания
-        const nutritionResponse = await fetch(`http://25.22.135.216:3000/api/nutrition/client/${clientId}`);
+        const nutritionResponse = await fetch(`http://26.100.29.243:3000/api/nutrition/client/${clientId}`);
         if (!nutritionResponse.ok) {
           throw new Error(`Ошибка HTTP: ${nutritionResponse.status}`);
         }
         const nutritionData = await nutritionResponse.json();
+        console.log('Полученные данные питания:', nutritionData); // Для отладки
         this.nutritionData = nutritionData;
-
       } catch (error) {
         console.error("Ошибка при получении данных:", error);
+        this.error = "Не удалось загрузить данные. Пожалуйста, попробуйте позже.";
       }
     },
     generateYear(startDate) {
       const year = [];
-      const startOfYear = new Date(startDate.getFullYear(), 0, 1);
-      const dayOfWeek = startOfYear.getDay();
-      const offset = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
-      startOfYear.setDate(startOfYear.getDate() + offset);
+      const startOfYear = dayjs(startDate).startOf('year').day(1).toDate(); // Понедельник как первый день недели
+      let currentDate = dayjs(startOfYear);
 
-      let currentDate = new Date(startOfYear);
+      // Определяем, является ли год високосным
+      const yearNumber = dayjs(startDate).year();
+      const isLeapYear = (yearNumber % 4 === 0 && yearNumber % 100 !== 0) || (yearNumber % 400 === 0);
+      const daysInYear = isLeapYear ? 366 : 365;
 
-      for (let i = 0; i < 365; i++) {
-        year.push({ date: new Date(currentDate) });
-        currentDate.setDate(currentDate.getDate() + 1);
+      for (let i = 0; i < daysInYear; i++) {
+        year.push({ date: currentDate.toDate() });
+        currentDate = currentDate.add(1, 'day');
       }
 
       return year;
     },
     getWeekIndex(date) {
-      const startOfYear = new Date(date.getFullYear(), 0, 1);
-      const dayOfWeek = startOfYear.getDay();
-      const offset = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek;
-      startOfYear.setDate(startOfYear.getDate() + offset);
-
-      const daysDifference = Math.floor((date - startOfYear) / (1000 * 60 * 60 * 24));
+      const startOfYear = dayjs(date).startOf('year').day(1); // Понедельник как первый день недели
+      const daysDifference = dayjs(date).diff(startOfYear, 'day');
       return Math.floor(daysDifference / 7);
     },
     getDayName(date) {
-      return date.toLocaleDateString('ru-RU', { weekday: 'short' });
+      return dayjs(date).locale('ru').format('ddd');
     },
     selectDay(day) {
       this.selectedDay = day.date;
+      this.setCookie('selectedDay', day.date.toISOString(), 7); // Сохраняем выбранный день в куки
     },
     isToday(date) {
-      return this.selectedDay.toDateString() === date.toDateString();
+      return dayjs(date).isSame(dayjs(), 'day');
+    },
+    isSelected(date) {
+      return dayjs(date).isSame(dayjs(this.selectedDay), 'day');
+    },
+    formatTime(time) {
+      // Преобразование времени из формата 'HH:MM:SS' в 'HH:MM'
+      return time.slice(0, 5);
     },
     prevWeek() {
       if (this.currentWeekIndex > 0) {
         this.currentWeekIndex--;
+        this.updateSelectedDay();
       }
     },
     nextWeek() {
       if (this.currentWeekIndex < Math.floor(this.year.length / 7)) {
         this.currentWeekIndex++;
+        this.updateSelectedDay();
       }
-    }
+    },
+    updateSelectedDay() {
+      const week = this.currentWeek;
+      const found = week.find(day =>
+        dayjs(day.date).isSame(this.selectedDay, 'day')
+      );
+      if (!found) {
+        this.selectedDay = week[0].date;
+        this.setCookie('selectedDay', week[0].date.toISOString(), 7);
+      }
+    },
+    /**
+     * Восстанавливает выбранный день из куки.
+     * @returns {Date|null} Выбранный день или null, если куки отсутствуют.
+     */
+    getSavedDay() {
+      const savedDay = this.getCookie('selectedDay');
+      return savedDay ? new Date(savedDay) : null;
+    },
+    // Установка куки
+    setCookie(name, value, days) {
+      if (process.client) { // Проверяем, что код выполняется на клиенте
+        const date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+        document.cookie = `${name}=${encodeURIComponent(value)}; path=/; expires=${date.toUTCString()}`;
+      }
+    },
+    // Получение куки
+    getCookie(name) {
+      if (process.client) { // Проверяем, что код выполняется на клиенте
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+      }
+      return null;
+    },
   },
   created() {
-    this.fetchSchedule(); // Загружаем расписание и питание после создания компонента
-  }
+    if (this.user) {
+      this.selectedDay = this.getSavedDay() || new Date(); // Восстанавливаем выбранный день из куки или используем сегодня
+      this.year = this.generateYear(this.selectedDay); // Генерация года
+      this.currentWeekIndex = this.getWeekIndex(this.selectedDay); // Индекс текущей недели
+      this.fetchSchedule(); // Загрузка расписания и питания
+    } else {
+      this.error = "Пользователь не авторизован.";
+    }
+    dayjs.locale('ru'); // Устанавливаем локаль
+  },
 };
 </script>
 

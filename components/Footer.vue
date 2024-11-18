@@ -1,7 +1,7 @@
 <template>
     <footer class="footer">
         <div class="footer-content">
-            <h2 class="footer-title">TRENING TERRITORY</h2>
+            <h2 class="footer-title">TRAINING TERRITORY</h2>
             <ul class="footer-links">
                 <li><a href="#" @click.prevent="activateTrainFlip" :class="{ active: isTrainFlipActive }"><i class="fa-solid fa-dumbbell"></i><span> Тренеру</span></a></li>
                 <li><a href="#" @click.prevent="activateClientFlip" :class="{ active: !isTrainFlipActive }"><i class="fa-solid fa-user-check"></i><span> Клиенту</span></a></li>
@@ -11,7 +11,7 @@
 
             <div class="divider-line"></div>
             <div class="footer-bottom">
-                <p>© 2024 TRENING TERRITORY, All Rights Reserved.</p>
+                <p>© 2024 TRAINING TERRITORY, All Rights Reserved.</p>
                 <div class="social-icons">
                     <a href="#" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-facebook-f"></i>

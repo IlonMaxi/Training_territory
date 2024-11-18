@@ -1,47 +1,48 @@
+// models/KgMeasurement.js
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const ZameryVKg = sequelize.define('KgMeasurement', {
-  mkilogramid: {
+const KgMeasurement = sequelize.define('KgMeasurement', {
+  kilogramid: { // Соответствует столбцу 'kilogramid'
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  Вес: {
+  weight: { // Соответствует столбцу 'weight'
     type: DataTypes.NUMERIC(10, 2),
     allowNull: true,
   },
-  Жировая_масса: {
+  fat_mass: { // Соответствует столбцу 'fat_mass'
     type: DataTypes.NUMERIC(10, 2),
     allowNull: true,
   },
-  Скелетная_масса: {
+  skeletal_mass: { // Соответствует столбцу 'skeletal_mass'
     type: DataTypes.NUMERIC(10, 2),
     allowNull: true,
   },
-  Мышечная_масса: {
+  muscle_mass: { // Соответствует столбцу 'muscle_mass'
     type: DataTypes.NUMERIC(10, 2),
     allowNull: true,
   },
-  Содержание_воды: {
+  water_content: { // Соответствует столбцу 'water_content'
     type: DataTypes.NUMERIC(10, 2),
     allowNull: true,
   },
-  Костная_масса: {
+  bone_mass: { // Соответствует столбцу 'bone_mass'
     type: DataTypes.NUMERIC(10, 2),
     allowNull: true,
   },
-  lbm: {
+  lbm: { // Соответствует столбцу 'lbm'
     type: DataTypes.NUMERIC(10, 2),
     allowNull: true,
   },
-  Дата: {
+  date: { // Соответствует столбцу 'date'
     type: DataTypes.DATE,
     allowNull: true,
   }
 }, {
-  tableName: 'Замеры_в_кг',
-  timestamps: false,
+  tableName: 'measurements_in_kilograms', // Имя таблицы в нижнем регистре
+  timestamps: false, // Отключаем автоматическое добавление полей createdAt и updatedAt
 });
 
-module.exports = ZameryVKg;
+module.exports = KgMeasurement;
