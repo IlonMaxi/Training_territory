@@ -2,20 +2,20 @@
     <div>
         <HeaderAfterLogin />
         <ScheduleComponent :user="user" />
-        <FooterComponent />
+        <FooterLastComponent />
     </div>
 </template>
 
 <script>
 import HeaderAfterLogin from '~/components/Header.vue';
 import ScheduleComponent from '~/components/Schedule.vue';
-import FooterComponent from '~/components/Footer.vue';
+import FooterLastComponent from '~/components/FooterLast.vue';
 
 export default {
     components: {
         HeaderAfterLogin,
         ScheduleComponent,
-        FooterComponent
+        FooterLastComponent
     },
     data() {
         return {

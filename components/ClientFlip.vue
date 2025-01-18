@@ -131,7 +131,7 @@
                             width="500" height="500">
                     </div>
                     <div class="coaching-image">
-                        <img src="https://wallbox.ru/resize/1024x1024/wallpapers/main/201524/ee5eb605d2d4dc1.jpg"
+                        <img src="https://sport.znanie-nn.ru/images/files/1/upload_5e03b152029525.14591656.jpg"
                             alt="Image 1" width="500" height="500">
                     </div>
                     <div class="coaching-image">
@@ -147,7 +147,7 @@
                             alt="Image 1" width="500" height="500">
                     </div>
                     <div class="coaching-image">
-                        <img src="https://liveposts.ru/upload/images/4/10/4d/10123_krasivaya-zhenskaya-figura-s-pomoshhyu-pauerliftinga_9-900x900.jpg"
+                        <img src="https://adlonlinecourses.com/wp-content/uploads/2021/10/personal-trainer-online-course-5-1.jpg"
                             alt="Image 1" width="500" height="500">
                     </div>
                     <div class="coaching-image">

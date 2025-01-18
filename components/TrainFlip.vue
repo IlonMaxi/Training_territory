@@ -59,9 +59,81 @@
         <div id="schedule-section" class="schedule-section">
             <h2>Расписание</h2>
             <p>Насколько оно важно для клиента?</p>
+
             <div class="schedule-images">
                 <div class="background-rectangle"></div>
-                <!-- Добавьте вашу структуру карт с расписанием здесь -->
+
+                <div class="image-container">
+                    <div class="flip-card">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <img src="https://i.pinimg.com/originals/bb/13/ac/bb13ac3dd63fd93fe3b16b8d0fb635c9.jpg"
+                                    alt="Изображение 1" width="300" height="500" class="flip-image">
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="text-on-back">
+                                    <p> 7:00 – Пробуждение <br> <br>
+                                        8:00-8:30 – Завтрак (каша с фруктами)<br> <br>
+                                        10:00-12:00 – Тренировка в фитнес-центре<br> <br>
+                                        12:30-13:00 – Полдник (орехи и ягоды)<br> <br>
+                                        13:00-14:00 – Обед (курица гриль с овощами)<br><br>
+                                        19:00-20:00 – Ужин (рыба с овощами и гречкой)<br><br>
+                                        22:00 – Ложиться спать</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-container">
+                    <div class="flip-card">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <img src="https://i.pinimg.com/originals/5e/95/37/5e953797561655e176b16ba054548400.png"
+                                    alt="Изображение 1" width="300" height="500" class="flip-image">
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="text-on-back">
+                                    <p>Завтрак:<br>
+                                        1. Белковый смузи<br>
+                                        2. Омлет с овощами<br>
+                                        3. Тост с авокадо и лососем<br>
+                                        <br>
+                                        Обед:<br>
+                                        1. Куриные грудки с картофельным пюре<br>
+                                        2. Греческий йогурт с орехами и медом<br>
+                                        3. Киноа с овощами и куриной грудкой<br>
+                                        <br>
+                                        Ужин:<br>
+                                        1. Тунец на гриле с овощами<br>
+                                        2. Зеленый салат с крабовыми палочками<br>
+                                        3. Бруссельская капуста с куриным филе
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="image-container">
+                    <div class="flip-card">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <img src="https://sun9-44.userapi.com/impg/rvI4M_XCHB9H3TlKQ6RA6r2c6-fLUY5YiZwviQ/KcstCwpM87Y.jpg?size=453x604&quality=95&sign=f6db54fc6c5152f645891bd5d556517f&c_uniq_tag=rhl55Pcp69zwtPywQYPY5m4qFPzqRWoGxgAp868jfic&type=album"
+                                    alt="Изображение 1" width="300" height="500" class="flip-image">
+                            </div>
+                            <div class="flip-card-back">
+                                <div class="text-on-back">
+                                    <p>Жим штанги - базовое упражнение для грудных, плеч и трицепса<br>
+                                        <br>
+                                        Становая тяга - базовое упражнение для спины и ног<br>
+                                        <br>
+                                        Присяд со штангой - базовое упражнение для низа тела<br>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 

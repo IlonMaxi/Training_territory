@@ -85,7 +85,7 @@
           </p>
           <h4>Рецепт - {{ meal.recipe_name }}</h4>
           <p><strong>Ингредиенты:</strong> {{ meal.ingredients }}</p>
-          <p><strong>Время приготовления:</strong> {{ meal.preparation_time }} минут</p>
+          <p><strong>Время приготовления:</strong> {{ meal.preparation_time.minutes }} минут</p>
           <p><strong>Инструкция:</strong> {{ meal.instructions }}</p>
         </div>
       </div>
