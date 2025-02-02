@@ -396,6 +396,7 @@ app.get('/nutrition/client/:clientId', async (req, res) => {
         f.carbohydrate_amount AS carbohydrates,
         f.calories AS calories,
         f.date AS food_date,
+        f.meal_type AS meal_type,
         r.recipeid AS recipeId,
         r.name AS recipe_name,
         r.ingredients AS ingredients,
@@ -425,101 +426,103 @@ app.get('/nutrition/client/:clientId', async (req, res) => {
 
 const cron = require('node-cron');
 
-// Функция для определения калорийности на основе типа и сложности тренировки
-const getCaloriesByWorkout = (workoutType, difficulty) => {
+const MEALS = [
+  { name: 'Завтрак', ratio: 0.25 },
+  { name: 'Обед', ratio: 0.375 },
+  { name: 'Ужин', ratio: 0.375 }
+];
+
+const getTotalCalories = (workoutType, difficulty) => {
   if (workoutType === 'силовая') {
-    return difficulty === 'Высокий'
-      ? Math.floor(Math.random() * (3500 - 3000) + 3000)
-      : Math.floor(Math.random() * (2500 - 2000) + 2000);
+    return difficulty === 'Высокий' ? 3200 : 2500;
   } else if (workoutType === 'кардио') {
-    return difficulty === 'Высокий'
-      ? Math.floor(Math.random() * (3000 - 2500) + 2500)
-      : Math.floor(Math.random() * (2000 - 1800) + 1800);
+    return difficulty === 'Высокий' ? 2800 : 2200;
   }
-  return Math.floor(Math.random() * (1500 - 1200) + 1200); // День без тренировки
+  return 2000;
 };
 
-// Функция для получения даты ближайшего воскресенья
-const getNextSunday = () => {
-  const today = new Date();
-  const dayOfWeek = today.getDay(); // 0 - воскресенье
-  const daysToNextSunday = (7 - dayOfWeek) % 7;
-  const nextSunday = new Date(today);
-  nextSunday.setDate(today.getDate() + daysToNextSunday);
-  nextSunday.setHours(0, 0, 0, 0); // Установить время в 00:00:00
-  return nextSunday;
-};
-
-// Запланированная задача
-cron.schedule('* * * * *', async () => {
-  
+const generateNutritionSchedule = async () => {
+  console.log('Запуск задачи по генерации расписания...');
   try {
-    // Получаем всех клиентов
     const clients = await Client.findAll();
+    if (!clients.length) return console.log('Нет клиентов для обработки.');
 
     for (const client of clients) {
       const clientId = client.clientid;
-
-      // Получаем тренировки клиента
-      const workouts = await Workout.findAll({
-        where: { coach_id: client.coach_id },
-      });
-
-      // Начинаем с ближайшего воскресенья
-      let currentDate = getNextSunday();
-      const meals = [];
-
+      const workouts = await Workout.findAll({ where: { coach_id: client.coach_id } });
+      let currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+      
+      console.log(`Генерация питания для клиента ${clientId} с ${currentDate.toDateString()}`);
+      
       for (let i = 0; i < 7; i++) {
-        // Проверяем, есть ли тренировка в текущий день
-        const workout = workouts.find(
-          (w) => new Date(w.date).toDateString() === currentDate.toDateString()
-        );
+        const workout = workouts.find(w => new Date(w.date).toDateString() === currentDate.toDateString());
+        const totalCalories = getTotalCalories(workout?.workout_type, workout?.difficulty);
 
-        let calories;
-        if (workout) {
-          calories = getCaloriesByWorkout(workout.workout_type, workout.difficulty);
-        } else {
-          calories = getCaloriesByWorkout(null, null); // День отдыха
-        }
-
-        // Проверяем количество существующих записей питания на текущую дату
-        const existingNutritionCount = await Nutrition.count({
-          where: {
-            client_id: clientId,
-            date: currentDate, // Условие на дату
-          },
+        const existingNutritions = await Nutrition.findAll({
+          where: { client_id: clientId, date: currentDate }
         });
 
-        if (existingNutritionCount < 3) {
-          // Получаем случайный рецепт
-          const recipes = await Recipe.findAll();
-          const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
-
-          // Создаём запись в Nutrition
-          const meal = await Nutrition.create({
-            name: randomRecipe.name,
-            description: randomRecipe.instructions,
-            protein_amount: (calories * 0.3) / 4, // 30% белков
-            fat_amount: (calories * 0.25) / 9, // 25% жиров
-            carbohydrate_amount: (calories * 0.45) / 4, // 45% углеводов
-            calories,
-            water_amount: Math.random() * 500 + 1500, // Вода
-            date: new Date(currentDate), // Клонируем дату
-            client_id: clientId,
-            recipe_id: randomRecipe.recipeid,
-          });
-
-          meals.push(meal);
+        if (existingNutritions.length && workout === undefined) {
+          console.log(`Питание для ${currentDate.toDateString()} уже существует и нет новых тренировок. Пропускаем.`);
         } else {
-        }
+          const recipes = await Recipe.findAll();
+          if (!recipes.length) {
+            console.error('Нет доступных рецептов.');
+            continue;
+          }
+          
+          for (const meal of MEALS) {
+            const mealCalories = Math.round(totalCalories * meal.ratio);
+            const existingMeal = existingNutritions.find(n => n.meal_type === meal.name);
+            const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
 
-        // Переход на следующий день
+            if (existingMeal) {
+              await existingMeal.update({
+                name: randomRecipe.name,
+                description: randomRecipe.instructions,
+                protein_amount: (mealCalories * 0.3) / 4,
+                fat_amount: (mealCalories * 0.25) / 9,
+                carbohydrate_amount: (mealCalories * 0.45) / 4,
+                calories: mealCalories,
+                water_amount: Math.random() * 500 + 1500,
+                recipe_id: randomRecipe.recipeid,
+              });
+              console.log(`Обновлено питание (${meal.name}) для клиента ${clientId} на ${currentDate.toDateString()}`);
+            } else {
+              await Nutrition.create({
+                client_id: clientId,
+                date: currentDate,
+                meal_type: meal.name,
+                name: randomRecipe.name,
+                description: randomRecipe.instructions,
+                protein_amount: (mealCalories * 0.3) / 4,
+                fat_amount: (mealCalories * 0.25) / 9,
+                carbohydrate_amount: (mealCalories * 0.45) / 4,
+                calories: mealCalories,
+                water_amount: Math.random() * 500 + 1500,
+                recipe_id: randomRecipe.recipeid,
+              });
+              console.log(`Добавлено питание (${meal.name}) для клиента ${clientId} на ${currentDate.toDateString()}`);
+            }
+          }
+        }
         currentDate.setDate(currentDate.getDate() + 1);
       }
     }
   } catch (error) {
     console.error('Ошибка при генерации питания:', error);
   }
+};
+
+(async () => {
+  console.log('Первый запуск: генерация расписания...');
+  await generateNutritionSchedule();
+})();
+
+cron.schedule('0 0 * * *', async () => {
+  console.log('Запуск плановой генерации питания...');
+  await generateNutritionSchedule();
 });
 
 // Маршруты для тренировок

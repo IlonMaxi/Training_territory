@@ -3,7 +3,7 @@
         <HeaderAfterLogin />
         <ScheduleComponent :user="user" />
         <AssignComponent />
-        <FooterLastComponent />
+        <FooterLast />
     </div>
 </template>
 
@@ -11,14 +11,14 @@
 import HeaderAfterLogin from '~/components/Header.vue';
 import ScheduleComponent from '~/components/Schedule_trainer.vue';
 import AssignComponent from '~/components/Assign_trainer.vue';
-import FooterComponent from '~/components/FooterLast.vue';
+import FooterLast from '~/components/FooterLast.vue';
 
 export default {
     components: {
         HeaderAfterLogin,
         ScheduleComponent,
         AssignComponent,
-        FooterLastComponent
+        FooterLast
     },
     data() {
         return {

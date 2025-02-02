@@ -5,11 +5,31 @@
                 <h1>TRAINING TERRITORY</h1>
             </div>
             <div class="navbar">
-                <ul>
-                    <li><a href="#" class="nav-button">РАСПИСАНИЕ</a></li>
-                    <li><a href="#" class="nav-button">ПИТАНИЕ</a></li>
-                    <li><a href="#" class="nav-button">ПРОГРЕСС</a></li>
-                    <li><a href="#" class="profile-icon"><i class="fa-solid fa-user"></i></a></li>
+                <ul class="desktop-menu">
+                    <li><a href="#" class="nav-button" @click="navigateToSection('schedule')">РАСПИСАНИЕ</a></li>
+                    <li><a href="#" class="nav-button" @click="navigateToSection('nutrition')">ПИТАНИЕ</a></li>
+                    <li><a href="#" class="nav-button" @click="navigateToSection('progress')">ПРОГРЕСС</a></li>
+                    <li>
+                        <router-link to="/profile" class="profile-icon">
+                            <i class="fa-solid fa-user"></i>
+                        </router-link>
+                    </li>
+                </ul>
+                <div class="burger-icon" @click="toggleMobileMenu" role="button" aria-label="Открыть мобильное меню"
+                    tabindex="0">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="mobile-menu-overlay" v-if="isMobileMenuOpen" @click="closeMobileMenu"></div>
+                <ul class="mobile-menu" :class="{ 'active': isMobileMenuOpen }">
+                    <li style="display: flex; align-items: center;">
+                        <i class="fa-solid fa-user"></i>
+                        <router-link to="/profile" class="profile-icon" @click="closeMobileMenu">
+                            ПРОФИЛЬ
+                        </router-link>
+                    </li>
+                    <li><a href="#" class="nav-button" @click="navigateToSection('schedule')">РАСПИСАНИЕ</a></li>
+                    <li><a href="#" class="nav-button" @click="navigateToSection('nutrition')">ПИТАНИЕ</a></li>
+                    <li><a href="#" class="nav-button" @click="navigateToSection('progress')">ПРОГРЕСС</a></li>
                 </ul>
             </div>
         </nav>
@@ -19,18 +39,62 @@
 <script>
 export default {
     name: 'HeaderLast',
+    data() {
+        return {
+            isMobileMenuOpen: false
+        };
+    },
     methods: {
-        openLoginModal() {
-            this.$emit('open-login-modal');
+        toggleMobileMenu() {
+            this.isMobileMenuOpen = !this.isMobileMenuOpen;
         },
-        openRegisterModal() {
-            this.$emit('open-register-modal');
+        closeMobileMenu(event) {
+            if (!event || !event.target.closest('.mobile-menu')) {
+                this.isMobileMenuOpen = false;
+            }
+        },
+        async navigateToSection(section) {
+            const accountType = this.getCookie('accountType');
+
+            let routeName = accountType === 'trainer' ? 'TrainerPage' :
+                accountType === 'client' ? 'ClientPage' : null;
+
+            if (routeName) {
+                try {
+                    if (this.$route.name !== routeName) {
+                        await this.$router.push({ name: routeName, query: { section } });
+                    }
+                    this.scrollToSection(section);
+                } catch (error) {
+                    console.error('Ошибка при навигации:', error);
+                }
+            } else {
+                console.warn('Неизвестный тип аккаунта. Возможно, пользователь не вошел в систему.');
+            }
+        },
+        scrollToSection(section) {
+            this.$nextTick(() => {
+                const element = document.getElementById(section);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        },
+        getCookie(name) {
+            const cookies = document.cookie.split('; ').reduce((acc, cookie) => {
+                const [key, value] = cookie.split('=');
+                acc[key] = decodeURIComponent(value);
+                return acc;
+            }, {});
+            return cookies[name] || null;
         }
     }
 }
 </script>
 
+
 <style scoped>
+/* Основные стили */
 header {
     background-size: cover;
     background-position: center;
@@ -56,7 +120,8 @@ nav {
     font-size: 24px;
 }
 
-.navbar ul {
+/* Меню для ПК */
+.desktop-menu {
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -64,16 +129,17 @@ nav {
     align-items: center;
 }
 
-.navbar ul li {
+.desktop-menu li {
     margin-left: 20px;
     font-size: 18px;
 }
 
-.navbar ul li:first-child {
+.desktop-menu li:first-child {
     margin-left: 0;
 }
 
-.navbar ul li a.nav-button {
+/* Кнопки меню */
+.nav-button {
     text-decoration: none;
     color: white;
     background-color: transparent;
@@ -85,12 +151,13 @@ nav {
     text-align: center;
 }
 
-.navbar ul li a.nav-button:hover {
+.nav-button:hover {
     background-color: #DD7548;
     color: white;
 }
 
-.navbar ul li a.profile-icon {
+/* Иконка профиля */
+.profile-icon {
     border: 2px solid #DD7548;
     border-radius: 50%;
     padding: 5px;
@@ -101,48 +168,153 @@ nav {
     width: 40px;
 }
 
-.navbar ul li a.profile-icon:hover {
+.profile-icon:hover {
     background-color: #DD7548;
     color: white;
 }
 
-@media screen and (max-width: 940px) {
-    .logo h1 {
-        margin: 0;
-        color: white;
-        font-size: 20px;
-    }
+/* Иконка бургера */
+.burger-icon {
+    display: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
 }
 
-@media screen and (max-width: 820px) {
-    nav {
-        width: 90%;
-        padding: 15px;
-    }
+/* Оверлей для затемнения экрана */
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9;
+}
 
-    .logo h1 {
-        font-size: 20px;
-    }
+/* Мобильное меню */
+.mobile-menu {
+    position: fixed;
+    top: 80px;
+    right: -100%;
+    width: 300px;
+    background: white;
+    border-radius: 15px 0 0 15px;
+    padding: 15px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+    transition: right 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+}
 
-    .navbar ul {
-        align-items: center;
-    }
+.mobile-menu.active {
+    right: 0;
+}
 
-    .navbar ul li {
-        margin-left: 20px;
-        font-size: 16px;
-    }
+.mobile-menu .nav-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    color: black;
+    border: 2px solid #c85a2e;
+    border-radius: 8px;
+    background: white;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+}
 
-    .navbar ul li:first-child {
-        margin-left: 0;
-    }
+.mobile-menu li {
+    width: 100%;
+}
 
-    .navbar ul li a.nav-button {
-        justify-content: center;
-    }
+.mobile-menu li i {
+    margin-right: 20px;
+    color: #c85a2e;
+    font-size: 22px;
+    border: 2px solid #c85a2e;
+    border-radius: 50%;
+    width: 51px;
+    height: 51px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    .navbar p {
+.mobile-menu a:hover {
+    background: #c85a2e;
+    color: white;
+}
+
+/* Иконка профиля */
+.mobile-menu .profile-icon {
+    width: 75%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    color: black;
+    border: 2px solid #c85a2e;
+    border-radius: 8px;
+    background: white;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-menu .profile-icon a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #c85a2e;
+    background: white;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-menu .profile-icon i {
+    color: #c85a2e;
+    font-size: 22px;
+    margin-right: 10px;
+}
+
+.mobile-menu .profile-icon:hover {
+    background: #c85a2e;
+}
+
+.mobile-menu .profile-icon:hover i {
+    color: white;
+}
+
+/* Затемняющий фон при открытии меню */
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+}
+
+/* Медиа-запросы */
+@media (max-width: 768px) {
+    .desktop-menu {
         display: none;
+    }
+
+    .burger-icon {
+        display: block;
     }
 }
 </style>

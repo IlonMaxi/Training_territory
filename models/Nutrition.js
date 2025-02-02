@@ -92,6 +92,14 @@ const Nutrition = sequelize.define('Nutrition', {
     onUpdate: 'CASCADE',
     onDelete: 'SET NULL', // Или 'CASCADE', в зависимости от вашей бизнес-логики
   },
+  meal_type: { // Соответствует столбцу 'meal_type'
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    validate: {
+      notEmpty: true,
+      len: [3, 50], // Минимальная длина 3 символа
+    },
+  },
 }, {
   tableName: 'nutrition', // Имя таблицы в нижнем регистре
   timestamps: false,      // Отключаем автоматическое добавление полей createdAt и updatedAt

@@ -1,6 +1,6 @@
 <template>
   <div class="schedule">
-    <h1 class="title">РАСПИСАНИЕ</h1>
+    <h1 id="schedule" class="title">РАСПИСАНИЕ</h1>
     <div class="date-picker">
       <button class="arrow-button" @click="prevWeek">
         <i class="fa-solid fa-chevron-left"></i>
@@ -65,7 +65,7 @@
     </div>
 
     <!-- Список питания -->
-    <div class="nutrition-list">
+    <div id="nutrition" class="nutrition-list">
       <div
         v-for="(meal, index) in filteredNutritionData"
         :key="index"
@@ -76,6 +76,7 @@
           <div class="line" v-if="index < filteredNutritionData.length - 1"></div>
         </div>
         <div class="meal">
+          <h3 class="meal-title">{{ meal.meal_type }}</h3>
           <h3 class="meal-title">{{ meal.food_name }} ({{ meal.calories }} ккал)</h3>
           <p><strong>Описание:</strong> {{ meal.food_description }}</p>
           <p>
