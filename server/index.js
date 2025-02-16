@@ -37,6 +37,35 @@ app.use(cors({
 // Поддержка JSON тела запроса
 app.use(bodyParser.json());
 
+// ID администратора (укажи свой ID)
+const ADMIN_ID = 1;
+
+// Проверка доступа к админке
+app.get('/admin/check-access', async (req, res) => {
+  try {
+    const userId = req.query.id; // Получаем ID пользователя из запроса
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const client = await Client.findByPk(userId);
+
+    if (!client) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    if (client.clientid == ADMIN_ID) {
+      res.status(200).json({ access: true });
+    } else {
+      res.status(403).json({ error: "Access denied" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 // Маршруты для тренеров
 app.get('/coaches', async (req, res) => {
   try {
@@ -155,6 +184,34 @@ app.post('/clients', async (req, res) => {
   } catch (error) {
     console.error('Registration error:', error);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Обновление данных клиента
+// Обновление данных клиента
+app.put('/clients/:id', async (req, res) => {
+  const { id } = req.params;
+  const { first_name, last_name, patronymic, username, phone_number, email } = req.body;
+
+  try {
+      const client = await Client.findByPk(id);
+      if (!client) {
+          return res.status(404).json({ error: 'Клиент не найден' });
+      }
+
+      await client.update({
+          first_name,
+          last_name,
+          patronymic,
+          username,
+          phone_number,
+          email
+      });
+
+      res.status(200).json({ message: 'Данные обновлены', user: client });
+  } catch (error) {
+      console.error('Ошибка обновления данных:', error);
+      res.status(500).json({ error: 'Ошибка сервера' });
   }
 });
 
