@@ -43,6 +43,10 @@ const Client = sequelize.define('Client', {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
+  gender: {
+    type: DataTypes.STRING(10),
+    allowNull: false,
+  },  
   coach_id: {
     type: DataTypes.INTEGER,
     allowNull: true,

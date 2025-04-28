@@ -170,6 +170,7 @@ export default {
   }
 };
 </script>
+
 <style scoped>
 .modal-overlay {
   position: fixed;
@@ -190,16 +191,18 @@ h2 {
   margin-top: 20px;
   font-weight: bold;
   font-size: x-large;
-  color: white;
+  color: var(--text-color);
+  transition: color 0.5s ease;
 }
 
 .modal {
-  background: #333;
-  color: white;
+  background: var(--background-color-white);
+  color: var(--text-color);
   padding: 40px;
   border-radius: 10px;
   width: 70vw;
   position: relative;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 .close {
@@ -208,9 +211,10 @@ h2 {
   right: 10px;
   background: transparent;
   border: none;
-  color: white;
+  color: var(--text-color);
   font-size: 20px;
   cursor: pointer;
+  transition: color 0.5s ease;
 }
 
 .assign-form {
@@ -228,9 +232,10 @@ h2 {
 }
 
 .form-group label {
-  color: #fff;
+  color: var(--text-color);
   font-weight: bold;
   margin-bottom: 5px;
+  transition: color 0.5s ease;
 }
 
 .form-group select,
@@ -238,21 +243,23 @@ h2 {
   width: 100%;
   padding: 10px;
   border-radius: 5px;
-  border: 1px solid #ccc;
-  background-color: #444;
-  color: white;
+  border: 1px solid var(--button-border-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
 }
 
 button {
   padding: 10px 20px;
-  background-color: #FF5733;
+  background-color: var(--button-hover-color);
   border: none;
-  color: white;
+  color: var(--button-hover-color-white);
   font-size: 16px;
   cursor: pointer;
   border-radius: 5px;
   margin-top: 20px;
   width: 100%;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 button:hover {

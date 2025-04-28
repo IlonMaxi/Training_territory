@@ -101,12 +101,10 @@
                                         Обед:<br>
                                         1. Куриные грудки с картофельным пюре<br>
                                         2. Греческий йогурт с орехами и медом<br>
-                                        3. Киноа с овощами и куриной грудкой<br>
                                         <br>
                                         Ужин:<br>
                                         1. Тунец на гриле с овощами<br>
                                         2. Зеленый салат с крабовыми палочками<br>
-                                        3. Бруссельская капуста с куриным филе
                                     </p>
                                 </div>
                             </div>
@@ -179,17 +177,17 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: white;
+    color: var(--text-color);
     padding: 0 15px;
 }
 
 a {
     text-decoration: none;
-    color: white;
+    color: var(--text-color);
 }
 
 a:hover {
-    color: #DD7548;
+    color: var(--button-hover-color);
 }
 
 .btn-container {
@@ -203,10 +201,10 @@ a:hover {
 }
 
 .coach-btn {
-    background-color: #434343;
-    box-shadow: 0px 5px 0px #DD7548;
+    background-color: var(--button-border-color);
+    box-shadow: 0px 5px 0px var(--button-hover-color);
     border: none;
-    color: white;
+    color: var(--text-color);
     padding: 15px 30px;
     margin: 10px;
     font-size: 18px;
@@ -215,16 +213,17 @@ a:hover {
 
 .coach-btn:hover {
     transform: translateY(-5px);
+    transition: transform 0.3s ease-in-out;
 }
 
 .coach-btn:hover a {
-    color: #DD7548;
+    color: var(--button-hover-color-white);
 }
 
 .schedule-btn {
     background-color: transparent;
     border: none;
-    color: white;
+    color: var(--text-color);
     padding: 15px 30px;
     margin: 10px;
     font-size: 18px;
@@ -232,12 +231,13 @@ a:hover {
 }
 
 .schedule-btn:hover {
-    background-color: #434343;
+    background-color: var(--button-border-color);
     transform: translateY(-5px);
+    transition: transform 0.3s ease-in-out;
 }
 
 .schedule-btn:hover a {
-    color: #DD7548;
+    color: var(--button-hover-color-white);
 }
 
 .schedule-images img {
@@ -253,18 +253,6 @@ a:hover {
     margin: 0 auto;
 }
 
-/* .background-rectangle {
-    position: absolute;
-    background-color: #454645;
-    height: 250px;
-    width: 90%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-50%);
-    border-radius: 10px;
-    z-index: -1;
-    margin-top: 25vh;
-} */
-
 .trainer-container img {
     width: 300px;
     height: 400px;
@@ -277,7 +265,7 @@ a:hover {
 }
 
 .trainer-info p {
-    color: white;
+    color: var(--text-color);
     font-size: 16px;
     line-height: 1.6;
 }
@@ -290,7 +278,7 @@ a:hover {
 }
 
 .advantage-heading {
-    color: #ffffff;
+    color: var(--text-color);
     font-size: 32px;
 }
 
@@ -298,7 +286,7 @@ a:hover {
     display: inline-block;
     width: 30px;
     height: 2px;
-    background-color: #DD7548;
+    background-color: var(--button-hover-color);
     margin-left: 10px;
     vertical-align: middle;
 }
@@ -307,43 +295,12 @@ a:hover {
     width: 48%;
 }
 
-.fa-solid,
-.fas {
-    font-weight: 900;
-}
-
-.fa-classic,
-.fa-regular,
-.fa-solid,
-.far,
-.fas {
-    font-family: "Font Awesome 6 Free";
-}
-
-.fa,
-.fa-brands,
-.fa-classic,
-.fa-regular,
-.fa-sharp,
-.fa-solid,
-.fab,
-.far,
-.fas {
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-font-smoothing: antialiased;
-    display: var(--fa-display, inline-block);
-    font-style: normal;
-    font-variant: normal;
-    line-height: 1;
-    text-rendering: auto;
-}
-
 .icon i.fa-solid.fa-sitemap,
 .fa-file-invoice-dollar,
 .fa-calendar-check,
 .fa-clipboard-list {
     font-size: 70px;
-    color: #DD7548;
+    color: var(--button-hover-color);
     margin: 30px;
     transition: transform 0.3s ease-in-out;
 }
@@ -382,7 +339,7 @@ a:hover {
     margin-top: 10px;
     width: 90%;
     max-width: 1000px;
-    color: white;
+    color: var(--text-color);
 }
 
 .schedule-section h2 {
@@ -409,8 +366,6 @@ a:hover {
     width: 300px;
     height: 500px;
     margin-right: 10px;
-    justify-content: center;
-    align-items: center;
 }
 
 .flip-card {
@@ -439,7 +394,7 @@ a:hover {
 
 .flip-card-back {
     transform: rotateY(180deg);
-    background-color: #f1f1f1;
+    background-color: var(--background-color);
 }
 
 .text-on-back {
@@ -449,13 +404,14 @@ a:hover {
     height: 470px;
     padding: 20px;
     text-align: center;
+    color: var(--text-color);
 }
 
 .text-block {
     width: 80%;
     margin: 20px auto;
     text-align: center;
-    color: white;
+    color: var(--text-color);
 }
 
 .useful-info {
@@ -467,11 +423,25 @@ a:hover {
 .info-text p {
     font-size: 18px;
     line-height: 1.6;
-    color: white;
+    color: var(--text-color);
     margin-left: 40px;
 }
 
-/* Медиазапросы для адаптации */
+/* Плавные переходы */
+main,
+nav,
+.coach-btn,
+.schedule-btn,
+.text-on-back,
+.trainer-info p,
+.advantage-heading,
+.info-text p,
+.schedule-section,
+.text-block {
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Медиа-запросы */
 @media screen and (max-width: 1200px) {
     .trainer-container {
         flex-direction: column;
@@ -479,11 +449,7 @@ a:hover {
     }
 
     .trainer-info {
-        display: flex;
-        flex-direction: column;
         width: 100%;
-        justify-content: center;
-        align-items: center;
         text-align: center;
     }
 
@@ -502,10 +468,6 @@ a:hover {
         align-items: center;
     }
 
-    .schedule-images .image-container {
-        margin-bottom: 20px;
-    }
-
     .trainer-container img {
         margin-right: 0;
     }
@@ -513,21 +475,10 @@ a:hover {
 
 @media screen and (max-width: 768px) {
 
-    .background-rectangle {
-        display: none;
-    }
-
-    .trainer-info p {
-        font-size: 14px;
-    }
-
-    .text-block {
-        width: 100%;
-    }
-
+    .trainer-info p,
+    .text-block p,
     .info-text p {
-        font-size: 16px;
-        margin-left: 20px;
+        font-size: 14px;
     }
 
     .icon i {
@@ -539,10 +490,6 @@ a:hover {
     .trainer-container img {
         width: 100%;
         height: auto;
-    }
-
-    .advantage-content {
-        flex-direction: column;
     }
 
     .advantage-block {
@@ -557,30 +504,16 @@ a:hover {
         font-size: 14px;
     }
 
-    .info-text p {
-        font-size: 14px;
-        margin-left: 10px;
-    }
-
-    .icon {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
     .icon i {
         width: 40px;
         height: 40px;
         font-size: 40px !important;
     }
-
 }
 
 @media screen and (max-width: 455px) {
     .btn-container {
-        display: flex;
         flex-direction: column;
-        justify-content: center;
         align-items: center;
     }
 }

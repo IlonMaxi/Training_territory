@@ -55,17 +55,13 @@ export default {
 </script>
 
 <style scoped>
-.footer-links a.active {
-    font-weight: bold;
-    color: #DD7548;
-}
-
 .footer {
-    background-color: #747474;
-    color: white;
+    background-color: var(--background-color-white);
+    color: var(--text-color);
     text-align: center;
     padding: 40px 0;
     margin-top: 50px;
+    transition: background-color 0.5s, color 0.5s;
 }
 
 .footer-title {
@@ -75,6 +71,7 @@ export default {
 .footer-links {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .footer-links li {
@@ -83,15 +80,26 @@ export default {
 }
 
 .footer-links a {
-    color: white;
+    color: var(--text-color);
     text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: var(--button-hover-color);
+}
+
+.footer-links a.active {
+    font-weight: bold;
+    color: var(--button-hover-color);
 }
 
 .divider-line {
     height: 1px;
-    background-color: #DD7548;
+    background-color: var(--button-border-color);
     width: 80%;
     margin: 20px auto;
+    transition: background-color 0.5s ease;
 }
 
 .footer-bottom {
@@ -101,12 +109,18 @@ export default {
     font-size: 14px;
     width: 80%;
     margin: 0 auto;
+    transition: color 0.5s ease;
 }
 
 .social-icons a {
-    color: white;
+    color: var(--text-color);
     text-decoration: none;
     margin-left: 10px;
+    transition: color 0.3s ease;
+}
+
+.social-icons a:hover {
+    color: var(--button-hover-color);
 }
 
 .social-icons a i {
@@ -115,6 +129,7 @@ export default {
 
 .active {
     font-weight: bold;
+    color: var(--button-hover-color);
 }
 
 @media screen and (max-width: 820px) {

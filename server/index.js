@@ -1,17 +1,22 @@
 require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors'); // Подключаем модуль cors
-const sequelize = require('../config/database'); // Убедитесь, что путь правильный
-const { Sequelize } = require('sequelize'); // Импортируем Sequelize, если это необходимо
-
-
-// Импортируем необходимые модули в начале файла
+const cors = require('cors');
+const { Sequelize } = require('sequelize');
+const sequelize = require('../config/database');
+const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
 
-// Импорт моделей
-const Coach = require('../models/Coach');
-const Client = require('../models/Client');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+
+// Модели
+const Coaches = require('../models/Coach');
+const Clients = require('../models/Client');
 const Exercise = require('../models/Exercise');
 const Nutrition = require('../models/Nutrition');
 const KgMeasurement = require('../models/KgMeasurement');
@@ -22,12 +27,12 @@ const Schedule = require('../models/Schedule');
 const UnitMeasurement = require('../models/UnitMeasurement');
 const WeightsOnMachine = require('../models/WeightsOnMachine');
 const Workout = require('../models/Workout');
-const Payment = require('../models/Payment');
+const Payments = require('../models/Payments');
 const ClientSchedule = require('../models/ClientSchedule');
 const Recipe = require('../models/Recipe');
 
-const app = express();
-const { Op } = require('sequelize');
+// Ассоциации
+require('../models/associations');
 
 // Настройка CORS
 app.use(cors({
@@ -49,7 +54,7 @@ app.get('/admin/check-access', async (req, res) => {
       return res.status(400).json({ error: "User ID is required" });
     }
 
-    const client = await Client.findByPk(userId);
+    const client = await Clients.findByPk(userId);
 
     if (!client) {
       return res.status(404).json({ error: "User not found" });
@@ -65,22 +70,11 @@ app.get('/admin/check-access', async (req, res) => {
   }
 });
 
-
-// Маршруты для тренеров
-app.get('/coaches', async (req, res) => {
-  try {
-    const coaches = await Coach.findAll();
-    res.json(coaches);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Вход для тренера
 app.post('/login/coaches', async (req, res) => {
   const { username, password } = req.body;
   try {
-    const coach = await Coach.findOne({
+    const coach = await Coaches.findOne({
       where: {
         [Op.or]: [{ username }, { email: username }]
       }
@@ -107,7 +101,7 @@ app.post('/coaches', async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newCoach = await Coach.create({
+    const newCoach = await Coaches.create({
       last_name,
       first_name,
       patronymic,
@@ -126,21 +120,11 @@ app.post('/coaches', async (req, res) => {
   }
 });
 
-// Маршруты для клиентов
-app.get('/clients', async (req, res) => {
-  try {
-    const clients = await Client.findAll();
-    res.json(clients);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Вход для клиента
 app.post('/login/clients', async (req, res) => {
   const { username, password } = req.body;
   try {
-    const client = await Client.findOne({
+    const client = await Clients.findOne({
       where: {
         [Op.or]: [{ username }, { email: username }]
       }
@@ -168,7 +152,7 @@ app.post('/clients', async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await Client.create({
+    const newUser = await Clients.create({
       last_name,
       first_name,
       patronymic,
@@ -182,36 +166,35 @@ app.post('/clients', async (req, res) => {
 
     res.status(201).json(newUser);
   } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Registration error:', error.message, error.stack);
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Обновление данных клиента
 // Обновление данных клиента
 app.put('/clients/:id', async (req, res) => {
   const { id } = req.params;
   const { first_name, last_name, patronymic, username, phone_number, email } = req.body;
 
   try {
-      const client = await Client.findByPk(id);
-      if (!client) {
-          return res.status(404).json({ error: 'Клиент не найден' });
-      }
+    const client = await Clients.findByPk(id);
+    if (!client) {
+      return res.status(404).json({ error: 'Клиент не найден' });
+    }
 
-      await client.update({
-          first_name,
-          last_name,
-          patronymic,
-          username,
-          phone_number,
-          email
-      });
+    await client.update({
+      first_name,
+      last_name,
+      patronymic,
+      username,
+      phone_number,
+      email
+    });
 
-      res.status(200).json({ message: 'Данные обновлены', user: client });
+    res.status(200).json({ message: 'Данные обновлены', user: client });
   } catch (error) {
-      console.error('Ошибка обновления данных:', error);
-      res.status(500).json({ error: 'Ошибка сервера' });
+    console.error('Ошибка обновления данных:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
   }
 });
 
@@ -248,63 +231,6 @@ app.post('/nutrition', async (req, res) => {
   try {
     const food = await Nutrition.create(req.body);
     res.status(201).json(food);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// Маршруты для замеров в килограммах
-app.get('/kg-measurements', async (req, res) => {
-  try {
-    const measurements = await KgMeasurement.findAll();
-    res.json(measurements);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/kg-measurements', async (req, res) => {
-  try {
-    const measurement = await KgMeasurement.create(req.body);
-    res.status(201).json(measurement);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// Маршруты для замеров в сантиметрах
-app.get('/sm-measurements', async (req, res) => {
-  try {
-    const measurements = await SmMeasurement.findAll();
-    res.json(measurements);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/sm-measurements', async (req, res) => {
-  try {
-    const measurement = await SmMeasurement.create(req.body);
-    res.status(201).json(measurement);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// Маршруты для процентных замеров
-app.get('/percentage-measurements', async (req, res) => {
-  try {
-    const measurements = await PercentageMeasurement.findAll();
-    res.json(measurements);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/percentage-measurements', async (req, res) => {
-  try {
-    const measurement = await PercentageMeasurement.create(req.body);
-    res.status(201).json(measurement);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -501,7 +427,7 @@ const getTotalCalories = (workoutType, difficulty) => {
 const generateNutritionSchedule = async () => {
   console.log('Запуск задачи по генерации расписания...');
   try {
-    const clients = await Client.findAll();
+    const clients = await Clients.findAll();
     if (!clients.length) return console.log('Нет клиентов для обработки.');
 
     for (const client of clients) {
@@ -509,9 +435,9 @@ const generateNutritionSchedule = async () => {
       const workouts = await Workout.findAll({ where: { coach_id: client.coach_id } });
       let currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
-      
+
       console.log(`Генерация питания для клиента ${clientId} с ${currentDate.toDateString()}`);
-      
+
       for (let i = 0; i < 7; i++) {
         const workout = workouts.find(w => new Date(w.date).toDateString() === currentDate.toDateString());
         const totalCalories = getTotalCalories(workout?.workout_type, workout?.difficulty);
@@ -528,7 +454,7 @@ const generateNutritionSchedule = async () => {
             console.error('Нет доступных рецептов.');
             continue;
           }
-          
+
           for (const meal of MEALS) {
             const mealCalories = Math.round(totalCalories * meal.ratio);
             const existingMeal = existingNutritions.find(n => n.meal_type === meal.name);
@@ -640,8 +566,8 @@ app.post('/unit-measurements', async (req, res) => {
   }
 });
 
-// Маршруты для весов на тренажерах
-app.get('/weights-on-machines', async (req, res) => {
+// Получить все записи
+app.get('/admin/weights-on-machines', async (req, res) => {
   try {
     const weights = await WeightsOnMachine.findAll();
     res.json(weights);
@@ -650,121 +576,745 @@ app.get('/weights-on-machines', async (req, res) => {
   }
 });
 
-app.post('/weights-on-machines', async (req, res) => {
+// Создать новую запись
+app.post('/admin/weights-on-machines', async (req, res) => {
   try {
-    const weight = await WeightsOnMachine.create(req.body);
-    res.status(201).json(weight);
+    const { machine_weight, date } = req.body;
+    const newWeight = await WeightsOnMachine.create({ machine_weight, date });
+    res.status(201).json(newWeight);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Маршруты для оплаты
-app.get('/payments', async (req, res) => {
+// Обновить запись по ID
+app.put('/admin/weights-on-machines/:id', async (req, res) => {
   try {
-    const payments = await Payment.findAll();
+    const { id } = req.params;
+    const { machine_weight, date } = req.body;
+
+    const weight = await WeightsOnMachine.findByPk(id);
+    if (!weight) {
+      return res.status(404).json({ error: 'Запись не найдена' });
+    }
+
+    await weight.update({ machine_weight, date });
+    res.json(weight);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Удалить запись по ID
+app.delete('/admin/weights-on-machines/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await WeightsOnMachine.destroy({ where: { weightid: id } });
+
+    if (!deleted) {
+      return res.status(404).json({ error: 'Запись не найдена' });
+    }
+
+    res.json({ message: 'Запись удалена' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Получить всех клиентов
+app.get('/admin/clients', async (req, res) => {
+  try {
+    const clients = await Clients.findAll();
+    res.json(clients);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Создать клиента
+app.post('/admin/clients', async (req, res) => {
+  try {
+    const {
+      last_name,
+      first_name,
+      patronymic,
+      username,
+      password,
+      phone_number,
+      email,
+      birth_date,
+      gender
+    } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newClient = await Clients.create({
+      last_name,
+      first_name,
+      patronymic,
+      username,
+      password: hashedPassword,
+      phone_number,
+      email,
+      birth_date,
+      gender
+    });
+
+    res.status(201).json(newClient);
+  } catch (err) {
+    console.error('Admin client creation error:', err);
+    res.status(500).json({ error: 'Ошибка сервера при создании клиента' });
+  }
+});
+
+// Обновить клиента
+app.put('/admin/clients/:id', async (req, res) => {
+  try {
+    const client = await Clients.findByPk(req.params.id);
+    if (!client) return res.status(404).json({ error: 'Клиент не найден' });
+    await client.update(req.body);
+    res.json(client);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Удалить клиента
+app.delete('/admin/clients/:id', async (req, res) => {
+  try {
+    const deleted = await Clients.destroy({ where: { clientid: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Клиент не найден' });
+    res.json({ message: 'Клиент удалён' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Получить все оплаты
+app.get('/admin/payments', async (req, res) => {
+  try {
+    const payments = await Payments.findAll();
     res.json(payments);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-app.post('/payments', async (req, res) => {
+// Создать новую оплату
+app.post('/admin/payments', async (req, res) => {
   try {
-    const payment = await Payment.create(req.body);
+    const payment = await Payments.create(req.body);
     res.status(201).json(payment);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Регистрация пользователя
-app.post('/register', async (req, res) => {
-  const { firstName, lastName, email, password, userType, username, phoneNumber, birthDate } = req.body;
+// Удалить оплату
+app.delete('/admin/payments/:id', async (req, res) => {
+  try {
+    const deleted = await Payments.destroy({ where: { paymentid: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Оплата не найдена' });
 
-  // Обновленная проверка обязательных полей
-  if (!firstName || !lastName || !email || !password || !userType || !username || !phoneNumber || !birthDate) {
-    return res.status(400).json({ error: 'All fields are required: firstName, lastName, email, password, userType, username, phoneNumber, birthDate' });
+    res.json({ message: 'Оплата удалена' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
+});
+
+// Обновить оплату по ID
+app.put('/admin/payments/:id', async (req, res) => {
+  try {
+    const payment = await Payments.findByPk(req.params.id);
+    if (!payment) return res.status(404).json({ error: 'Оплата не найдена' });
+
+    await payment.update(req.body);
+    res.json(payment);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Получить всех тренеров
+app.get('/admin/coaches', async (req, res) => {
+  try {
+    const coaches = await Coaches.findAll();
+    res.json(coaches);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Создать тренера
+app.post('/admin/coaches', async (req, res) => {
+  const { last_name, first_name, patronymic, username, password, phone_number, email, birth_date, gender } = req.body;
 
   try {
-    // Хеширование пароля перед сохранением
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    let user;
-    if (userType === 'coach') {
-      user = await Coach.create({
-        firstName,
-        lastName,
-        email,
-        password: hashedPassword,
-        username,
-        phoneNumber,
-        birthDate 
-      });
-    } else {
-      user = await Client.create({
-        firstName,
-        lastName,
-        email,
-        password: hashedPassword,
-        username,
-        phoneNumber,
-        birthDate
-      });
-    }
+    const newCoach = await Coaches.create({
+      last_name,
+      first_name,
+      patronymic,
+      username,
+      password: hashedPassword,
+      phone_number,
+      specialization,
+      experience,
+      email,
+      birth_date,
+      gender
+    });
 
-    res.status(201).json(user);
+    res.status(201).json(newCoach);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Error during registration:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
-// Маршрут для получения клиентов тренера
-app.get('/coaches/:coachId/clients', async (req, res) => {
-  const { coachId } = req.params;
-
+// Обновить тренера
+app.put('/admin/coaches/:id', async (req, res) => {
   try {
-    // Проверка существования тренера
-    const coach = await Coach.findByPk(coachId);
-    if (!coach) {
-      return res.status(404).json({ error: 'Тренер не найден' });
-    }
+    const coach = await Coaches.findByPk(req.params.id);
+    if (!coach) return res.status(404).json({ error: 'Тренер не найден' });
 
-    // Получение клиентов, связанных с тренером
-    const clients = await Client.findAll({
-      where: { coach_id: coachId },
-      attributes: ['clientid', 'first_name', 'last_name'] // Выбираем только необходимые поля
-    });
-
-    res.json(clients);
+    await coach.update(req.body);
+    res.json(coach);
   } catch (error) {
-    console.error('Ошибка при получении клиентов:', error);
-    res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Маршрут для получения тренировок тренера
-app.get('/coaches/:coachId/workouts', async (req, res) => {
-  const { coachId } = req.params;
-
+// Удалить тренера
+app.delete('/admin/coaches/:id', async (req, res) => {
   try {
-    // Проверка существования тренера
-    const coach = await Coach.findByPk(coachId);
-    if (!coach) {
-      return res.status(404).json({ error: 'Тренер не найден' });
-    }
+    const deleted = await Coaches.destroy({ where: { coachid: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Тренер не найден' });
 
-    // Получение тренировок, созданных тренером
-    const workouts = await Workout.findAll({
-      where: { coach_id: coachId },
-      attributes: ['workoutid', 'name', 'description', 'difficulty', 'duration', 'workout_type', 'max_participants']
+    res.json({ message: 'Тренер удалён' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Получить все записи о питании
+app.get('/admin/nutrition', async (req, res) => {
+  try {
+    const nutrition = await Nutrition.findAll();
+    res.json(nutrition);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Создать запись
+app.post('/admin/nutrition', async (req, res) => {
+  try {
+    const newRecord = await Nutrition.create(req.body);
+    res.status(201).json(newRecord);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Обновить запись
+app.put('/admin/nutrition/:id', async (req, res) => {
+  try {
+    const record = await Nutrition.findByPk(req.params.id);
+    if (!record) return res.status(404).json({ error: 'Запись не найдена' });
+
+    await record.update(req.body);
+    res.json(record);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Удалить запись
+app.delete('/admin/nutrition/:id', async (req, res) => {
+  try {
+    const deleted = await Nutrition.destroy({ where: { foodid: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Запись не найдена' });
+
+    res.json({ message: 'Запись удалена' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Получить все рецепты
+app.get('/admin/recipes', async (req, res) => {
+  try {
+    const recipes = await Recipe.findAll();
+    res.json(recipes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Создать рецепт
+app.post('/admin/recipes', async (req, res) => {
+  try {
+    const newRecipe = await Recipe.create(req.body);
+    res.status(201).json(newRecipe);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Обновить рецепт
+app.put('/admin/recipes/:id', async (req, res) => {
+  try {
+    const recipe = await Recipe.findByPk(req.params.id);
+    if (!recipe) return res.status(404).json({ error: 'Рецепт не найден' });
+
+    await recipe.update(req.body);
+    res.json(recipe);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Удалить рецепт
+app.delete('/admin/recipes/:id', async (req, res) => {
+  try {
+    const deleted = await Recipe.destroy({ where: { recipeid: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Рецепт не найден' });
+
+    res.json({ message: 'Рецепт удалён' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Получить всё расписание с тренером и тренировкой
+app.get('/admin/schedule', async (req, res) => {
+  try {
+    const schedules = await Schedule.findAll({
+      include: [
+        { model: Coaches, as: 'coach' },
+        { model: Workout, as: 'workout' },
+      ],
     });
+    res.json(schedules);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
+// Создать расписание
+app.post('/admin/schedule', async (req, res) => {
+  try {
+    const schedule = await Schedule.create(req.body);
+    res.status(201).json(schedule);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Обновить расписание
+app.put('/admin/schedule/:id', async (req, res) => {
+  try {
+    const schedule = await Schedule.findByPk(req.params.id);
+    if (!schedule) return res.status(404).json({ error: 'Расписание не найдено' });
+
+    await schedule.update(req.body);
+    res.json(schedule);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Удалить расписание
+app.delete('/admin/schedule/:id', async (req, res) => {
+  try {
+    const deleted = await Schedule.destroy({ where: { scheduleid: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Расписание не найдено' });
+
+    res.json({ message: 'Расписание удалено' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Получить все client_schedule с ассоциациями
+app.get('/admin/client-schedule', async (req, res) => {
+  try {
+    const records = await ClientSchedule.findAll({
+      include: [
+        {
+          model: Clients,
+          as: 'client' // 👈 ОБЯЗАТЕЛЬНО
+        },
+        {
+          model: Schedule,
+          as: 'schedule', // 👈 ОБЯЗАТЕЛЬНО
+          include: [
+            { model: Coaches, as: 'coach' }, // 👈 ОБЯЗАТЕЛЬНО
+            { model: Workout, as: 'workout' } // 👈 ОБЯЗАТЕЛЬНО
+          ]
+        }
+      ],
+    });
+    res.json(records);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Создать новую запись
+app.post('/admin/client-schedule', async (req, res) => {
+  try {
+    const record = await ClientSchedule.create(req.body);
+    res.status(201).json(record);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Обновить по ID
+app.put('/admin/client-schedule/:id', async (req, res) => {
+  try {
+    const record = await ClientSchedule.findByPk(req.params.id);
+    if (!record) return res.status(404).json({ error: 'Запись не найдена' });
+
+    await record.update(req.body);
+    res.json(record);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Удалить по ID
+app.delete('/admin/client-schedule/:id', async (req, res) => {
+  try {
+    const deleted = await ClientSchedule.destroy({ where: { clientscheduleid: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Запись не найдена' });
+
+    res.json({ message: 'Запись удалена' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Получить все тренировки
+app.get('/admin/workouts', async (req, res) => {
+  try {
+    const workouts = await Workout.findAll();
     res.json(workouts);
   } catch (error) {
-    console.error('Ошибка при получении тренировок:', error);
-    res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Создать тренировку
+app.post('/admin/workouts', async (req, res) => {
+  try {
+    const created = await Workout.create(req.body);
+    res.status(201).json(created);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Обновить тренировку
+app.put('/admin/workouts/:id', async (req, res) => {
+  try {
+    const workout = await Workout.findByPk(req.params.id);
+    if (!workout) return res.status(404).json({ error: 'Тренировка не найдена' });
+
+    await workout.update(req.body);
+    res.json(workout);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Удалить тренировку
+app.delete('/admin/workouts/:id', async (req, res) => {
+  try {
+    const deleted = await Workout.destroy({ where: { workoutid: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Тренировка не найдена' });
+
+    res.json({ message: 'Тренировка удалена' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Получить все упражнения
+app.get('/admin/exercises', async (req, res) => {
+  try {
+    const exercises = await Exercise.findAll();
+    res.json(exercises);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Создать упражнение
+app.post('/admin/exercises', async (req, res) => {
+  try {
+    const created = await Exercise.create(req.body);
+    res.status(201).json(created);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Обновить упражнение
+app.put('/admin/exercises/:id', async (req, res) => {
+  try {
+    const exercise = await Exercise.findByPk(req.params.id);
+    if (!exercise) return res.status(404).json({ error: 'Упражнение не найдено' });
+
+    await exercise.update(req.body);
+    res.json(exercise);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Удалить упражнение
+app.delete('/admin/exercises/:id', async (req, res) => {
+  try {
+    const deleted = await Exercise.destroy({ where: { exerciseid: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Упражнение не найдено' });
+
+    res.json({ message: 'Упражнение удалено' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Получить все измерения в килограммах
+app.get('/admin/kg-measurements', async (req, res) => {
+  try {
+    const measurements = await KgMeasurement.findAll();
+    res.json(measurements);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Создать новое измерение в килограммах
+app.post('/admin/kg-measurements', async (req, res) => {
+  try {
+    const newMeasurement = await KgMeasurement.create(req.body);
+    res.status(201).json(newMeasurement);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Обновить измерение в килограммах по ID
+app.put('/admin/kg-measurements/:id', async (req, res) => {
+  try {
+    const measurement = await KgMeasurement.findByPk(req.params.id);
+    if (!measurement) return res.status(404).json({ error: 'Измерение не найдено' });
+
+    await measurement.update(req.body);
+    res.json(measurement);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Удалить измерение в килограммах по ID
+app.delete('/admin/kg-measurements/:id', async (req, res) => {
+  try {
+    const deleted = await KgMeasurement.destroy({ where: { kilogramid: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Измерение не найдено' });
+
+    res.json({ message: 'Измерение удалено' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Получить все измерения в сантиметрах
+app.get('/admin/cm-measurements', async (req, res) => {
+  try {
+    const measurements = await SmMeasurement.findAll();
+    res.json(measurements);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Создать новое измерение в сантиметрах
+app.post('/admin/cm-measurements', async (req, res) => {
+  try {
+    const newMeasurement = await SmMeasurement.create(req.body);
+    res.status(201).json(newMeasurement);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Обновить измерение в сантиметрах по ID
+app.put('/admin/cm-measurements/:id', async (req, res) => {
+  try {
+    const measurement = await SmMeasurement.findByPk(req.params.id);
+    if (!measurement) return res.status(404).json({ error: 'Измерение не найдено' });
+
+    await measurement.update(req.body);
+    res.json(measurement);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Удалить измерение в сантиметрах по ID
+app.delete('/admin/cm-measurements/:id', async (req, res) => {
+  try {
+    const deleted = await SmMeasurement.destroy({ where: { centimetreid: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Измерение не найдено' });
+
+    res.json({ message: 'Измерение удалено' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Получить все процентные измерения
+app.get('/admin/percentage-measurements', async (req, res) => {
+  try {
+    const measurements = await PercentageMeasurement.findAll();
+    res.json(measurements);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Создать новое процентное измерение
+app.post('/admin/percentage-measurements', async (req, res) => {
+  try {
+    const newMeasurement = await PercentageMeasurement.create(req.body);
+    res.status(201).json(newMeasurement);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Обновить процентное измерение по ID
+app.put('/admin/percentage-measurements/:id', async (req, res) => {
+  try {
+    const measurement = await PercentageMeasurement.findByPk(req.params.id);
+    if (!measurement) return res.status(404).json({ error: 'Измерение не найдено' });
+
+    await measurement.update(req.body);
+    res.json(measurement);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Удалить процентное измерение по ID
+app.delete('/admin/percentage-measurements/:id', async (req, res) => {
+  try {
+    const deleted = await PercentageMeasurement.destroy({ where: { percentageid: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Измерение не найдено' });
+
+    res.json({ message: 'Измерение удалено' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Получить все единичные измерения
+app.get('/admin/unit-measurements', async (req, res) => {
+  try {
+    const measurements = await UnitMeasurement.findAll();
+    res.json(measurements);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Создать новое единичное измерение
+app.post('/admin/unit-measurements', async (req, res) => {
+  try {
+    const newMeasurement = await UnitMeasurement.create(req.body);
+    res.status(201).json(newMeasurement);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Обновить единичное измерение по ID
+app.put('/admin/unit-measurements/:id', async (req, res) => {
+  try {
+    const measurement = await UnitMeasurement.findByPk(req.params.id);
+    if (!measurement) return res.status(404).json({ error: 'Измерение не найдено' });
+
+    await measurement.update(req.body);
+    res.json(measurement);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Удалить единичное измерение по ID
+app.delete('/admin/unit-measurements/:id', async (req, res) => {
+  try {
+    const deleted = await UnitMeasurement.destroy({ where: { measurementid: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Измерение не найдено' });
+
+    res.json({ message: 'Измерение удалено' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/admin/progress', async (req, res) => {
+  try {
+    const records = await Progress.findAll({
+      include: [
+        { model: Clients, as: 'client' },
+        { model: UnitMeasurement, as: 'unitMeasurement' },
+        { model: PercentageMeasurement, as: 'percentageMeasurement' },
+        { model: KgMeasurement, as: 'kilogramMeasurement' },
+        { model: SmMeasurement, as: 'centimetreMeasurement' },
+        { model: WeightsOnMachine, as: 'weight' }
+      ]
+    });
+    res.json(records);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/admin/progress', async (req, res) => {
+  try {
+    const progress = await Progress.create(req.body);
+    res.status(201).json(progress);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.put('/admin/progress/:id', async (req, res) => {
+  try {
+    const progress = await Progress.findByPk(req.params.id);
+    if (!progress) return res.status(404).json({ error: 'Прогресс не найден' });
+
+    await progress.update(req.body);
+    res.json(progress);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/admin/progress/:id', async (req, res) => {
+  try {
+    const deleted = await Progress.destroy({ where: { progressid: req.params.id } });
+    if (!deleted) return res.status(404).json({ error: 'Прогресс не найден' });
+
+    res.json({ message: 'Прогресс удалён' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -787,14 +1337,14 @@ app.post('/coaches/:coachId/assign-training', async (req, res) => {
 
   try {
     // Проверка существования тренера
-    const coach = await Coach.findByPk(coachId, { transaction });
+    const coach = await Coaches.findByPk(coachId, { transaction });
     if (!coach) {
       await transaction.rollback();
       return res.status(404).json({ error: 'Тренер не найден.' });
     }
 
     // Проверка существования клиента и принадлежности тренеру
-    const client = await Client.findOne({ where: { clientid: client_id, coach_id: coachId }, transaction });
+    const client = await Clients.findOne({ where: { clientid: client_id, coach_id: coachId }, transaction });
     if (!client) {
       await transaction.rollback();
       return res.status(404).json({ error: 'Клиент не найден или не принадлежит этому тренеру.' });
@@ -868,6 +1418,96 @@ app.post('/coaches/:coachId/assign-training', async (req, res) => {
     await transaction.rollback();
     console.error('Ошибка при назначении тренировки:', error);
     res.status(500).json({ error: 'Внутренняя ошибка сервера.' });
+  }
+});
+
+// Регистрация пользователя
+app.post('/register', async (req, res) => {
+  const { firstName, lastName, email, password, userType, username, phoneNumber, birthDate } = req.body;
+
+  // Обновленная проверка обязательных полей
+  if (!firstName || !lastName || !email || !password || !userType || !username || !phoneNumber || !birthDate) {
+    return res.status(400).json({ error: 'All fields are required: firstName, lastName, email, password, userType, username, phoneNumber, birthDate' });
+  }
+
+  try {
+    // Хеширование пароля перед сохранением
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    let user;
+    if (userType === 'coach') {
+      user = await Coaches.create({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        username,
+        phoneNumber,
+        birthDate
+      });
+    } else {
+      user = await Clients.create({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        username,
+        phoneNumber,
+        birthDate
+      });
+    }
+
+    res.status(201).json(user);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Маршрут для получения клиентов тренера
+app.get('/coaches/:coachId/clients', async (req, res) => {
+  const { coachId } = req.params;
+
+  try {
+    // Проверка существования тренера
+    const coach = await Coaches.findByPk(coachId);
+    if (!coach) {
+      return res.status(404).json({ error: 'Тренер не найден' });
+    }
+
+    // Получение клиентов, связанных с тренером
+    const clients = await Clients.findAll({
+      where: { coach_id: coachId },
+      attributes: ['clientid', 'first_name', 'last_name'] // Выбираем только необходимые поля
+    });
+
+    res.json(clients);
+  } catch (error) {
+    console.error('Ошибка при получении клиентов:', error);
+    res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
+});
+
+// Маршрут для получения тренировок тренера
+app.get('/coaches/:coachId/workouts', async (req, res) => {
+  const { coachId } = req.params;
+
+  try {
+    // Проверка существования тренера
+    const coach = await Coaches.findByPk(coachId);
+    if (!coach) {
+      return res.status(404).json({ error: 'Тренер не найден' });
+    }
+
+    // Получение тренировок, созданных тренером
+    const workouts = await Workout.findAll({
+      where: { coach_id: coachId },
+      attributes: ['workoutid', 'name', 'description', 'difficulty', 'duration', 'workout_type', 'max_participants']
+    });
+
+    res.json(workouts);
+  } catch (error) {
+    console.error('Ошибка при получении тренировок:', error);
+    res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }
 });
 

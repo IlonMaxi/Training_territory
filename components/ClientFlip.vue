@@ -23,13 +23,12 @@
                             </div>
                             <div class="flip-card-back">
                                 <div class="text-on-back">
-                                    <p> 7:00 – Пробуждение <br> <br>
-                                        8:00-8:30 – Завтрак (каша с фруктами)<br> <br>
+                                    <p>
                                         10:00-12:00 – Тренировка в фитнес-центре<br> <br>
                                         12:30-13:00 – Полдник (орехи и ягоды)<br> <br>
                                         13:00-14:00 – Обед (курица гриль с овощами)<br><br>
                                         19:00-20:00 – Ужин (рыба с овощами и гречкой)<br><br>
-                                        22:00 – Ложиться спать</p>
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -52,12 +51,10 @@
                                         Обед:<br>
                                         1. Куриные грудки с картофельным пюре<br>
                                         2. Греческий йогурт с орехами и медом<br>
-                                        3. Киноа с овощами и куриной грудкой<br>
                                         <br>
                                         Ужин:<br>
                                         1. Тунец на гриле с овощами<br>
                                         2. Зеленый салат с крабовыми палочками<br>
-                                        3. Бруссельская капуста с куриным филе
                                     </p>
                                 </div>
                             </div>
@@ -135,7 +132,7 @@
                             alt="Image 1" width="500" height="500">
                     </div>
                     <div class="coaching-image">
-                        <img src="https://img.goodfon.com/original/1024x1024/f/c8/fitness-model-pose-dumbbells.jpg"
+                        <img src="https://static.tildacdn.com/tild3038-6530-4163-b530-626665633664/ZOZ06665_11.jpg"
                             alt="Image 1" width="500" height="500">
                     </div>
                     <div class="coaching-image">
@@ -143,8 +140,8 @@
                             alt="Image 1" width="500" height="500">
                     </div>
                     <div class="coaching-image">
-                        <img src="https://img.goodfon.ru/original/2048x2048/3/e0/noch-doroga-derevia-ogni-devushka-briunetka-poza-maika-short.jpg"
-                            alt="Image 1" width="500" height="500">
+                        <img src="https://i.pinimg.com/736x/4b/e6/be/4be6be8e7ee11ea76968c9b78ae1093e.jpg" alt="Image 1"
+                            width="500" height="500">
                     </div>
                     <div class="coaching-image">
                         <img src="https://adlonlinecourses.com/wp-content/uploads/2021/10/personal-trainer-online-course-5-1.jpg"
@@ -155,8 +152,8 @@
                             width="500" height="500">
                     </div>
                     <div class="coaching-image">
-                        <img src="https://img.goodfon.ru/original/1024x1024/4/aa/devushka-blondinka-telo-grud-5104.jpg"
-                            alt="Image 1" width="500" height="500">
+                        <img src="https://evolution-fitness.ru/media/team_img/mahonin-1.jpg" alt="Image 1" width="500"
+                            height="500">
                     </div>
                 </div>
             </div>
@@ -198,17 +195,17 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: white;
+    color: var(--text-color);
     padding: 0 15px;
 }
 
 a {
     text-decoration: none;
-    color: white;
+    color: var(--text-color);
 }
 
 a:hover {
-    color: #DD7548;
+    color: var(--button-hover-color);
 }
 
 .btn-container {
@@ -222,10 +219,10 @@ a:hover {
 }
 
 .schedule-btn {
-    background-color: #434343;
-    box-shadow: 0px 5px 0px #DD7548;
+    background-color: var(--button-border-color);
+    box-shadow: 0px 5px 0px var(--button-hover-color);
     border: none;
-    color: white;
+    color: var(--text-color);
     padding: 15px 30px;
     margin: 10px;
     font-size: 18px;
@@ -237,13 +234,13 @@ a:hover {
 }
 
 .schedule-btn:hover a {
-    color: #DD7548;
+    color: var(--button-hover-color);
 }
 
 .coach-btn {
     background-color: transparent;
     border: none;
-    color: white;
+    color: var(--text-color);
     padding: 15px 30px;
     margin: 10px;
     font-size: 18px;
@@ -251,13 +248,13 @@ a:hover {
 }
 
 .coach-btn:hover {
-    background-color: #434343;
+    background-color: var(--button-border-color);
     transform: translateY(-5px);
 }
 
 .background-rectangle {
     position: absolute;
-    background-color: #454645;
+    background-color: var(--button-border-color);
     height: 250px;
     width: 90%;
     left: 50%;
@@ -277,7 +274,7 @@ a:hover {
     margin-top: 10px;
     width: 90%;
     max-width: 1000px;
-    color: white;
+    color: var(--text-color);
 }
 
 .schedule-section h2 {
@@ -334,9 +331,8 @@ a:hover {
 
 .flip-card-back {
     transform: rotateY(180deg);
-    background-color: #f1f1f1;
+    background-color: var(--background-color);
 }
-
 
 .fa-solid,
 .fas {
@@ -373,7 +369,7 @@ a:hover {
 .fa-head-side-virus,
 .fa-people-arrows {
     font-size: 70px;
-    color: #DD7548;
+    color: var(--button-hover-color);
 }
 
 .icon i:hover {
@@ -416,7 +412,7 @@ a:hover {
 }
 
 .advantage-heading {
-    color: #ffffff;
+    color: var(--text-color);
     font-size: 32px;
 }
 
@@ -425,7 +421,7 @@ a:hover {
     margin-top: 60px;
     width: 90%;
     max-width: 1000px;
-    color: white;
+    color: var(--text-color);
     margin-left: auto;
     margin-right: auto;
 }

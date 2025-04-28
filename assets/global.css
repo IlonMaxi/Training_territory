@@ -1,0 +1,23 @@
+:root {
+    --background-color:  #e9e9e7;
+    --background-color-white: #ffffff;
+    --text-color: #272827;
+    --button-border-color: #dd7548c4;
+    --button-hover-color: #DD7548;
+    --button-hover-color-white: #ffffff;
+}
+
+body.dark-theme {
+    --background-color: #272827;
+    --background-color-white: #1c1e1c;
+    --text-color: #ffffff;
+    --button-border-color: #dd7548c4;
+    --button-hover-color: #DD7548;
+    --button-hover-color-white: #ffffff;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.5s, color 0.5s;
+}

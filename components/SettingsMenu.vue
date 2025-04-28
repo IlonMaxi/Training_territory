@@ -141,20 +141,21 @@ export default {
 };
 </script>
 
-
 <style scoped>
 .settings-container {
-    background: #fff;
+    background: var(--background-color-white);
     padding: 20px;
     border-radius: 12px;
     max-width: 600px;
     margin: auto;
-    color: black;
+    color: var(--text-color);
+    transition: background-color 0.5s, color 0.5s;
 }
 
 h2 {
     font-size: 22px;
     font-weight: bold;
+    color: var(--text-color);
 }
 
 .subtitle {
@@ -169,13 +170,14 @@ h2 {
 
 .form-group {
     margin-top: 20px;
-    border-bottom: 2px solid #e26a41;
+    border-bottom: 2px solid var(--button-hover-color);
     padding-bottom: 10px;
 }
 
 label {
     font-size: 14px;
     font-weight: bold;
+    color: var(--text-color);
 }
 
 .input-row {
@@ -194,6 +196,9 @@ label {
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 14px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.5s, color 0.5s, border-color 0.3s;
 }
 
 .input-box i {
@@ -211,12 +216,18 @@ label {
 
 .save-btn {
     margin-top: 20px;
-    background: white;
-    border: 2px solid #e26a41;
-    color: black;
+    background: var(--button-hover-color-white);
+    border: 2px solid var(--button-hover-color);
+    color: var(--text-color);
     padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.save-btn:hover {
+    background: var(--button-hover-color);
+    color: var(--button-hover-color-white);
 }
 </style>

@@ -69,23 +69,26 @@ export default {
 .support-container {
     display: flex;
     gap: 20px;
-    background: #1e1e1e;
+    background: var(--background-color);
     padding: 20px;
     border-radius: 10px;
+    transition: background-color 0.5s, color 0.5s;
 }
 
 /* Часто задаваемые вопросы */
 .faq {
-    background: linear-gradient(135deg, #f16529, #e44d26);
+    background: linear-gradient(135deg, var(--button-hover-color), #e44d26);
     border-radius: 15px;
     padding: 20px;
-    color: white;
+    color: var(--button-hover-color-white);
     width: 40vw;
+    transition: background-color 0.5s, color 0.5s;
 }
 
 .faq h2 {
     text-align: center;
     margin-bottom: 15px;
+    color: var(--button-hover-color-white);
 }
 
 .faq-item {
@@ -103,7 +106,7 @@ export default {
 .faq-toggle {
     background: none;
     border: none;
-    color: white;
+    color: var(--button-hover-color-white);
     font-size: 18px;
     cursor: pointer;
 }
@@ -122,10 +125,11 @@ export default {
 }
 
 .support-box {
-    background: white;
+    background: var(--background-color-white);
     padding: 15px;
     border-radius: 10px;
-    color: black;
+    color: var(--text-color);
+    transition: background-color 0.5s, color 0.5s;
 }
 
 .email, .phone {

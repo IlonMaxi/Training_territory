@@ -1,8 +1,8 @@
-// models/Payment.js
+// models/Payments.js
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Payment = sequelize.define('Payment', {
+const Payments = sequelize.define('Payments', {
   paymentid: { // Соответствует столбцу 'paymentid'
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -92,12 +92,12 @@ const Payment = sequelize.define('Payment', {
 });
 
 // Ассоциации
-Payment.associate = (models) => {
+Payments.associate = (models) => {
   // Связь с моделью Client
-  Payment.belongsTo(models.Client, {
+  Payments.belongsTo(models.Client, {
     foreignKey: 'client_id',
     as: 'client',
   });
 };
 
-module.exports = Payment;
+module.exports = Payments;

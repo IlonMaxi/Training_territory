@@ -1,33 +1,19 @@
 <template>
     <div>
-        <HeaderLast 
-            @open-login-modal="showLoginModal = true" 
-            @open-register-modal="showRegisterModal = true"
-            @activate-train-flip="activateTrainFlip" 
-            @activate-client-flip="activateClientFlip"
-            :isTrainFlipActive="isTrainFlipActive"
-        />
-        <LoginModal 
-            :isVisible="showLoginModal" 
-            @close="showLoginModal = false"
-            @go-to-register="showRegisterModal = true; showLoginModal = false" 
-        />
-        <RegisterModal 
-            :isVisible="showRegisterModal" 
-            @close="showRegisterModal = false"
-            @go-to-login="showLoginModal = true; showRegisterModal = false" 
-        />
+        <HeaderLast @open-login-modal="showLoginModal = true" @open-register-modal="showRegisterModal = true"
+            @activate-train-flip="activateTrainFlip" @activate-client-flip="activateClientFlip"
+            :isTrainFlipActive="isTrainFlipActive" />
+        <LoginModal :isVisible="showLoginModal" @close="showLoginModal = false"
+            @go-to-register="showRegisterModal = true; showLoginModal = false" />
+        <RegisterModal :isVisible="showRegisterModal" @close="showRegisterModal = false"
+            @go-to-login="showLoginModal = true; showRegisterModal = false" />
 
         <TrainFlip v-if="isTrainFlipActive" />
         <ClientFlip v-if="!isTrainFlipActive" />
 
-        <FooterComponent 
-            @open-login-modal="showLoginModal = true" 
-            @open-register-modal="showRegisterModal = true"
-            @activate-train-flip="activateTrainFlip"
-            @activate-client-flip="activateClientFlip"
-            :isTrainFlipActive="isTrainFlipActive" 
-        />
+        <FooterComponent @open-login-modal="showLoginModal = true" @open-register-modal="showRegisterModal = true"
+            @activate-train-flip="activateTrainFlip" @activate-client-flip="activateClientFlip"
+            :isTrainFlipActive="isTrainFlipActive" />
     </div>
 </template>
 
@@ -69,16 +55,23 @@ export default {
 <style>
 body {
     margin: 0px;
-    background-color: #272827;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 button {
     padding: 10px 20px;
-    background-color: #FF5733;
-    color: white;
+    background-color: var(--button-border-color);
+    color: var(--text-color);
     border: none;
     border-radius: 5px;
     cursor: pointer;
     margin: 5px 0;
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+button:hover {
+    background-color: var(--button-hover-color);
 }
 </style>

@@ -24,30 +24,34 @@ export default {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
     gap: 16px;
-    background: #222;
+    background: var(--background-color);
     padding: 16px;
     border-radius: 12px;
+    transition: background-color 0.5s, color 0.5s;
 }
 
 .user-card {
     grid-column: span 1;
-    background: #333;
+    background: var(--background-color-white);
     border-radius: 12px;
     height: 200px;
+    transition: background-color 0.5s, color 0.5s;
 }
 
 .user-image {
     width: 100%;
     height: 100%;
-    background: #444;
+    background: var(--button-border-color);
     border-radius: 12px;
+    transition: background-color 0.5s;
 }
 
 .progress-card {
     grid-column: span 1;
-    background: #333;
+    background: var(--background-color-white);
     border-radius: 12px;
     height: 200px;
+    transition: background-color 0.5s, color 0.5s;
 }
 
 .stats-container {
@@ -58,8 +62,9 @@ export default {
 
 .stats-card {
     flex: 1;
-    background: #333;
+    background: var(--background-color-white);
     border-radius: 12px;
     height: 100px;
+    transition: background-color 0.5s, color 0.5s;
 }
 </style>

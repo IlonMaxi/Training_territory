@@ -112,7 +112,6 @@ const Progress = sequelize.define('Progress', {
             unique: false,
             fields: ['weight_id'],
         },
-        // Добавьте другие индексы по необходимости
     ],
 });
 
@@ -153,8 +152,6 @@ Progress.associate = (models) => {
         foreignKey: 'weight_id',
         as: 'weight',
     });
-
-    // Если есть другие ассоциации, добавьте их здесь
 };
 
 module.exports = Progress;

@@ -74,8 +74,9 @@ export default {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: #272827;
-    color: #fff;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 .profile-container {

@@ -52,18 +52,20 @@ export default {
 .user-panel {
     display: flex;
     flex-direction: column;
-    background: #161616;
+    background: var(--background-color);
     padding: 15px;
     border-radius: 8px;
     width: 250px;
+    transition: background-color 0.5s, color 0.5s;
 }
 
 .user-info {
     display: flex;
     align-items: center;
     font-size: 16px;
-    color: white;
+    color: var(--text-color);
     margin-bottom: 10px;
+    transition: color 0.5s;
 }
 
 .icon-user {
@@ -76,7 +78,7 @@ export default {
     padding: 10px;
     background: transparent;
     border: 2px solid transparent;
-    color: white;
+    color: var(--text-color);
     text-align: left;
     cursor: pointer;
     transition: 0.3s;
@@ -91,23 +93,25 @@ export default {
 }
 
 .menu-btn.active {
-    border: 2px solid #ff6a00;
-    background: #ffffff;
-    color: black;
+    border: 2px solid var(--button-hover-color);
+    background: var(--background-color-white);
+    color: var(--text-color);
+    transition: background-color 0.5s, color 0.5s, border-color 0.5s;
 }
 
 .subscribe-btn {
     margin-top: 10px;
-    border: 2px solid #ff6a00;
-    color: #ff6a00;
+    border: 2px solid var(--button-hover-color);
+    color: var(--button-hover-color);
     font-weight: bold;
     text-align: left;
     padding: 10px;
     display: flex;
     align-items: center;
     cursor: pointer;
-    background: #ffffff;
+    background: var(--background-color-white);
     border-radius: 10px;
+    transition: background-color 0.5s, color 0.5s, border-color 0.5s;
 }
 
 .subscribe-btn i {

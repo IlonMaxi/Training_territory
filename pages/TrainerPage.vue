@@ -69,8 +69,10 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 body {
-    background-color: #272827;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 </style>

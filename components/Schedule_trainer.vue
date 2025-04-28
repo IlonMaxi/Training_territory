@@ -227,20 +227,22 @@ export default {
 
 <style scoped>
 .schedule {
-  background-color: #272827;
+  background-color: var(--background-color);
   padding: 20px;
   border-radius: 8px;
-  color: white;
+  color: var(--text-color);
   font-family: Arial, sans-serif;
   width: 90%;
   margin: 0 auto;
+  transition: background-color 0.5s, color 0.5s;
 }
 
 .title {
   text-align: center;
   margin-bottom: 20px;
   font-size: 24px;
-  color: white;
+  color: var(--text-color);
+  transition: color 0.5s;
 }
 
 .date-picker {
@@ -253,17 +255,17 @@ export default {
 .arrow-button {
   background: none;
   border: none;
-  color: white;
+  color: var(--text-color);
   font-size: 24px;
   cursor: pointer;
+  transition: color 0.3s;
 }
 
 .dates {
   display: flex;
   justify-content: space-between;
   width: 70%;
-  margin-right: 10px;
-  margin-left: 10px;
+  margin: 0 10px;
   cursor: pointer;
 }
 
@@ -272,13 +274,14 @@ export default {
   flex-direction: column;
   align-items: center;
   padding: 10px;
-  color: white;
+  color: var(--text-color);
   border: 2px solid transparent;
   border-radius: 20px;
+  transition: border-color 0.3s, color 0.3s;
 }
 
 .date.active {
-  border-color: #dd7548;
+  border-color: var(--button-hover-color);
 }
 
 .day-number {
@@ -314,14 +317,14 @@ export default {
 .bullet {
   width: 10px;
   height: 10px;
-  background-color: #dd7548;
+  background-color: var(--button-hover-color);
   border-radius: 50%;
   z-index: 1;
 }
 
 .line {
   width: 4px;
-  background-color: #ffffff;
+  background-color: var(--text-color);
   position: absolute;
   top: 25%;
   bottom: -90%;
@@ -333,9 +336,10 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #333;
+  background-color: var(--background-color-white);
   padding: 15px;
   border-radius: 10px;
+  transition: background-color 0.5s, color 0.5s;
 }
 
 .session-info {
@@ -350,6 +354,7 @@ export default {
 .session-title {
   font-size: 24px;
   margin-bottom: 10px;
+  color: var(--text-color);
 }
 
 .session-description {
@@ -373,6 +378,7 @@ export default {
   flex-direction: column;
   align-items: center;
   font-size: 20px;
+  color: var(--text-color);
 }
 
 input[type="checkbox"] {

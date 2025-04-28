@@ -25,17 +25,17 @@ export default {
                 { id: "Measurements_in_percentage", label: "Замеры в %" },
                 { id: "Measurements_in_units", label: "Замеры в ед" },
                 { id: "Measurements_in_kilograms", label: "Замеры в кг" },
-                { id: "Cardio_activities", label: "Замеры в см" },
-                { id: "Strength_training", label: "Клиенты" },
-                { id: "Flexibility_exercises", label: "Оплата" },
-                { id: "Diet_records", label: "Питание" },
-                { id: "Sleep_tracking", label: "Прогресс" },
-                { id: "Water_intake", label: "Расписание" },
-                { id: "Calorie_intake", label: "Рецепты" },
-                { id: "Body_measurements", label: "Тренеры" },
-                { id: "Medical_conditions", label: "Тренировки" },
-                { id: "Training_programs", label: "Упражнения" },
-                { id: "Personal_goals", label: "Расписание клиентов" }
+                { id: "Measurements_in_centimeters", label: "Замеры в см" },
+                { id: "Clients", label: "Клиенты" },
+                { id: "Payments", label: "Оплата" },
+                { id: "Nutrition", label: "Питание" },
+                { id: "Progress", label: "Прогресс" },
+                { id: "Schedule", label: "Расписание" },
+                { id: "Recipes", label: "Рецепты" },
+                { id: "Coaches", label: "Тренеры" },
+                { id: "Workouts", label: "Тренировки" },
+                { id: "Exercises", label: "Упражнения" },
+                { id: "Client_schedule", label: "Расписание клиентов" }
             ]
         };
     },
@@ -52,18 +52,20 @@ export default {
 .admin-panel {
     display: flex;
     flex-direction: column;
-    background: #161616;
+    background: var(--background-color);
     padding: 15px;
     border-radius: 8px;
     width: 250px;
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 .admin-info {
     display: flex;
     align-items: center;
     font-size: 16px;
-    color: white;
+    color: var(--text-color);
     margin-bottom: 10px;
+    transition: color 0.5s ease;
 }
 
 .icon-admin {
@@ -76,10 +78,10 @@ export default {
     padding: 10px;
     background: transparent;
     border: 2px solid transparent;
-    color: white;
+    color: var(--text-color);
     text-align: left;
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s ease;
     font-size: 14px;
     border-radius: 10px;
     font-weight: bold;
@@ -88,11 +90,11 @@ export default {
 .menu-btn i {
     margin-right: 10px;
     font-size: large;
+    transition: color 0.3s ease;
 }
 
 .menu-btn.active {
-    border: 2px solid #ff6a00;
-    background: #ffffff;
-    color: black;
+    border: 2px solid var(--button-hover-color);
+    color: var(--text-color);
 }
 </style>

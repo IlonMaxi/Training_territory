@@ -1,7 +1,9 @@
 <template>
     <div v-if="isVisible" class="modal-overlay">
         <div class="modal">
-            <button class="close" @click="closeModal">✖</button>
+            <button class="close" @click="closeModal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
             <h2>Регистрация</h2>
             <form @submit.prevent="register">
                 <label>
@@ -27,8 +29,9 @@
                 <label>
                     <span class="label-text">НОМЕР ТЕЛЕФОНА И ЭЛЕКТРОННАЯ ПОЧТА</span>
                     <div class="phone-email-fields">
-                        <input type="tel" v-model="phone_number" placeholder="+7 (XXX) XXX-XX-XX" required maxlength="11"
-                            :class="{ 'invalid': !isPhoneValid }" @input="validatePhone" @keypress="onlyNumbers">
+                        <input type="tel" v-model="phone_number" placeholder="+7 (XXX) XXX-XX-XX" required
+                            maxlength="11" :class="{ 'invalid': !isPhoneValid }" @input="validatePhone"
+                            @keypress="onlyNumbers">
                         <transition name="fade">
                             <div v-if="!isPhoneValid" class="tooltip">Телефон должен содержать 11 цифр и начинаться с 8.
                             </div>
@@ -134,9 +137,9 @@ export default {
             this.$emit('close');
         },
         async register() {
-            this.validateEmail(); // Проверка электронной почты перед регистрацией
-            this.validatePassword(); // Проверка пароля перед регистрацией
-            this.validatePhone(); // Проверка телефона перед регистрацией
+            this.validateEmail();
+            this.validatePassword();
+            this.validatePhone();
 
             if (!this.isFormValid) {
                 alert("Пожалуйста, заполните все поля правильно.");
@@ -148,10 +151,10 @@ export default {
                 first_name: this.first_name,
                 patronymic: this.patronymic,
                 username: this.username,
-                password: this.password, // Пароль будет захеширован на сервере
+                password: this.password,
                 phone_number: this.phone_number,
                 email: this.email,
-                birth_date: `${this.birthYear}-${this.birthMonth}-${this.birthDay}`,
+                birth_date: `${this.birthYear}-${String(this.birthMonth).padStart(2, '0')}-${String(this.birthDay).padStart(2, '0')}`,
                 gender: this.gender,
             };
 
@@ -166,27 +169,28 @@ export default {
                     body: JSON.stringify(payload),
                 });
 
+                const data = await response.json();
+
                 if (!response.ok) {
-                    const errorData = await response.text();
-                    throw new Error(`Ошибка при регистрации: ${errorData}`);
+                    throw new Error(data.error || 'Ошибка при регистрации');
                 }
 
-                const data = await response.json();
-                console.log('Регистрация успешна', data);
+                // Сохранение в cookie
+                document.cookie = `user=${encodeURIComponent(JSON.stringify(data))}; path=/; max-age=86400;`;
+                document.cookie = `accountType=${this.accountType}; path=/; max-age=86400;`;
 
+                // Перенаправление
+                this.closeModal();
                 if (this.accountType === 'client') {
                     this.$router.push('/ClientPage');
                 } else if (this.accountType === 'trainer') {
                     this.$router.push('/TrainerPage');
                 }
-
-                this.closeModal(); // Закрываем модальное окно после успешной регистрации
             } catch (error) {
-                console.error('Ошибка:', error);
-                alert(`Ошибка при регистрации. Пожалуйста, попробуйте снова.\n${error.message}`);
+                console.error('Ошибка регистрации:', error);
+                alert(`Ошибка при регистрации: ${error.message}`);
             }
         },
-
         goToLogin() {
             this.$emit('go-to-login');
         },
@@ -214,7 +218,6 @@ export default {
         updateAvailableDays() {
             const daysInMonth = new Date(this.birthYear, this.birthMonth, 0).getDate();
             this.availableDays = Array.from({ length: daysInMonth }, (v, i) => i + 1);
-
             if (this.birthDay > daysInMonth) {
                 this.birthDay = '';
             }
@@ -250,7 +253,6 @@ export default {
     padding: 5px;
     border-radius: 5px;
     font-size: 12px;
-    position: relative;
     text-align: center;
     display: flex;
     align-items: center;
@@ -258,8 +260,8 @@ export default {
 }
 
 .modal {
-    background: #333;
-    color: white;
+    background: var(--background-color-white);
+    color: var(--text-color);
     padding: 40px;
     border-radius: 10px;
     width: 70vw;
@@ -268,16 +270,19 @@ export default {
     padding-top: 0;
     padding-bottom: 0;
     overflow: visible;
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 .modal select {
     padding: 10px;
     border-radius: 5px;
-    border: 1px solid #ccc;
-    background-color: #444;
-    color: white;
+    border: 1px solid var(--button-border-color);
+    background-color: var(--background-color);
+    color: var(--text-color);
     width: 100%;
     margin-top: 5px;
+    z-index: 1000;
+    position: relative;
 }
 
 .close {
@@ -286,9 +291,19 @@ export default {
     right: 10px;
     background: transparent;
     border: none;
-    color: white;
-    font-size: 20px;
+    color: #DD7548 !important;
+    font-size: 24px;
     cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close i {
+    color: #DD7548 !important; /* ОРАНЖЕВЫЙ для самого крестика */
+    font-size: 24px;
+}
+
+.close:hover {
+    color: #e26536; /* Можно сделать чуть темнее при наведении */
 }
 
 h2 {
@@ -297,6 +312,7 @@ h2 {
     margin-top: 20px;
     font-weight: bold;
     font-size: x-large;
+    color: var(--text-color);
 }
 
 form {
@@ -311,6 +327,7 @@ form label {
     font-weight: bold;
     text-align: left;
     width: 100%;
+    color: var(--text-color);
 }
 
 .label-text {
@@ -335,9 +352,10 @@ form label {
     flex: 1;
     padding: 10px;
     border-radius: 5px;
-    border: 1px solid #ccc;
-    background-color: #444;
-    color: white;
+    border: 1px solid var(--button-border-color);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
 }
 
 .birth-date,
@@ -348,27 +366,8 @@ form label {
     gap: 10px;
 }
 
-.birth-date input {
-    flex: 1;
-}
-
-.birth-date {
-    display: flex;
-    gap: 10px;
-    overflow: visible;
-}
-
 .birth-date select {
     flex: 1;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    background-color: #444;
-    color: white;
-    width: 100%;
-    margin-top: 5px;
-    z-index: 1000;
-    position: relative;
 }
 
 .gender label,
@@ -377,12 +376,14 @@ form label {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #444;
+    background-color: var(--background-color);
     border-radius: 5px;
     padding: 10px;
     cursor: pointer;
     margin-bottom: 0;
-    border: 1px solid #ccc;
+    border: 1px solid var(--button-border-color);
+    color: var(--text-color);
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
 }
 
 .gender input[type="radio"],
@@ -399,26 +400,37 @@ form label {
 
 .login-button {
     padding: 10px;
-    background: white;
-    border: 1px solid #FF5733;
-    color: #FF5733;
+    background: var(--button-hover-color-white);
+    border: 1px solid var(--button-hover-color);
+    color: var(--button-hover-color);
     border-radius: 5px;
     cursor: pointer;
     width: 50%;
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.login-button:hover {
+    background: var(--button-hover-color);
+    color: var(--button-hover-color-white);
 }
 
 .register-button {
     padding: 10px;
-    background: #FF5733;
+    background: var(--button-hover-color);
     border: none;
-    color: white;
+    color: var(--button-hover-color-white);
     border-radius: 5px;
     cursor: pointer;
     width: 50%;
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.register-button:hover {
+    background: var(--text-color);
+    color: var(--background-color);
 }
 
 @media (max-width: 815px) {
-
     .login-password-fields,
     .phone-email-fields {
         flex-direction: column;
@@ -426,14 +438,12 @@ form label {
 
     .name-fields,
     .birth-date {
-        display: flex;
-        gap: 10px;
+        flex-direction: column;
     }
 
     .name-fields input,
-    .birth-date input {
-        flex: 1;
-        min-width: 50px;
+    .birth-date select {
+        width: 100%;
     }
 
     .login-button,

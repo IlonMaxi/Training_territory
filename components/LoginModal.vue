@@ -1,7 +1,9 @@
 <template>
     <div v-if="isVisible" class="modal-overlay">
         <div class="modal">
-            <button class="close" @click="closeModal">✖</button>
+            <button class="close" @click="closeModal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
             <h2>Войти</h2>
 
             <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
@@ -93,12 +95,10 @@ export default {
                         if (this.accountType === 'trainer') {
                             this.$router.push({
                                 name: 'TrainerPage'
-                                // Если необходимо, можно передать параметры через query или state
                             });
                         } else {
                             this.$router.push({
                                 name: 'ClientPage'
-                                // Аналогично для клиента
                             });
                         }
                     } else {
@@ -140,17 +140,19 @@ h2 {
     margin-top: 20px;
     font-weight: bold;
     font-size: x-large;
+    color: var(--text-color);
 }
 
 .modal {
-    background: #333;
-    color: white;
+    background: var(--background-color-white);
+    color: var(--text-color);
     padding: 40px;
     border-radius: 10px;
     width: 70vw;
     position: relative;
     padding-top: 0;
     padding-bottom: 0;
+    transition: background-color 0.5s ease, color 0.5s ease;
 }
 
 .close {
@@ -159,9 +161,19 @@ h2 {
     right: 10px;
     background: transparent;
     border: none;
-    color: white;
-    font-size: 20px;
+    color: #DD7548 !important;
+    font-size: 24px;
     cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close i {
+    color: #DD7548 !important; /* ОРАНЖЕВЫЙ для самого крестика */
+    font-size: 24px;
+}
+
+.close:hover {
+    color: #e26536; /* Можно сделать чуть темнее при наведении */
 }
 
 .login-section {
@@ -181,27 +193,15 @@ h2 {
 .branding p {
     margin: 0;
     font-size: 24px;
-    color: #ffffff;
+    color: var(--text-color);
     display: inline-block;
     letter-spacing: 0;
-    /* To ensure no gaps */
 }
 
-#p1 {
-    opacity: 75%;
-}
-
-#p2 {
-    opacity: 50%;
-}
-
-#p3 {
-    opacity: 25%;
-}
-
-#p4 {
-    opacity: 0%;
-}
+#p1 { opacity: 75%; }
+#p2 { opacity: 50%; }
+#p3 { opacity: 25%; }
+#p4 { opacity: 0%; }
 
 form {
     flex: 1;
@@ -215,6 +215,7 @@ form label {
     font-size: 14px;
     font-weight: bold;
     text-align: left;
+    color: var(--text-color);
 }
 
 .label-text {
@@ -232,9 +233,10 @@ form label {
     flex: 1;
     padding: 10px;
     border-radius: 5px;
-    border: 1px solid #ccc;
-    background-color: #444;
-    color: white;
+    border: 1px solid var(--button-border-color);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
 }
 
 .button-group {
@@ -248,20 +250,31 @@ form label {
 .login-button,
 .register-link {
     padding: 10px;
-    background: #FF5733;
+    background: var(--button-hover-color);
     border: none;
-    color: white;
+    color: var(--button-hover-color-white);
     font-size: 14px;
     border-radius: 5px;
     cursor: pointer;
     width: 50%;
     text-align: center;
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.login-button:hover {
+    background: var(--text-color);
+    color: var(--background-color);
 }
 
 .register-link {
-    background: white;
-    color: #FF5733;
-    border: 1px solid #FF5733;
+    background: var(--button-hover-color-white);
+    color: var(--button-hover-color);
+    border: 1px solid var(--button-hover-color);
+}
+
+.register-link:hover {
+    background: var(--button-hover-color);
+    color: var(--button-hover-color-white);
 }
 
 .account-type label {
@@ -269,12 +282,14 @@ form label {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #444;
+    background-color: var(--background-color);
     border-radius: 5px;
     padding: 10px;
     cursor: pointer;
     margin-bottom: 0;
-    border: 1px solid #ccc;
+    border: 1px solid var(--button-border-color);
+    color: var(--text-color);
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
 }
 
 .account-type {
