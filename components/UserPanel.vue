@@ -2,20 +2,20 @@
     <div class="user-panel">
         <div class="user-info">
             <i class="icon-user"></i>
-            <span>{{ user.first_name}}  {{user.last_name}}</span>
+            <span>{{ user.first_name }} {{ user.last_name }}</span>
         </div>
 
-        <button v-for="(item, index) in menuItems" :key="index"
-            :class="['menu-btn', { active: selected === item.id }]"
+        <button v-for="(item, index) in menuItems" :key="index" :class="['menu-btn', { active: selected === item.id }]"
             @click="selectMenu(item.id)">
             <i :class="item.icon"></i>
             {{ item.label }}
         </button>
 
-        <button class="subscribe-btn">
+        <button class="subscribe-btn" @click="$emit('menu-selected', 'subscription')">
             <i class="fa-brands fa-shopify"></i>
             ПОДПИСКА
         </button>
+
     </div>
 </template>
 
@@ -28,17 +28,17 @@ export default {
         }
     },
     data() {
-    return {
-        selected: "progress",
-        menuItems: [
-            { id: "progress", label: "ВАШ ПРОГРЕСС", icon: "fa-solid fa-circle-user" },
-            { id: "trainer", label: "ВАШ ТРЕНЕР", icon: "fa-solid fa-user-tie" },
-            { id: "settings", label: "НАСТРОЙКИ", icon: "fa-solid fa-cogs" },
-            { id: "support", label: "ПОДДЕРЖКА", icon: "fa-solid fa-headset" }
-        ]
-    };
-}
-,
+        return {
+            selected: "progress",
+            menuItems: [
+                { id: "progress", label: "ВАШ ПРОГРЕСС", icon: "fa-solid fa-circle-user" },
+                { id: "trainer", label: "ВАШ ТРЕНЕР", icon: "fa-solid fa-user-tie" },
+                { id: "settings", label: "НАСТРОЙКИ", icon: "fa-solid fa-cogs" },
+                { id: "support", label: "ПОДДЕРЖКА", icon: "fa-solid fa-headset" }
+            ]
+        };
+    }
+    ,
     methods: {
         selectMenu(id) {
             this.selected = id;

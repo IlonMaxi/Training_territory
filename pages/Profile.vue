@@ -4,10 +4,10 @@
         <Header />
 
         <div class="profile-container">
-            <!-- Левый компонент (меняется динамически) -->
-            <component :is="selectedComponent" @menu-selected="changeLeftComponent" />
+            <!-- Левый динамический компонент -->
+            <component :is="selectedComponent" :user="user" @menu-selected="changeLeftComponent" />
 
-            <!-- Правая панель с меню выбора -->
+            <!-- Правая панель с пользовательским меню -->
             <UserPanel v-if="user" :user="user" @menu-selected="changeLeftComponent" />
         </div>
     </div>
@@ -20,6 +20,7 @@ import UserPanel from "@/components/UserPanel.vue";
 import TrainerMenu from "@/components/TrainerMenu.vue";
 import SettingsMenu from "@/components/SettingsMenu.vue";
 import SupportMenu from "@/components/SupportMenu.vue";
+import SubscriptionMenu from "@/components/SubscriptionMenu.vue";
 
 export default {
     components: {
@@ -29,11 +30,12 @@ export default {
         TrainerMenu,
         SettingsMenu,
         SupportMenu,
+        SubscriptionMenu
     },
     data() {
         return {
             user: null,
-            selectedComponent: UserMenu, // По умолчанию отображается UserMenu
+            selectedComponent: UserMenu
         };
     },
     mounted() {
@@ -41,7 +43,7 @@ export default {
     },
     methods: {
         loadUserData() {
-            if (process.client) {
+            if (typeof document !== "undefined") {
                 const cookies = document.cookie.split("; ").reduce((acc, cookie) => {
                     const [key, value] = cookie.split("=");
                     acc[key] = decodeURIComponent(value);
@@ -54,18 +56,17 @@ export default {
             }
         },
         changeLeftComponent(menuItem) {
-            console.log("Меняем левый компонент на:", menuItem);
-
             const componentMap = {
-                progress: UserMenu, // Обычное меню
+                progress: UserMenu,
                 trainer: TrainerMenu,
                 settings: SettingsMenu,
                 support: SupportMenu,
+                subscription: SubscriptionMenu
             };
 
             this.selectedComponent = componentMap[menuItem] || UserMenu;
-        },
-    },
+        }
+    }
 };
 </script>
 

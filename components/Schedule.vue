@@ -1,6 +1,13 @@
 <template>
   <div class="schedule">
     <h1 id="schedule" class="title">РАСПИСАНИЕ</h1>
+
+    <div class="view-toggle">
+      <button @click="showWeekView = !showWeekView">
+        {{ showWeekView ? 'Режим дня' : 'Режим недели' }}
+      </button>
+    </div>
+
     <div class="date-picker">
       <button class="arrow-button" @click="prevWeek">
         <i class="fa-solid fa-chevron-left"></i>
@@ -21,86 +28,135 @@
       </button>
     </div>
 
-    <!-- Список тренировок -->
-    <div class="training-list">
-      <div
-        v-for="(session, index) in filteredTrainingSessions"
-        :key="index"
-        class="session-wrapper"
-      >
-        <div class="bullet-line-wrapper">
-          <div class="bullet"></div>
-          <div class="line" v-if="index < filteredTrainingSessions.length - 1"></div>
+    <!-- Режим недели -->
+    <div v-if="showWeekView" class="week-view">
+      <div v-for="(day, index) in currentWeek" :key="'week-' + index" class="day-column">
+        <h3 class="day-header">{{ dayjs(day.date).format('D MMMM, ddd') }}</h3>
+
+        <div
+          v-for="(session, i) in getSessionsByDate(day.date)"
+          :key="'s' + i"
+          class="session"
+          @click="openDetails(session, 'session')"
+        >
+          <strong>{{ session.workout_name }}</strong><br>
+          {{ formatTime(session.starttime) }} - {{ formatTime(session.endtime) }}
         </div>
-        <div class="session">
-          <div class="session-info">
-            <div class="session-details">
-              <h3 class="session-title">Тренировка - {{ session.workout_name }}</h3>
-              <ul class="session-description">
-                <li>Место: {{ session.location }}</li>
-                <li>Описание: {{ session.workout_description }}</li>
-              </ul>
-              <h4>Упражнения:</h4>
-              <ul class="exercises-list">
-                <li>
-                  <strong>{{ session.exercise_name }}</strong>:
-                  {{ session.exercise_description }} (Оборудование: {{ session.equipment }})
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="session-time">
-            <p>{{ formatTime(session.starttime) }} - {{ formatTime(session.endtime) }}</p>
-          </div>
+
+        <div
+          v-for="(meal, i) in getMealsByDate(day.date)"
+          :key="'m' + i"
+          class="meal"
+          @click="openDetails(meal, 'meal')"
+        >
+          <strong>{{ meal.meal_type }}</strong>: {{ meal.food_name }} ({{ meal.calories }} ккал)
         </div>
-      </div>
-      <!-- Сообщение, если нет тренировок на выбранный день -->
-      <div v-if="filteredTrainingSessions.length === 0 && !error" class="no-sessions">
-        Нет запланированных тренировок на этот день.
-      </div>
-      <!-- Сообщение об ошибке -->
-      <div v-if="error" class="error-message">
-        {{ error }}
+
+        <div
+          v-if="getSessionsByDate(day.date).length === 0 && getMealsByDate(day.date).length === 0"
+          class="no-sessions"
+        >
+          Нет данных
+        </div>
       </div>
     </div>
 
-    <!-- Список питания -->
-    <div id="nutrition" class="nutrition-list">
-      <div
-        v-for="(meal, index) in filteredNutritionData"
-        :key="index"
-        class="meal-wrapper"
-      >
-        <div class="bullet-line-wrapper">
-          <div class="bullet"></div>
-          <div class="line" v-if="index < filteredNutritionData.length - 1"></div>
+    <!-- Режим дня -->
+    <div v-else>
+      <div class="training-list">
+        <div
+          v-for="(session, index) in filteredTrainingSessions"
+          :key="index"
+          class="session-wrapper"
+          @click="openDetails(session, 'session')"
+        >
+          <div class="bullet-line-wrapper">
+            <div class="bullet"></div>
+            <div class="line" v-if="index < filteredTrainingSessions.length - 1"></div>
+          </div>
+          <div class="session">
+            <div class="session-info">
+              <div class="session-details">
+                <h3 class="session-title">Тренировка - {{ session.workout_name }}</h3>
+                <ul class="session-description">
+                  <li>Место: {{ session.location }}</li>
+                  <li>Описание: {{ session.workout_description }}</li>
+                </ul>
+                <h4>Упражнения:</h4>
+                <ul class="exercises-list">
+                  <li>
+                    <strong>{{ session.exercise_name }}</strong>:
+                    {{ session.exercise_description }} (Оборудование: {{ session.equipment }})
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="session-time">
+              <p>{{ formatTime(session.starttime) }} - {{ formatTime(session.endtime) }}</p>
+            </div>
+          </div>
         </div>
-        <div class="meal">
-          <h3 class="meal-title">{{ meal.meal_type }}</h3>
-          <h3 class="meal-title">{{ meal.food_name }} ({{ meal.calories }} ккал)</h3>
-          <p><strong>Описание:</strong> {{ meal.food_description }}</p>
-          <p>
-            <strong>Белки:</strong> {{ meal.proteins }} г,
-            <strong>Жиры:</strong> {{ meal.fats }} г,
-            <strong>Углеводы:</strong> {{ meal.carbohydrates }} г
-          </p>
-          <h4>Рецепт - {{ meal.recipe_name }}</h4>
-          <p><strong>Ингредиенты:</strong> {{ meal.ingredients }}</p>
-          <p><strong>Время приготовления:</strong> {{ meal.preparation_time.minutes }} минут</p>
-          <p><strong>Инструкция:</strong> {{ meal.instructions }}</p>
+        <div v-if="filteredTrainingSessions.length === 0 && !error" class="no-sessions">
+          Нет запланированных тренировок на этот день.
+        </div>
+        <div v-if="error" class="error-message">
+          {{ error }}
         </div>
       </div>
-      <!-- Сообщение, если нет питания на выбранный день -->
-      <div v-if="filteredNutritionData.length === 0 && !error" class="no-meals">
-        Нет запланированного питания на этот день.
+
+      <div id="nutrition" class="nutrition-list">
+        <div
+          v-for="(meal, index) in filteredNutritionData"
+          :key="index"
+          class="meal-wrapper"
+          @click="openDetails(meal, 'meal')"
+        >
+          <div class="bullet-line-wrapper">
+            <div class="bullet"></div>
+            <div class="line" v-if="index < filteredNutritionData.length - 1"></div>
+          </div>
+          <div class="meal">
+            <h3 class="meal-title">{{ meal.meal_type }}</h3>
+            <h3 class="meal-title">{{ meal.food_name }} ({{ meal.calories }} ккал)</h3>
+          </div>
+        </div>
+        <div v-if="filteredNutritionData.length === 0 && !error" class="no-meals">
+          Нет запланированного питания на этот день.
+        </div>
+      </div>
+    </div>
+
+    <!-- Модальное окно с деталями -->
+    <div v-if="showModal" class="modal-overlay" @click.self="closeDetails">
+      <div class="modal-content">
+        <button class="close-button" @click="closeDetails">✖</button>
+        <div v-if="selectedType === 'session'">
+          <h2>Тренировка: {{ selectedItem.workout_name }}</h2>
+          <p><strong>Описание:</strong> {{ selectedItem.workout_description }}</p>
+          <p><strong>Место:</strong> {{ selectedItem.location }}</p>
+          <p><strong>Упражнение:</strong> {{ selectedItem.exercise_name }} — {{ selectedItem.exercise_description }}</p>
+          <p><strong>Оборудование:</strong> {{ selectedItem.equipment }}</p>
+          <p><strong>Время:</strong> {{ formatTime(selectedItem.starttime) }} - {{ formatTime(selectedItem.endtime) }}</p>
+        </div>
+
+        <div v-else-if="selectedType === 'meal'">
+          <h2>Питание: {{ selectedItem.meal_type }}</h2>
+          <p><strong>Название:</strong> {{ selectedItem.food_name }}</p>
+          <p><strong>Описание:</strong> {{ selectedItem.food_description }}</p>
+          <p><strong>Калории:</strong> {{ selectedItem.calories }} ккал</p>
+          <p><strong>БЖУ:</strong> {{ selectedItem.proteins }} / {{ selectedItem.fats }} / {{ selectedItem.carbohydrates }}</p>
+          <p><strong>Рецепт:</strong> {{ selectedItem.recipe_name }}</p>
+          <p><strong>Ингредиенты:</strong> {{ selectedItem.ingredients }}</p>
+          <p><strong>Инструкция:</strong> {{ selectedItem.instructions }}</p>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import dayjs from 'dayjs';
-import 'dayjs/locale/ru'; // Убедитесь, что локаль подключена
+import dayjs from 'dayjs'
+import 'dayjs/locale/ru'
 
 export default {
   props: {
@@ -110,167 +166,136 @@ export default {
     }
   },
   data() {
-    const today = new Date();
+    const today = new Date()
     return {
       selectedDay: today,
-      currentWeekIndex: 0, // Инициализируем позже в created
+      currentWeekIndex: 0,
+      showWeekView: false,
       year: [],
       trainingSessions: [],
       nutritionData: [],
-      error: null, // Для отображения ошибок
-    };
+      error: null,
+      showModal: false,
+      selectedItem: null,
+      selectedType: ''
+    }
   },
   computed: {
     currentWeek() {
-      const start = this.currentWeekIndex * 7;
-      return this.year.slice(start, start + 7);
+      const start = this.currentWeekIndex * 7
+      return this.year.slice(start, start + 7)
     },
     filteredTrainingSessions() {
-      return this.trainingSessions.filter(session => {
-        const sessionDate = dayjs(session.date).startOf('day');
-        const selected = dayjs(this.selectedDay).startOf('day');
-        return sessionDate.isSame(selected, 'day');
-      });
+      return this.getSessionsByDate(this.selectedDay)
     },
     filteredNutritionData() {
-      return this.nutritionData.filter(meal => {
-        const mealDate = dayjs(meal.food_date).startOf('day'); // Убедитесь, что поле food_date правильно
-        const selected = dayjs(this.selectedDay).startOf('day');
-        return mealDate.isSame(selected, 'day');
-      });
-    },
+      return this.getMealsByDate(this.selectedDay)
+    }
   },
   methods: {
+    dayjs,
+    openDetails(item, type) {
+      this.selectedItem = item
+      this.selectedType = type
+      this.showModal = true
+    },
+    closeDetails() {
+      this.showModal = false
+      this.selectedItem = null
+      this.selectedType = ''
+    },
     async fetchSchedule() {
-      if (!this.user || !this.user.clientid) {
-        this.error = "Отсутствует идентификатор клиента.";
-        return;
-      }
-
       try {
-        const clientId = this.user.clientid;
+        const clientId = this.user.clientid
+        const [scheduleRes, nutritionRes] = await Promise.all([
+          fetch(`http://26.100.29.243:3000/api/schedule/client/${clientId}`),
+          fetch(`http://26.100.29.243:3000/api/nutrition/client/${clientId}`)
+        ])
 
-        // Запрос для получения расписания тренировок
-        const scheduleResponse = await fetch(`http://26.100.29.243:3000/api/schedule/client/${clientId}`);
-        if (!scheduleResponse.ok) {
-          throw new Error(`Ошибка HTTP: ${scheduleResponse.status}`);
-        }
-        const scheduleData = await scheduleResponse.json();
-        console.log('Полученные данные расписания:', scheduleData); // Для отладки
-        this.trainingSessions = scheduleData;
+        const scheduleData = await scheduleRes.json()
+        const nutritionData = await nutritionRes.json()
 
-        // Запрос для получения питания
-        const nutritionResponse = await fetch(`http://26.100.29.243:3000/api/nutrition/client/${clientId}`);
-        if (!nutritionResponse.ok) {
-          throw new Error(`Ошибка HTTP: ${nutritionResponse.status}`);
+        // Безопасная установка
+        this.trainingSessions = Array.isArray(scheduleData) ? scheduleData : []
+        this.nutritionData = Array.isArray(nutritionData) ? nutritionData : []
+
+        if (!Array.isArray(scheduleData)) {
+          console.warn('⚠ trainingSessions is not an array:', scheduleData)
         }
-        const nutritionData = await nutritionResponse.json();
-        console.log('Полученные данные питания:', nutritionData); // Для отладки
-        this.nutritionData = nutritionData;
-      } catch (error) {
-        console.error("Ошибка при получении данных:", error);
-        this.error = "Не удалось загрузить данные. Пожалуйста, попробуйте позже.";
+        if (!Array.isArray(nutritionData)) {
+          console.warn('⚠ nutritionData is not an array:', nutritionData)
+        }
+
+      } catch (err) {
+        console.error('❌ fetchSchedule error:', err)
+        this.error = 'Не удалось загрузить данные.'
+        this.trainingSessions = []
+        this.nutritionData = []
       }
     },
     generateYear(startDate) {
-      const year = [];
-      const startOfYear = dayjs(startDate).startOf('year').day(1).toDate(); // Понедельник как первый день недели
-      let currentDate = dayjs(startOfYear);
-
-      // Определяем, является ли год високосным
-      const yearNumber = dayjs(startDate).year();
-      const isLeapYear = (yearNumber % 4 === 0 && yearNumber % 100 !== 0) || (yearNumber % 400 === 0);
-      const daysInYear = isLeapYear ? 366 : 365;
-
-      for (let i = 0; i < daysInYear; i++) {
-        year.push({ date: currentDate.toDate() });
-        currentDate = currentDate.add(1, 'day');
+      const year = []
+      let current = dayjs(startDate).startOf('year').day(1)
+      const days = current.isLeapYear?.() ? 366 : 365
+      for (let i = 0; i < days; i++) {
+        year.push({ date: current.toDate() })
+        current = current.add(1, 'day')
       }
-
-      return year;
+      return year
     },
     getWeekIndex(date) {
-      const startOfYear = dayjs(date).startOf('year').day(1); // Понедельник как первый день недели
-      const daysDifference = dayjs(date).diff(startOfYear, 'day');
-      return Math.floor(daysDifference / 7);
+      const startOfYear = dayjs(date).startOf('year').day(1)
+      return Math.floor(dayjs(date).diff(startOfYear, 'day') / 7)
     },
     getDayName(date) {
-      return dayjs(date).locale('ru').format('ddd');
-    },
-    selectDay(day) {
-      this.selectedDay = day.date;
-      this.setCookie('selectedDay', day.date.toISOString(), 7); // Сохраняем выбранный день в куки
+      return dayjs(date).locale('ru').format('ddd')
     },
     isToday(date) {
-      return dayjs(date).isSame(dayjs(), 'day');
+      return dayjs(date).isSame(dayjs(), 'day')
     },
     isSelected(date) {
-      return dayjs(date).isSame(dayjs(this.selectedDay), 'day');
+      return dayjs(date).isSame(this.selectedDay, 'day')
     },
     formatTime(time) {
-      // Преобразование времени из формата 'HH:MM:SS' в 'HH:MM'
-      return time.slice(0, 5);
+      return time?.slice?.(0, 5) || ''
+    },
+    selectDay(day) {
+      this.selectedDay = day.date
     },
     prevWeek() {
       if (this.currentWeekIndex > 0) {
-        this.currentWeekIndex--;
-        this.updateSelectedDay();
+        this.currentWeekIndex--
+        this.updateSelectedDay()
       }
     },
     nextWeek() {
       if (this.currentWeekIndex < Math.floor(this.year.length / 7)) {
-        this.currentWeekIndex++;
-        this.updateSelectedDay();
+        this.currentWeekIndex++
+        this.updateSelectedDay()
       }
     },
     updateSelectedDay() {
-      const week = this.currentWeek;
-      const found = week.find(day =>
-        dayjs(day.date).isSame(this.selectedDay, 'day')
-      );
-      if (!found) {
-        this.selectedDay = week[0].date;
-        this.setCookie('selectedDay', week[0].date.toISOString(), 7);
+      const week = this.currentWeek
+      if (!week.find(d => this.isSelected(d.date))) {
+        this.selectedDay = week[0].date
       }
     },
-    /**
-     * Восстанавливает выбранный день из куки.
-     * @returns {Date|null} Выбранный день или null, если куки отсутствуют.
-     */
-    getSavedDay() {
-      const savedDay = this.getCookie('selectedDay');
-      return savedDay ? new Date(savedDay) : null;
+    getSessionsByDate(date) {
+      if (!Array.isArray(this.trainingSessions)) return []
+      return this.trainingSessions.filter(s => dayjs(s.date).isSame(date, 'day'))
     },
-    // Установка куки
-    setCookie(name, value, days) {
-      if (process.client) { // Проверяем, что код выполняется на клиенте
-        const date = new Date();
-        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-        document.cookie = `${name}=${encodeURIComponent(value)}; path=/; expires=${date.toUTCString()}`;
-      }
-    },
-    // Получение куки
-    getCookie(name) {
-      if (process.client) { // Проверяем, что код выполняется на клиенте
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
-      }
-      return null;
-    },
+    getMealsByDate(date) {
+      if (!Array.isArray(this.nutritionData)) return []
+      return this.nutritionData.filter(m => dayjs(m.food_date).isSame(date, 'day'))
+    }
   },
   created() {
-    if (this.user) {
-      this.selectedDay = this.getSavedDay() || new Date(); // Восстанавливаем выбранный день из куки или используем сегодня
-      this.year = this.generateYear(this.selectedDay); // Генерация года
-      this.currentWeekIndex = this.getWeekIndex(this.selectedDay); // Индекс текущей недели
-      this.fetchSchedule(); // Загрузка расписания и питания
-    } else {
-      this.error = "Пользователь не авторизован.";
-    }
-    dayjs.locale('ru'); // Устанавливаем локаль
-  },
-};
+    this.year = this.generateYear(this.selectedDay)
+    this.currentWeekIndex = this.getWeekIndex(this.selectedDay)
+    this.fetchSchedule()
+    dayjs.locale('ru')
+  }
+}
 </script>
 
 <style scoped>
@@ -376,6 +401,7 @@ export default {
   top: 25%;
   bottom: -90%;
   border-radius: 50px;
+  height: 70px;
 }
 
 .nutrition-list {
@@ -387,6 +413,7 @@ export default {
   align-items: flex-start;
   margin-bottom: 10px;
   position: relative;
+  max-height: 100px;
 }
 
 .meal {
@@ -414,15 +441,6 @@ export default {
 
 .meal-wrapper .bullet {
   background-color: var(--button-hover-color);
-}
-
-.meal-wrapper .line {
-  width: 4px;
-  background-color: var(--text-color);
-  position: absolute;
-  top: 25%;
-  bottom: -90%;
-  border-radius: 50px;
 }
 
 .session {
@@ -477,5 +495,91 @@ export default {
 
 input[type="checkbox"] {
   margin-top: 10px;
+}
+
+.week-view {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.day-column {
+  flex: 1;
+  background-color: var(--background-color-white);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 140px;
+}
+
+.day-header {
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: var(--text-color);
+  font-size: 14px;
+  text-align: center;
+}
+
+.session,
+.meal {
+  background-color: #f5f5f5;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #333;
+}
+
+.no-sessions {
+  font-style: italic;
+  font-size: 12px;
+  color: gray;
+  text-align: center;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
 }
 </style>

@@ -36,8 +36,7 @@ const Client = sequelize.define('Client', {
   username: {
     type: DataTypes.STRING(255),
     allowNull: false,
-    // Если в базе данных поле `username` также уникально, раскомментируйте следующую строку:
-    // unique: true,
+    // unique: true, // Раскомментируй, если нужно
   },
   password: {
     type: DataTypes.STRING(255),
@@ -46,18 +45,22 @@ const Client = sequelize.define('Client', {
   gender: {
     type: DataTypes.STRING(10),
     allowNull: false,
-  },  
+  },
   coach_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
-      model: 'coaches', // Название таблицы в базе данных должно быть в нижнем регистре
+      model: 'coaches',
       key: 'coachid',
     },
   },
+  image: {
+    type: DataTypes.STRING(255),
+    allowNull: true, // Можно разрешить null, если фото ещё не загружено
+  }
 }, {
-  tableName: 'clients', // Имя таблицы в базе данных в нижнем регистре
-  timestamps: false,    // Отключаем автоматическое добавление полей createdAt и updatedAt
+  tableName: 'clients',
+  timestamps: false,
 });
 
 module.exports = Client;

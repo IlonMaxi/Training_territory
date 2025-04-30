@@ -174,7 +174,15 @@ app.post('/clients', async (req, res) => {
 // Обновление данных клиента
 app.put('/clients/:id', async (req, res) => {
   const { id } = req.params;
-  const { first_name, last_name, patronymic, username, phone_number, email } = req.body;
+  const {
+    first_name,
+    last_name,
+    patronymic,
+    username,
+    phone_number,
+    email,
+    image
+  } = req.body;
 
   try {
     const client = await Clients.findByPk(id);
@@ -188,7 +196,8 @@ app.put('/clients/:id', async (req, res) => {
       patronymic,
       username,
       phone_number,
-      email
+      email,
+      image
     });
 
     res.status(200).json({ message: 'Данные обновлены', user: client });
@@ -643,7 +652,8 @@ app.post('/admin/clients', async (req, res) => {
       phone_number,
       email,
       birth_date,
-      gender
+      gender, 
+      image
     } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -657,7 +667,8 @@ app.post('/admin/clients', async (req, res) => {
       phone_number,
       email,
       birth_date,
-      gender
+      gender,
+      image
     });
 
     res.status(201).json(newClient);
@@ -747,7 +758,7 @@ app.get('/admin/coaches', async (req, res) => {
 
 // Создать тренера
 app.post('/admin/coaches', async (req, res) => {
-  const { last_name, first_name, patronymic, username, password, phone_number, email, birth_date, gender } = req.body;
+  const { last_name, first_name, patronymic, username, password, phone_number, email, birth_date, gender, image } = req.body;
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -763,7 +774,8 @@ app.post('/admin/coaches', async (req, res) => {
       experience,
       email,
       birth_date,
-      gender
+      gender,
+      image
     });
 
     res.status(201).json(newCoach);
@@ -1508,6 +1520,30 @@ app.get('/coaches/:coachId/workouts', async (req, res) => {
   } catch (error) {
     console.error('Ошибка при получении тренировок:', error);
     res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+  }
+});
+
+// Получить тренера по ID клиента
+app.get('/clients/:clientId/coach', async (req, res) => {
+  const { clientId } = req.params;
+
+  try {
+    // Находим клиента
+    const client = await Clients.findByPk(clientId);
+    if (!client) {
+      return res.status(404).json({ error: 'Клиент не найден' });
+    }
+
+    // Находим тренера по coach_id клиента
+    const coach = await Coaches.findByPk(client.coach_id);
+    if (!coach) {
+      return res.status(404).json({ error: 'Тренер не найден' });
+    }
+
+    res.json(coach);
+  } catch (error) {
+    console.error('Ошибка при получении тренера клиента:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
   }
 });
 

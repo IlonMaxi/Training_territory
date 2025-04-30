@@ -27,8 +27,7 @@ const Coach = sequelize.define('Coach', {
   email: {
     type: DataTypes.TEXT,
     allowNull: false,
-    // Если требуется уникальность email, добавьте `unique: true`
-    // unique: true,
+    // unique: true, // Раскомментируй, если нужно
   },
   phone_number: {
     type: DataTypes.STRING(20),
@@ -45,7 +44,7 @@ const Coach = sequelize.define('Coach', {
   username: {
     type: DataTypes.STRING(255),
     allowNull: false,
-    unique: true, // Соответствует ограничению UNIQUE в таблице
+    unique: true,
   },
   password: {
     type: DataTypes.STRING(255),
@@ -54,11 +53,19 @@ const Coach = sequelize.define('Coach', {
   is_available: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: true, // Соответствует значению по умолчанию в таблице
+    defaultValue: true,
+  },
+  gender: {
+    type: DataTypes.STRING(10),
+    allowNull: true,
+  },
+  image: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
   }
 }, {
-  tableName: 'coaches', // Имя таблицы в нижнем регистре
-  timestamps: false,    // Отключаем автоматическое добавление полей createdAt и updatedAt
+  tableName: 'coaches',
+  timestamps: false,
 });
 
 module.exports = Coach;

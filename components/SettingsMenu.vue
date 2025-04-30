@@ -25,7 +25,7 @@
         <div class="form-group">
             <label>Email</label>
             <div class="input-box">
-                <input type="email" v-model="user.email" placeholder="primer.com" />
+                <input type="email" v-model="user.email" placeholder="primer@mail.com" />
                 <i class="fa-solid fa-pen"></i>
             </div>
         </div>
@@ -47,6 +47,14 @@
             </div>
         </div>
 
+        <div class="form-group">
+            <label>Фото (название файла)</label>
+            <div class="input-box">
+                <input type="text" v-model="user.image" placeholder="photo.jpg" />
+                <i class="fa-solid fa-pen"></i>
+            </div>
+        </div>
+
         <button class="save-btn" @click="updateUser">СОХРАНИТЬ</button>
     </div>
 </template>
@@ -56,13 +64,14 @@ export default {
     data() {
         return {
             user: {
-                id: null, // ID пользователя
+                id: null,
                 firstName: "",
                 lastName: "",
                 middleName: "",
                 email: "",
                 phone: "",
                 login: "",
+                image: ""
             }
         };
     },
@@ -70,7 +79,6 @@ export default {
         this.loadUserFromCookies();
     },
     methods: {
-        // Загружаем пользователя из куков
         loadUserFromCookies() {
             const cookies = document.cookie.split("; ");
             const userCookie = cookies.find(row => row.startsWith("user="));
@@ -78,19 +86,19 @@ export default {
             if (userCookie) {
                 try {
                     const userData = JSON.parse(decodeURIComponent(userCookie.split("=")[1]));
-                    console.log("Загруженные данные из куков:", userData); // Лог для проверки
 
                     if (!userData.clientid) {
                         console.error("Ошибка: clientid отсутствует в куках!");
                     } else {
                         this.user = {
-                            id: userData.clientid, // Используем clientid как ID
+                            id: userData.clientid,
                             firstName: userData.first_name || "",
                             lastName: userData.last_name || "",
                             middleName: userData.patronymic || "",
                             email: userData.email || "",
                             phone: userData.phone_number || "",
-                            login: userData.username || ""
+                            login: userData.username || "",
+                            image: userData.image || ""
                         };
                     }
                 } catch (error) {
@@ -101,15 +109,14 @@ export default {
             }
         },
 
-        // Отправка данных на сервер
         async updateUser() {
-            if (!this.user.id) { // Исправлено: теперь проверяем правильный ID
+            if (!this.user.id) {
                 console.error("Ошибка: ID клиента отсутствует!");
                 return;
             }
 
             try {
-                const response = await fetch(`http://26.100.29.243:3000/api/clients/${this.user.id}`, { // Исправлено: this.user.clientid → this.user.id
+                const response = await fetch(`http://26.100.29.243:3000/api/clients/${this.user.id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -118,13 +125,13 @@ export default {
                         patronymic: this.user.middleName,
                         username: this.user.login,
                         phone_number: this.user.phone,
-                        email: this.user.email
+                        email: this.user.email,
+                        image: this.user.image
                     })
                 });
 
-                const responseText = await response.text(); // Логируем текст ответа
+                const responseText = await response.text();
                 console.log("Ответ сервера:", responseText);
-
                 const data = JSON.parse(responseText);
 
                 if (response.ok) {
