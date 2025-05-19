@@ -1,6 +1,7 @@
 <template>
     <div class="trainer-container" v-if="coach">
         <div class="trainer-photo">
+            <!-- Используем правильный путь для фото тренера -->
             <img :src="photoUrl" alt="Фото тренера" />
             <div class="border-accent"></div>
         </div>
@@ -37,8 +38,10 @@ export default {
     },
     computed: {
         photoUrl() {
-            // Путь к изображению по умолчанию
-            return "/default-trainer.jpg";
+            // Если есть фото тренера, используем его, иначе показываем фото по умолчанию
+            return this.coach && this.coach.image && this.coach.image !== 'default.jpg' 
+                ? `http://26.100.29.243:3000/api/uploads/${this.coach.image}` 
+                : 'http://26.100.29.243:3000/api/uploads/default.jpg';
         }
     },
     mounted() {
@@ -71,6 +74,7 @@ export default {
     color: var(--text-color);
     background-color: var(--background-color);
     border-radius: 10px;
+    margin: auto;
 }
 
 .trainer-photo {

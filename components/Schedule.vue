@@ -142,7 +142,6 @@
         <div v-else-if="selectedType === 'meal'">
           <h2>Питание: {{ selectedItem.meal_type }}</h2>
           <p><strong>Название:</strong> {{ selectedItem.food_name }}</p>
-          <p><strong>Описание:</strong> {{ selectedItem.food_description }}</p>
           <p><strong>Калории:</strong> {{ selectedItem.calories }} ккал</p>
           <p><strong>БЖУ:</strong> {{ selectedItem.proteins }} / {{ selectedItem.fats }} / {{ selectedItem.carbohydrates }}</p>
           <p><strong>Рецепт:</strong> {{ selectedItem.recipe_name }}</p>

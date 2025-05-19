@@ -5,7 +5,9 @@
 
         <div class="profile-container">
             <!-- Левый динамический компонент -->
-            <component :is="selectedComponent" :user="user" @menu-selected="changeLeftComponent" />
+            <transition name="fade" mode="out-in">
+                <component :is="selectedComponent" :user="user" @menu-selected="changeLeftComponent" />
+            </transition>
 
             <!-- Правая панель с пользовательским меню -->
             <UserPanel v-if="user" :user="user" @menu-selected="changeLeftComponent" />
@@ -21,6 +23,7 @@ import TrainerMenu from "@/components/TrainerMenu.vue";
 import SettingsMenu from "@/components/SettingsMenu.vue";
 import SupportMenu from "@/components/SupportMenu.vue";
 import SubscriptionMenu from "@/components/SubscriptionMenu.vue";
+import CoachClients from "@/components/CoachClients.vue"; // Добавлен компонент клиентов
 
 export default {
     components: {
@@ -30,12 +33,13 @@ export default {
         TrainerMenu,
         SettingsMenu,
         SupportMenu,
-        SubscriptionMenu
+        SubscriptionMenu,
+        CoachClients
     },
     data() {
         return {
             user: null,
-            selectedComponent: UserMenu
+            selectedComponent: null
         };
     },
     mounted() {
@@ -49,10 +53,17 @@ export default {
                     acc[key] = decodeURIComponent(value);
                     return acc;
                 }, {});
-
                 if (cookies.user) {
                     this.user = JSON.parse(cookies.user);
+                    this.setDefaultComponent();
                 }
+            }
+        },
+        setDefaultComponent() {
+            if (this.user.role === "client") {
+                this.selectedComponent = UserMenu;
+            } else if (this.user.role === "coach") {
+                this.selectedComponent = CoachClients;
             }
         },
         changeLeftComponent(menuItem) {
@@ -61,7 +72,8 @@ export default {
                 trainer: TrainerMenu,
                 settings: SettingsMenu,
                 support: SupportMenu,
-                subscription: SubscriptionMenu
+                subscription: SubscriptionMenu,
+                clients: CoachClients
             };
 
             this.selectedComponent = componentMap[menuItem] || UserMenu;
@@ -84,5 +96,16 @@ export default {
     display: flex;
     justify-content: space-between;
     padding: 20px;
+}
+
+/* Плавная анимация появления/исчезновения */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.4s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
 }
 </style>

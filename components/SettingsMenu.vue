@@ -47,10 +47,27 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label>Фото (название файла)</label>
+        <!-- Дополнительные поля только для тренеров -->
+        <div v-if="isCoach" class="form-group">
+            <label>Специализация</label>
             <div class="input-box">
-                <input type="text" v-model="user.image" placeholder="photo.jpg" />
+                <input type="text" v-model="user.specialization" placeholder="Фитнес, пилатес и т.д." />
+                <i class="fa-solid fa-pen"></i>
+            </div>
+        </div>
+
+        <div v-if="isCoach" class="form-group">
+            <label>Опыт</label>
+            <div class="input-box">
+                <input type="text" v-model="user.experience" placeholder="5 лет, 10 лет и т.д." />
+                <i class="fa-solid fa-pen"></i>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Фото</label>
+            <div class="input-box">
+                <input type="file" @change="handleImageUpload" />
                 <i class="fa-solid fa-pen"></i>
             </div>
         </div>
@@ -65,83 +82,97 @@ export default {
         return {
             user: {
                 id: null,
+                role: "",
                 firstName: "",
                 lastName: "",
                 middleName: "",
                 email: "",
                 phone: "",
                 login: "",
-                image: ""
-            }
+                image: "",
+                specialization: "",
+                experience: ""
+            },
+            selectedImage: null
         };
     },
     mounted() {
         this.loadUserFromCookies();
     },
+    computed: {
+        isCoach() {
+            return this.user.role === 'coach';
+        }
+    },
     methods: {
         loadUserFromCookies() {
-            const cookies = document.cookie.split("; ");
-            const userCookie = cookies.find(row => row.startsWith("user="));
+            const cookies = document.cookie.split("; ").reduce((acc, c) => {
+                const [key, val] = c.split("=");
+                acc[key] = decodeURIComponent(val);
+                return acc;
+            }, {});
 
-            if (userCookie) {
-                try {
-                    const userData = JSON.parse(decodeURIComponent(userCookie.split("=")[1]));
-
-                    if (!userData.clientid) {
-                        console.error("Ошибка: clientid отсутствует в куках!");
-                    } else {
-                        this.user = {
-                            id: userData.clientid,
-                            firstName: userData.first_name || "",
-                            lastName: userData.last_name || "",
-                            middleName: userData.patronymic || "",
-                            email: userData.email || "",
-                            phone: userData.phone_number || "",
-                            login: userData.username || "",
-                            image: userData.image || ""
-                        };
-                    }
-                } catch (error) {
-                    console.error("Ошибка парсинга куков:", error);
-                }
-            } else {
-                console.error("Ошибка: кука 'user' не найдена!");
-            }
-        },
-
-        async updateUser() {
-            if (!this.user.id) {
-                console.error("Ошибка: ID клиента отсутствует!");
+            if (!cookies.user) {
+                console.error("Кука 'user' не найдена");
                 return;
             }
 
             try {
-                const response = await fetch(`http://26.100.29.243:3000/api/clients/${this.user.id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        first_name: this.user.firstName,
-                        last_name: this.user.lastName,
-                        patronymic: this.user.middleName,
-                        username: this.user.login,
-                        phone_number: this.user.phone,
-                        email: this.user.email,
-                        image: this.user.image
-                    })
-                });
+                const userData = JSON.parse(cookies.user);
+                const role = cookies.accountType === "trainer" ? "coach" : "client";
 
-                const responseText = await response.text();
-                console.log("Ответ сервера:", responseText);
-                const data = JSON.parse(responseText);
+                this.user = {
+                    id: userData.clientid || userData.coachid,
+                    role,
+                    firstName: userData.first_name || "",
+                    lastName: userData.last_name || "",
+                    middleName: userData.patronymic || "",
+                    email: userData.email || "",
+                    phone: userData.phone_number || "",
+                    login: userData.username || "",
+                    image: userData.image || "",
+                    specialization: userData.specialization || "",
+                    experience: userData.experience || ""
+                };
+            } catch (e) {
+                console.error("Ошибка парсинга куки user:", e);
+            }
+        },
+        handleImageUpload(event) {
+            this.selectedImage = event.target.files[0];
+        },
+        async updateUser() {
+            if (!this.user.id) return;
 
-                if (response.ok) {
-                    console.log("Успешное обновление:", data);
+            const formData = new FormData();
+            formData.append("first_name", this.user.firstName);
+            formData.append("last_name", this.user.lastName);
+            formData.append("patronymic", this.user.middleName);
+            formData.append("username", this.user.login);
+            formData.append("phone_number", this.user.phone);
+            formData.append("email", this.user.email);
+
+            if (this.isCoach) {
+                formData.append("specialization", this.user.specialization);
+                formData.append("experience", this.user.experience);
+            }
+
+            formData.append("image", this.selectedImage || this.user.image);
+
+            const endpoint = this.isCoach
+                ? `http://26.100.29.243:3000/api/coaches/${this.user.id}`
+                : `http://26.100.29.243:3000/api/clients/${this.user.id}`;
+
+            try {
+                const res = await fetch(endpoint, { method: "PUT", body: formData });
+                const result = await res.json();
+                if (res.ok) {
                     alert("Данные успешно обновлены!");
                 } else {
-                    console.error("Ошибка обновления данных:", data.error);
+                    console.error("Ошибка:", result.error);
                 }
             } catch (error) {
-                console.error("Ошибка при отправке запроса:", error);
+                console.error("Ошибка запроса:", error);
             }
         }
     }

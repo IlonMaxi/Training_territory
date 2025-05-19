@@ -73,6 +73,7 @@ export default {
     padding: 20px;
     border-radius: 10px;
     transition: background-color 0.5s, color 0.5s;
+    margin: auto;
 }
 
 /* Часто задаваемые вопросы */

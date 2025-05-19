@@ -36,3 +36,4 @@ Progress.belongsTo(SmMeasurement, { foreignKey: 'centimetre_measurement_id', as:
 // === Progress → Weight
 Progress.belongsTo(WeightsOnMachine, { foreignKey: 'weight_id', as: 'weight' });
 
+UnitMeasurement.hasMany(Progress, { foreignKey: 'unit_measurement_id', as: 'progressRecords'});

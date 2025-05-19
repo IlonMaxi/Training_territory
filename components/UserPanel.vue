@@ -5,17 +5,32 @@
             <span>{{ user.first_name }} {{ user.last_name }}</span>
         </div>
 
-        <button v-for="(item, index) in menuItems" :key="index" :class="['menu-btn', { active: selected === item.id }]"
-            @click="selectMenu(item.id)">
-            <i :class="item.icon"></i>
-            {{ item.label }}
-        </button>
+        <!-- Меню для клиента -->
+        <template v-if="isClient">
+            <button v-for="(item, index) in clientMenu" :key="index"
+                :class="['menu-btn', { active: selected === item.id }]" @click="selectMenu(item.id)">
+                <i :class="item.icon"></i>
+                {{ item.label }}
+            </button>
 
-        <button class="subscribe-btn" @click="$emit('menu-selected', 'subscription')">
-            <i class="fa-brands fa-shopify"></i>
-            ПОДПИСКА
-        </button>
+            <button class="subscribe-btn" @click="$emit('menu-selected', 'subscription')">
+                <i class="fa-brands fa-shopify"></i>
+                ПОДПИСКА
+            </button>
+        </template>
 
+        <!-- Меню для тренера -->
+        <template v-else-if="isCoach">
+            <button v-for="(item, index) in coachMenu" :key="index"
+                :class="['menu-btn', { active: selected === item.id }]" @click="selectMenu(item.id)">
+                <i :class="item.icon"></i>
+                {{ item.label }}
+            </button>
+        </template>
+
+        <template v-else>
+            <div style="padding: 10px; color: gray;">Пользователь не определён</div>
+        </template>
     </div>
 </template>
 
@@ -24,21 +39,33 @@ export default {
     props: {
         user: {
             type: Object,
-            default: () => ({ fullName: "ИМЯ ФАМИЛИЯ" })
+            required: true
         }
     },
     data() {
         return {
             selected: "progress",
-            menuItems: [
+            clientMenu: [
                 { id: "progress", label: "ВАШ ПРОГРЕСС", icon: "fa-solid fa-circle-user" },
                 { id: "trainer", label: "ВАШ ТРЕНЕР", icon: "fa-solid fa-user-tie" },
                 { id: "settings", label: "НАСТРОЙКИ", icon: "fa-solid fa-cogs" },
                 { id: "support", label: "ПОДДЕРЖКА", icon: "fa-solid fa-headset" }
+            ],
+            coachMenu: [
+                { id: "clients", label: "ВАШИ КЛИЕНТЫ", icon: "fa-solid fa-users" },
+                { id: "settings", label: "НАСТРОЙКИ", icon: "fa-solid fa-cogs" },
+                { id: "support", label: "ПОДДЕРЖКА", icon: "fa-solid fa-headset" }
             ]
         };
-    }
-    ,
+    },
+    computed: {
+        isClient() {
+            return this.user && this.user.clientid;
+        },
+        isCoach() {
+            return this.user && this.user.coachid;
+        }
+    },
     methods: {
         selectMenu(id) {
             this.selected = id;
@@ -50,13 +77,15 @@ export default {
 
 <style scoped>
 .user-panel {
-    display: flex;
-    flex-direction: column;
-    background: var(--background-color);
-    padding: 15px;
-    border-radius: 8px;
-    width: 250px;
-    transition: background-color 0.5s, color 0.5s;
+  align-self: flex-start;
+  margin-left: auto; /* Это ключевая строка: прижимает к правому краю */
+  display: flex;
+  flex-direction: column;
+  background: var(--background-color);
+  padding: 15px;
+  border-radius: 8px;
+  width: 250px;
+  transition: background-color 0.5s, color 0.5s;
 }
 
 .user-info {

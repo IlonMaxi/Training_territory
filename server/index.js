@@ -34,6 +34,27 @@ const Recipe = require('../models/Recipe');
 // Ассоциации
 require('../models/associations');
 
+const multer = require('multer');
+const path = require('path');
+
+// Настройка хранилища для файлов
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    // Папка для загрузки файлов
+    cb(null, path.join(__dirname, '..', 'uploads'));
+  },
+  filename: (req, file, cb) => {
+    // Генерация уникального имени файла
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage: storage });
+
+// Статические файлы из папки uploads
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+
 // Настройка CORS
 app.use(cors({
   origin: 'http://26.100.29.243:3000' // Укажите ваш фронтенд адрес
@@ -172,7 +193,35 @@ app.post('/clients', async (req, res) => {
 });
 
 // Обновление данных клиента
-app.put('/clients/:id', async (req, res) => {
+app.put('/clients/:id', upload.single('image'), async (req, res) => {
+  const { id } = req.params;
+  const { first_name, last_name, patronymic, username, phone_number, email } = req.body;
+
+  try {
+    const client = await Clients.findByPk(id);
+    if (!client) {
+      return res.status(404).json({ error: 'Клиент не найден' });
+    }
+
+    // Обновляем данные клиента, включая название файла изображения
+    await client.update({
+      first_name,
+      last_name,
+      patronymic,
+      username,
+      phone_number,
+      email,
+      image: req.file ? req.file.filename : client.image  // Если файл был загружен, сохраняем его название
+    });
+
+    res.status(200).json({ message: 'Данные обновлены', user: client });
+  } catch (error) {
+    console.error('Ошибка обновления данных:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+app.put('/coaches/:id', upload.single('image'), async (req, res) => {
   const { id } = req.params;
   const {
     first_name,
@@ -181,28 +230,31 @@ app.put('/clients/:id', async (req, res) => {
     username,
     phone_number,
     email,
-    image
+    specialization,
+    experience
   } = req.body;
 
   try {
-    const client = await Clients.findByPk(id);
-    if (!client) {
-      return res.status(404).json({ error: 'Клиент не найден' });
+    const coach = await Coaches.findByPk(id);
+    if (!coach) {
+      return res.status(404).json({ error: 'Тренер не найден' });
     }
 
-    await client.update({
+    await coach.update({
       first_name,
       last_name,
       patronymic,
       username,
       phone_number,
       email,
-      image
+      specialization,
+      experience,
+      image: req.file ? req.file.filename : coach.image
     });
 
-    res.status(200).json({ message: 'Данные обновлены', user: client });
+    res.status(200).json({ message: 'Данные тренера обновлены', user: coach });
   } catch (error) {
-    console.error('Ошибка обновления данных:', error);
+    console.error('Ошибка обновления тренера:', error);
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 });
@@ -382,7 +434,6 @@ app.get('/nutrition/client/:clientId', async (req, res) => {
       SELECT 
         f.foodid AS foodId, 
         f.name AS food_name,
-        f.description AS food_description,
         f.protein_amount AS proteins, 
         f.fat_amount AS fats, 
         f.carbohydrate_amount AS carbohydrates,
@@ -434,76 +485,74 @@ const getTotalCalories = (workoutType, difficulty) => {
 };
 
 const generateNutritionSchedule = async () => {
-  console.log('Запуск задачи по генерации расписания...');
+  console.log('🚀 Запуск задачи по генерации питания...');
+
   try {
     const clients = await Clients.findAll();
-    if (!clients.length) return console.log('Нет клиентов для обработки.');
+    if (!clients.length) {
+      console.log('❌ Нет клиентов для обработки.');
+      return;
+    }
 
     for (const client of clients) {
       const clientId = client.clientid;
       const workouts = await Workout.findAll({ where: { coach_id: client.coach_id } });
+
       let currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
 
-      console.log(`Генерация питания для клиента ${clientId} с ${currentDate.toDateString()}`);
+      console.log(`📅 Генерация питания для клиента ${clientId} с ${currentDate.toDateString()}`);
 
       for (let i = 0; i < 7; i++) {
-        const workout = workouts.find(w => new Date(w.date).toDateString() === currentDate.toDateString());
+        const dayWorkouts = workouts.filter(w =>
+          new Date(w.date).toDateString() === currentDate.toDateString()
+        );
+
+        const workout = dayWorkouts[0]; // берём первый в этот день, если есть
         const totalCalories = getTotalCalories(workout?.workout_type, workout?.difficulty);
 
         const existingNutritions = await Nutrition.findAll({
           where: { client_id: clientId, date: currentDate }
         });
 
-        if (existingNutritions.length && workout === undefined) {
-          console.log(`Питание для ${currentDate.toDateString()} уже существует и нет новых тренировок. Пропускаем.`);
-        } else {
-          const recipes = await Recipe.findAll();
-          if (!recipes.length) {
-            console.error('Нет доступных рецептов.');
-            continue;
-          }
+        const recipes = await Recipe.findAll();
+        if (!recipes.length) {
+          console.error('⚠️ Нет доступных рецептов.');
+          continue;
+        }
 
-          for (const meal of MEALS) {
-            const mealCalories = Math.round(totalCalories * meal.ratio);
-            const existingMeal = existingNutritions.find(n => n.meal_type === meal.name);
-            const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
+        for (const meal of MEALS) {
+          const mealCalories = Math.round(totalCalories * meal.ratio);
+          const existingMeal = existingNutritions.find(n => n.meal_type === meal.name);
+          const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
 
-            if (existingMeal) {
-              await existingMeal.update({
-                name: randomRecipe.name,
-                description: randomRecipe.instructions,
-                protein_amount: (mealCalories * 0.3) / 4,
-                fat_amount: (mealCalories * 0.25) / 9,
-                carbohydrate_amount: (mealCalories * 0.45) / 4,
-                calories: mealCalories,
-                water_amount: Math.random() * 500 + 1500,
-                recipe_id: randomRecipe.recipeid,
-              });
-              console.log(`Обновлено питание (${meal.name}) для клиента ${clientId} на ${currentDate.toDateString()}`);
-            } else {
-              await Nutrition.create({
-                client_id: clientId,
-                date: currentDate,
-                meal_type: meal.name,
-                name: randomRecipe.name,
-                description: randomRecipe.instructions,
-                protein_amount: (mealCalories * 0.3) / 4,
-                fat_amount: (mealCalories * 0.25) / 9,
-                carbohydrate_amount: (mealCalories * 0.45) / 4,
-                calories: mealCalories,
-                water_amount: Math.random() * 500 + 1500,
-                recipe_id: randomRecipe.recipeid,
-              });
-              console.log(`Добавлено питание (${meal.name}) для клиента ${clientId} на ${currentDate.toDateString()}`);
-            }
+          const mealData = {
+            name: randomRecipe.name,
+            protein_amount: (mealCalories * 0.3) / 4,
+            fat_amount: (mealCalories * 0.25) / 9,
+            carbohydrate_amount: (mealCalories * 0.45) / 4,
+            calories: mealCalories,
+            water_amount: Math.round(Math.random() * 500 + 1500),
+            date: currentDate,
+            client_id: clientId,
+            recipe_id: randomRecipe.recipeid,
+            meal_type: meal.name
+          };
+
+          if (existingMeal) {
+            await existingMeal.update(mealData);
+            console.log(`🔄 Обновлено питание (${meal.name}) для клиента ${clientId} на ${currentDate.toDateString()}`);
+          } else {
+            await Nutrition.create(mealData);
+            console.log(`➕ Добавлено питание (${meal.name}) для клиента ${clientId} на ${currentDate.toDateString()}`);
           }
         }
+
         currentDate.setDate(currentDate.getDate() + 1);
       }
     }
   } catch (error) {
-    console.error('Ошибка при генерации питания:', error);
+    console.error('❗ Ошибка при генерации питания:', error);
   }
 };
 
@@ -1475,30 +1524,6 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// Маршрут для получения клиентов тренера
-app.get('/coaches/:coachId/clients', async (req, res) => {
-  const { coachId } = req.params;
-
-  try {
-    // Проверка существования тренера
-    const coach = await Coaches.findByPk(coachId);
-    if (!coach) {
-      return res.status(404).json({ error: 'Тренер не найден' });
-    }
-
-    // Получение клиентов, связанных с тренером
-    const clients = await Clients.findAll({
-      where: { coach_id: coachId },
-      attributes: ['clientid', 'first_name', 'last_name'] // Выбираем только необходимые поля
-    });
-
-    res.json(clients);
-  } catch (error) {
-    console.error('Ошибка при получении клиентов:', error);
-    res.status(500).json({ error: 'Внутренняя ошибка сервера' });
-  }
-});
-
 // Маршрут для получения тренировок тренера
 app.get('/coaches/:coachId/workouts', async (req, res) => {
   const { coachId } = req.params;
@@ -1546,5 +1571,302 @@ app.get('/clients/:clientId/coach', async (req, res) => {
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 });
+
+// Маршрут для получения данных клиента по ID
+app.get('/clients/:clientId', async (req, res) => {
+  const { clientId } = req.params;
+
+  try {
+    // Находим клиента в базе данных
+    const client = await Clients.findByPk(clientId);
+    if (!client) {
+      return res.status(404).json({ error: 'Клиент не найден' });
+    }
+
+    // Получаем имя файла фото клиента
+    const photoUrl = client.image || 'default.jpg'; // если фото нет, показываем фото по умолчанию
+
+    // Возвращаем данные клиента, включая имя фотографии
+    res.json({
+      clientId: client.clientid,
+      firstName: client.first_name,
+      lastName: client.last_name,
+      email: client.email,
+      phoneNumber: client.phone_number,
+      birthDate: client.birth_date,
+      gender: client.gender,
+      imageUrl: photoUrl,  // Только имя файла фотографии
+    });
+  } catch (error) {
+    console.error('Ошибка при получении данных клиента:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+app.get('/clients/:clientId/progress-summary', async (req, res) => {
+  const { clientId } = req.params;
+
+  try {
+    const [firstProgress, lastProgress] = await Promise.all([
+      Progress.findOne({ where: { client_id: clientId }, order: [['progressid', 'ASC']] }),
+      Progress.findOne({ where: { client_id: clientId }, order: [['progressid', 'DESC']] })
+    ]);
+
+    if (!firstProgress || !lastProgress) {
+      return res.status(404).json({ error: 'Недостаточно данных для вычисления прогресса.' });
+    }
+
+    const [
+      firstUnit, lastUnit,
+      firstKg, lastKg,
+      firstCm, lastCm,
+      firstPerc, lastPerc
+    ] = await Promise.all([
+      UnitMeasurement.findByPk(firstProgress.unit_measurement_id),
+      UnitMeasurement.findByPk(lastProgress.unit_measurement_id),
+
+      KgMeasurement.findByPk(firstProgress.kilogram_measurement_id),
+      KgMeasurement.findByPk(lastProgress.kilogram_measurement_id),
+
+      SmMeasurement.findByPk(firstProgress.centimetre_measurement_id),
+      SmMeasurement.findByPk(lastProgress.centimetre_measurement_id),
+
+      PercentageMeasurement.findByPk(firstProgress.percentage_measurement_id),
+      PercentageMeasurement.findByPk(lastProgress.percentage_measurement_id)
+    ]);
+
+    const percentOrZero = (first, last) =>
+      first && last && parseFloat(first) !== 0
+        ? Math.round(((parseFloat(last) - parseFloat(first)) / parseFloat(first)) * 100)
+        : 0;
+
+    const buildProgress = (first, last, keys) => {
+      const result = {};
+      keys.forEach(key => {
+        const a = parseFloat(first?.[key]);
+        const b = parseFloat(last?.[key]);
+        result[key] = (a && b && a !== 0) ? Math.round(((b - a) / a) * 100) : 0;
+      });
+      return result;
+    };
+
+    const cmKeys = [
+      'chest_circumference', 'waist_circumference', 'hip_circumference',
+      'bicep_circumference', 'forearm_circumference', 'quadriceps_circumference',
+      'calf_circumference', 'thigh_circumference', 'neck_circumference',
+      'waist_inhale_circumference'
+    ];
+
+    const cmProgress = buildProgress(
+      firstCm?.toJSON?.(), lastCm?.toJSON?.(), cmKeys
+    );
+
+    const result = {
+      // Kilograms
+      weight: percentOrZero(firstKg?.weight, lastKg?.weight),
+      fat_mass: percentOrZero(firstKg?.fat_mass, lastKg?.fat_mass),
+      muscle_mass: percentOrZero(firstKg?.muscle_mass, lastKg?.muscle_mass),
+      water_content: percentOrZero(firstKg?.water_content, lastKg?.water_content),
+      skeletal_mass: percentOrZero(firstKg?.skeletal_mass, lastKg?.skeletal_mass),
+      bone_mass: percentOrZero(firstKg?.bone_mass, lastKg?.bone_mass),
+      lbm: percentOrZero(firstKg?.lbm, lastKg?.lbm),
+
+      // Units
+      bmi: percentOrZero(firstUnit?.bmi, lastUnit?.bmi),
+      metabolism: percentOrZero(firstUnit?.metabolism, lastUnit?.metabolism),
+      body_age: percentOrZero(firstUnit?.body_age, lastUnit?.body_age),
+
+      // Percentage
+      fat_percentage: percentOrZero(firstPerc?.fat_percentage, lastPerc?.fat_percentage),
+      skeletal_mass_percentage: percentOrZero(firstPerc?.skeletal_mass_percentage, lastPerc?.skeletal_mass_percentage),
+      muscle_dynamics: percentOrZero(firstPerc?.muscle_dynamics, lastPerc?.muscle_dynamics),
+      body_water: percentOrZero(firstPerc?.body_water, lastPerc?.body_water),
+      protein: percentOrZero(firstPerc?.protein, lastPerc?.protein),
+      fat_content: percentOrZero(firstPerc?.fat_content, lastPerc?.fat_content),
+
+      // Centimeters
+      ...cmProgress
+    };
+
+    res.json(result);
+  } catch (error) {
+    console.error('Ошибка при вычислении прогресса:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+app.get('/clients/:id/unit-measurements-history', async (req, res) => {
+  const { id: clientId } = req.params;
+
+  try {
+    const history = await Progress.findAll({
+      where: { client_id: clientId },
+      include: [{ model: UnitMeasurement, as: 'unitMeasurement' }],
+      order: [['progressid', 'ASC']]
+    });
+
+    const result = history
+      .filter(p => p.unitMeasurement)
+      .map(p => ({
+        date: p.unitMeasurement.date,
+        bmi: parseFloat(p.unitMeasurement.bmi),
+        metabolism: parseFloat(p.unitMeasurement.metabolism),
+        body_age: parseFloat(p.unitMeasurement.body_age)
+      }));
+
+    res.json(result);
+  } catch (error) {
+    console.error('Ошибка при получении истории замеров в единицах:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+app.get('/clients/:id/kg-measurements-history', async (req, res) => {
+  const { id: clientId } = req.params;
+
+  try {
+    const history = await Progress.findAll({
+      where: { client_id: clientId },
+      include: [{ model: KgMeasurement, as: 'kilogramMeasurement' }],
+      order: [['progressid', 'ASC']]
+    });
+
+    const result = history
+      .filter(p => p.kilogramMeasurement)
+      .map(p => ({
+        date: p.kilogramMeasurement.date,
+        weight: parseFloat(p.kilogramMeasurement.weight),
+        fat_mass: parseFloat(p.kilogramMeasurement.fat_mass),
+        skeletal_mass: parseFloat(p.kilogramMeasurement.skeletal_mass),
+        muscle_mass: parseFloat(p.kilogramMeasurement.muscle_mass),
+        water_content: parseFloat(p.kilogramMeasurement.water_content),
+        bone_mass: parseFloat(p.kilogramMeasurement.bone_mass),
+        lbm: parseFloat(p.kilogramMeasurement.lbm)
+      }));
+
+    res.json(result);
+  } catch (error) {
+    console.error('Ошибка при получении истории в килограммах:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+app.get('/clients/:id/cm-measurements-history', async (req, res) => {
+  const { id: clientId } = req.params;
+
+  try {
+    const history = await Progress.findAll({
+      where: { client_id: clientId },
+      include: [{ model: SmMeasurement, as: 'centimetreMeasurement' }],
+      order: [['progressid', 'ASC']]
+    });
+
+    const result = history
+      .filter(p => p.centimetreMeasurement)
+      .map(p => {
+        const cm = p.centimetreMeasurement;
+        return {
+          date: cm.date,
+          chest_circumference: parseFloat(cm.chest_circumference),
+          waist_circumference: parseFloat(cm.waist_circumference),
+          hip_circumference: parseFloat(cm.hip_circumference),
+          bicep_circumference: parseFloat(cm.bicep_circumference),
+          forearm_circumference: parseFloat(cm.forearm_circumference),
+          quadriceps_circumference: parseFloat(cm.quadriceps_circumference),
+          calf_circumference: parseFloat(cm.calf_circumference),
+          thigh_circumference: parseFloat(cm.thigh_circumference),
+          neck_circumference: parseFloat(cm.neck_circumference),
+          waist_inhale_circumference: parseFloat(cm.waist_inhale_circumference)
+        };
+      });
+
+    res.json(result);
+  } catch (error) {
+    console.error('Ошибка при получении истории замеров в сантиметрах:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+// Получение текущей активной подписки клиента
+app.get('/clients/:clientId/subscription', async (req, res) => {
+  const { clientId } = req.params;
+
+  try {
+    const now = new Date();
+
+    const payment = await Payments.findOne({
+      where: {
+        client_id: clientId,
+        start_date: { [Op.lte]: now },
+        end_date: { [Op.gte]: now }
+      },
+      order: [['payment_date', 'DESC']]
+    });
+
+    if (!payment) {
+      return res.json(null); // Нет активной подписки
+    }
+
+    res.json({
+      tariff: payment.tariff,             // 'basic' / 'standard' / 'premium'
+      start_date: payment.start_date,
+      end_date: payment.end_date,
+      active: true
+    });
+  } catch (error) {
+    console.error('Ошибка при получении подписки:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+// Оформление новой подписки
+app.post('/payments', async (req, res) => {
+  const {
+    tariff, tariff_type, training_sessions,
+    amount, start_date, end_date, client_id
+  } = req.body;
+
+  try {
+    await Payments.create({
+      client_id,
+      payment_date: new Date(),
+      tariff,                // 'basic' / 'standard' / 'premium'
+      tariff_type,
+      training_sessions,
+      used_training_sessions: 0,
+      start_date,
+      end_date,
+      amount
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Ошибка создания подписки:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+// Получить всех клиентов, привязанных к тренеру
+app.get('/coaches/:coachId/clients', async (req, res) => {
+  const { coachId } = req.params;
+
+  try {
+    const coach = await Coaches.findByPk(coachId);
+    if (!coach) {
+      return res.status(404).json({ error: 'Тренер не найден' });
+    }
+
+    const clients = await Clients.findAll({
+      where: { coach_id: coachId },
+      attributes: ['clientid', 'first_name', 'last_name', 'email', 'phone_number', 'birth_date', 'gender', 'image']
+    });
+
+    res.json(clients);
+  } catch (error) {
+    console.error('Ошибка при получении клиентов тренера:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
 
 module.exports = app;

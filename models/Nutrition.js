@@ -1,140 +1,92 @@
-// models/Nutrition.js
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Nutrition = sequelize.define('Nutrition', {
-  foodid: { // Соответствует столбцу 'foodid'
+  foodid: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-  name: { // Соответствует столбцу 'name'
+  name: {
     type: DataTypes.STRING(255),
     allowNull: false,
     validate: {
       notEmpty: true,
-      len: [3, 255], // Минимальная длина 3 символа
+      len: [3, 255],
     },
   },
-  description: { // Соответствует столбцу 'description'
-    type: DataTypes.TEXT,
-    allowNull: true,
-  },
-  protein_amount: { // Соответствует столбцу 'protein_amount'
+  protein_amount: {
     type: DataTypes.NUMERIC(10, 2),
     allowNull: true,
-    validate: {
-      min: 0,
-    },
+    validate: { min: 0 },
   },
-  fat_amount: { // Соответствует столбцу 'fat_amount'
+  fat_amount: {
     type: DataTypes.NUMERIC(10, 2),
     allowNull: true,
-    validate: {
-      min: 0,
-    },
+    validate: { min: 0 },
   },
-  carbohydrate_amount: { // Соответствует столбцу 'carbohydrate_amount'
+  carbohydrate_amount: {
     type: DataTypes.NUMERIC(10, 2),
     allowNull: true,
-    validate: {
-      min: 0,
-    },
+    validate: { min: 0 },
   },
-  calories: { // Соответствует столбцу 'calories'
+  calories: {
     type: DataTypes.INTEGER,
     allowNull: true,
-    validate: {
-      min: 0,
-    },
+    validate: { min: 0 },
   },
-  water_amount: { // Соответствует столбцу 'water_amount'
+  water_amount: {
     type: DataTypes.NUMERIC(10, 2),
     allowNull: true,
-    validate: {
-      min: 0,
-    },
+    validate: { min: 0 },
   },
-  date: { // Соответствует столбцу 'date'
+  date: {
     type: DataTypes.DATE,
     allowNull: true,
-    validate: {
-      isDate: true,
-    },
+    validate: { isDate: true },
   },
-  coach_id: { // Соответствует столбцу 'coach_id'
+  coach_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
-    references: {
-      model: 'coaches', // Имя таблицы в нижнем регистре
-      key: 'coachid',
-    },
+    references: { model: 'coaches', key: 'coachid' },
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL', // Или 'CASCADE', в зависимости от вашей бизнес-логики
+    onDelete: 'SET NULL',
   },
-  client_id: { // Соответствует столбцу 'client_id'
+  client_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
-    references: {
-      model: 'clients', // Имя таблицы в нижнем регистре
-      key: 'clientid',
-    },
+    references: { model: 'clients', key: 'clientid' },
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL', // Или 'CASCADE', в зависимости от вашей бизнес-логики
+    onDelete: 'SET NULL',
   },
-  recipe_id: { // Соответствует столбцу 'recipe_id'
+  recipe_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
-    references: {
-      model: 'recipes', // Имя таблицы в нижнем регистре
-      key: 'recipeid',
-    },
+    references: { model: 'recipes', key: 'recipeid' },
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL', // Или 'CASCADE', в зависимости от вашей бизнес-логики
+    onDelete: 'SET NULL',
   },
-  meal_type: { // Соответствует столбцу 'meal_type'
+  meal_type: {
     type: DataTypes.STRING(50),
     allowNull: false,
     validate: {
       notEmpty: true,
-      len: [3, 50], // Минимальная длина 3 символа
+      len: [3, 50],
     },
   },
 }, {
-  tableName: 'nutrition', // Имя таблицы в нижнем регистре
-  timestamps: false,      // Отключаем автоматическое добавление полей createdAt и updatedAt
+  tableName: 'nutrition',
+  timestamps: false,
   indexes: [
-    {
-      unique: false,
-      fields: ['name'],
-    },
-    {
-      unique: false,
-      fields: ['date'],
-    },
-    // Добавьте другие индексы по необходимости
+    { unique: false, fields: ['name'] },
+    { unique: false, fields: ['date'] }
   ],
 });
 
-// Ассоциации
 Nutrition.associate = (models) => {
-  // Связь с моделью Coach
-  Nutrition.belongsTo(models.Coach, {
-    foreignKey: 'coach_id',
-    as: 'coach',
-  });
-
-  // Связь с моделью Client
-  Nutrition.belongsTo(models.Client, {
-    foreignKey: 'client_id',
-    as: 'client',
-  });
-
-  // Связь с моделью Recipe
-  Nutrition.belongsTo(models.Recipe, {
-    foreignKey: 'recipe_id',
-    as: 'recipe',
-  });
+  Nutrition.belongsTo(models.Coach, { foreignKey: 'coach_id', as: 'coach' });
+  Nutrition.belongsTo(models.Client, { foreignKey: 'client_id', as: 'client' });
+  Nutrition.belongsTo(models.Recipe, { foreignKey: 'recipe_id', as: 'recipe' });
 };
 
 module.exports = Nutrition;
