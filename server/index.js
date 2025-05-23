@@ -10,9 +10,12 @@ const bcrypt = require('bcrypt');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const nodemailer = require('nodemailer');
+
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.json());
 
 // Модели
 const Coaches = require('../models/Coach');
@@ -110,6 +113,20 @@ app.post('/login/coaches', async (req, res) => {
       return res.status(401).json({ error: 'Incorrect password' });
     }
 
+    const user = {
+      coachid: coach.coachid,
+      first_name: coach.first_name,
+      last_name: coach.last_name,
+      patronymic: coach.patronymic,
+      username: coach.username,
+      phone_number: coach.phone_number,
+      email: coach.email,
+      specialization: coach.specialization,
+      experience: coach.experience,
+      image: coach.image,
+      gender: coach.gender
+    };
+
     res.status(200).json({ message: 'Login successful', user: coach });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -160,6 +177,18 @@ app.post('/login/clients', async (req, res) => {
       return res.status(401).json({ error: 'Incorrect password' });
     }
 
+    const user = {
+      clientid: client.clientid,
+      first_name: client.first_name,
+      last_name: client.last_name,
+      patronymic: client.patronymic,
+      username: client.username,
+      phone_number: client.phone_number,
+      email: client.email,
+      image: client.image,
+      gender: client.gender
+    };
+
     res.status(200).json({ message: 'Login successful', user: client });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -195,7 +224,15 @@ app.post('/clients', async (req, res) => {
 // Обновление данных клиента
 app.put('/clients/:id', upload.single('image'), async (req, res) => {
   const { id } = req.params;
-  const { first_name, last_name, patronymic, username, phone_number, email } = req.body;
+  const {
+    first_name,
+    last_name,
+    patronymic,
+    username,
+    phone_number,
+    email,
+    gender
+  } = req.body;
 
   try {
     const client = await Clients.findByPk(id);
@@ -203,7 +240,6 @@ app.put('/clients/:id', upload.single('image'), async (req, res) => {
       return res.status(404).json({ error: 'Клиент не найден' });
     }
 
-    // Обновляем данные клиента, включая название файла изображения
     await client.update({
       first_name,
       last_name,
@@ -211,12 +247,13 @@ app.put('/clients/:id', upload.single('image'), async (req, res) => {
       username,
       phone_number,
       email,
-      image: req.file ? req.file.filename : client.image  // Если файл был загружен, сохраняем его название
+      gender,
+      image: req.file ? req.file.filename : client.image
     });
 
-    res.status(200).json({ message: 'Данные обновлены', user: client });
+    res.status(200).json({ message: 'Данные клиента обновлены', user: client });
   } catch (error) {
-    console.error('Ошибка обновления данных:', error);
+    console.error('Ошибка обновления данных клиента:', error);
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 });
@@ -231,7 +268,8 @@ app.put('/coaches/:id', upload.single('image'), async (req, res) => {
     phone_number,
     email,
     specialization,
-    experience
+    experience,
+    gender
   } = req.body;
 
   try {
@@ -249,6 +287,7 @@ app.put('/coaches/:id', upload.single('image'), async (req, res) => {
       email,
       specialization,
       experience,
+      gender,
       image: req.file ? req.file.filename : coach.image
     });
 
@@ -1787,6 +1826,38 @@ app.get('/clients/:id/cm-measurements-history', async (req, res) => {
   }
 });
 
+app.get('/clients/:id/percentage-measurements-history', async (req, res) => {
+  const { id: clientId } = req.params;
+
+  try {
+    const history = await Progress.findAll({
+      where: { client_id: clientId },
+      include: [{ model: PercentageMeasurement, as: 'percentageMeasurement' }],
+      order: [['progressid', 'ASC']]
+    });
+
+    const result = history
+      .filter(p => p.percentageMeasurement)
+      .map(p => {
+        const perc = p.percentageMeasurement;
+        return {
+          date: perc.date,
+          fat_percentage: parseFloat(perc.fat_percentage),
+          skeletal_mass_percentage: parseFloat(perc.skeletal_mass_percentage),
+          muscle_dynamics: parseFloat(perc.muscle_dynamics),
+          body_water: parseFloat(perc.body_water),
+          protein: parseFloat(perc.protein),
+          fat_content: parseFloat(perc.fat_content)
+        };
+      });
+
+    res.json(result);
+  } catch (error) {
+    console.error('Ошибка при получении истории процентных замеров:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
 // Получение текущей активной подписки клиента
 app.get('/clients/:clientId/subscription', async (req, res) => {
   const { clientId } = req.params;
@@ -1868,5 +1939,116 @@ app.get('/coaches/:coachId/clients', async (req, res) => {
   }
 });
 
+app.post('/clients/:id/add-full-measurement', async (req, res) => {
+  const { id: clientId } = req.params;
+  const { date, unit, kg, cm, percentage, weight_machine } = req.body;
+
+  try {
+    // Получение предыдущей записи прогресса
+    const prevProgress = await Progress.findOne({
+      where: { client_id: clientId },
+      order: [['progressid', 'DESC']],
+      include: [
+        { model: UnitMeasurement, as: 'unitMeasurement' },
+        { model: KgMeasurement, as: 'kilogramMeasurement' },
+        { model: PercentageMeasurement, as: 'percentageMeasurement' }
+      ]
+    });
+
+    // Создание всех замеров
+    const unitResult = await UnitMeasurement.create({ ...unit, date });
+    const kgResult = await KgMeasurement.create({ ...kg, date });
+    const cmResult = await SmMeasurement.create({ ...cm, date });
+    const percResult = await PercentageMeasurement.create({ ...percentage, date });
+    const weightResult = await WeightsOnMachine.create({ ...weight_machine, date });
+
+    // Генерация анализа
+    let measurementAnalysis = "Общий анализ показателей стабильный.";
+    let weightAnalysis = "Весовые характеристики без резких изменений.";
+    let fullMeasurementAnalysis = "Показатели тела соответствуют норме.";
+    let fullWeightAnalysis = "Поддерживается стабильный уровень физической формы.";
+
+    if (prevProgress?.unitMeasurement && unitResult.bmi !== null) {
+      const delta = unitResult.bmi - prevProgress.unitMeasurement.bmi;
+      if (delta > 0.5) measurementAnalysis = "Наблюдается постепенное увеличение массы тела.";
+      else if (delta < -0.5) measurementAnalysis = "Имеется тенденция к снижению массы тела.";
+      else measurementAnalysis = "Индекс массы тела сохраняется на стабильном уровне.";
+    }
+
+    if (prevProgress?.kilogramMeasurement && kgResult.muscle_mass !== null) {
+      const delta = kgResult.muscle_mass - prevProgress.kilogramMeasurement.muscle_mass;
+      if (delta > 0.5) fullMeasurementAnalysis = "Отмечается рост мышечной массы.";
+      else if (delta < -0.5) fullMeasurementAnalysis = "Фиксируется снижение мышечной массы.";
+      else fullMeasurementAnalysis = "Мышечная масса остаётся в пределах нормы.";
+    }
+
+    if (prevProgress?.percentageMeasurement && percResult.fat_percentage !== null) {
+      const delta = percResult.fat_percentage - prevProgress.percentageMeasurement.fat_percentage;
+      if (delta > 0.5) weightAnalysis = "Отмечается повышение жирового показателя.";
+      else if (delta < -0.5) weightAnalysis = "Прослеживается снижение процента жира.";
+      else weightAnalysis = "Жировые показатели остаются без изменений.";
+    }
+
+    if (prevProgress?.kilogramMeasurement && kgResult.weight !== null) {
+      const delta = kgResult.weight - prevProgress.kilogramMeasurement.weight;
+      if (delta > 1) fullWeightAnalysis = "Наблюдается увеличение общей массы тела.";
+      else if (delta < -1) fullWeightAnalysis = "Имеет место снижение общей массы тела.";
+      else fullWeightAnalysis = "Масса тела остаётся устойчивой.";
+    }
+
+    // Создание строки прогресса
+    const progress = await Progress.create({
+      client_id: clientId,
+      unit_measurement_id: unitResult.measurementid,
+      kilogram_measurement_id: kgResult.kilogramid,
+      centimetre_measurement_id: cmResult.centimetreid,
+      percentage_measurement_id: percResult.percentageid,
+      weight_id: weightResult.weightid,
+      measurement_analysis: measurementAnalysis,
+      weight_analysis: weightAnalysis,
+      full_measurement_analysis: fullMeasurementAnalysis,
+      full_weight_analysis: fullWeightAnalysis
+    });
+
+    res.status(201).json({ message: 'Все замеры и анализ успешно сохранены', progress_id: progress.progressid });
+  } catch (error) {
+    console.error('Ошибка при добавлении замеров и анализа:', error);
+    res.status(500).json({ error: 'Ошибка сервера', detail: error.message });
+  }
+});
+
+app.post('/send-feedback', async (req, res) => {
+  const { rating, comment, clientEmail, clientName } = req.body;
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail', // или другой SMTP
+      auth: {
+        user: 'elfimov.maksim1415@gmail.com', // Твоя почта
+        pass: 'rloi vcvb rnmh ylqz'     // Пароль приложения (создаётся в Google аккаунте)
+      }
+    });
+
+    await transporter.sendMail({
+      from: '"Training Territory" <elfimov.maksim1415@gmail.com>',
+      to: 'elfimov.m@gs.donstu.ru',
+      subject: 'Новый отзыв от клиента',
+      text: `
+Новый отзыв от клиента:
+
+Имя: ${clientName}
+Email: ${clientEmail}
+Оценка: ${rating}
+Комментарий:
+${comment}
+      `
+    });
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Ошибка при отправке письма:', err);
+    res.status(500).json({ error: 'Ошибка сервера при отправке письма' });
+  }
+});
 
 module.exports = app;

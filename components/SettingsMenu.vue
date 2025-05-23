@@ -4,6 +4,7 @@
         <p class="subtitle">персональная информация</p>
         <p class="description">Обновите фотографию и персональные данные здесь</p>
 
+        <!-- ФИО -->
         <div class="form-group">
             <label>Имя Фамилия Отчество</label>
             <div class="input-row">
@@ -22,6 +23,7 @@
             </div>
         </div>
 
+        <!-- Email -->
         <div class="form-group">
             <label>Email</label>
             <div class="input-box">
@@ -30,6 +32,7 @@
             </div>
         </div>
 
+        <!-- Телефон -->
         <div class="form-group">
             <label>Номер телефона</label>
             <div class="input-box">
@@ -38,6 +41,7 @@
             </div>
         </div>
 
+        <!-- Логин -->
         <div class="form-group">
             <label>Логин</label>
             <div class="input-box">
@@ -47,7 +51,7 @@
             </div>
         </div>
 
-        <!-- Дополнительные поля только для тренеров -->
+        <!-- Только для тренера -->
         <div v-if="isCoach" class="form-group">
             <label>Специализация</label>
             <div class="input-box">
@@ -64,6 +68,20 @@
             </div>
         </div>
 
+        <!-- Пол -->
+        <div class="form-group">
+            <label>Пол</label>
+            <div class="input-box">
+                <select v-model="user.gender">
+                    <option disabled value="">Выберите пол</option>
+                    <option value="male">Мужчина</option>
+                    <option value="female">Женщина</option>
+                </select>
+                <i class="fa-solid fa-pen"></i>
+            </div>
+        </div>
+
+        <!-- Фото -->
         <div class="form-group">
             <label>Фото</label>
             <div class="input-box">
@@ -91,18 +109,19 @@ export default {
                 login: "",
                 image: "",
                 specialization: "",
-                experience: ""
+                experience: "",
+                gender: ""
             },
             selectedImage: null
         };
     },
-    mounted() {
-        this.loadUserFromCookies();
-    },
     computed: {
         isCoach() {
-            return this.user.role === 'coach';
+            return this.user.role === "coach";
         }
+    },
+    mounted() {
+        this.loadUserFromCookies();
     },
     methods: {
         loadUserFromCookies() {
@@ -130,6 +149,7 @@ export default {
                     email: userData.email || "",
                     phone: userData.phone_number || "",
                     login: userData.username || "",
+                    gender: (userData.gender || "").toLowerCase(),
                     image: userData.image || "",
                     specialization: userData.specialization || "",
                     experience: userData.experience || ""
@@ -151,6 +171,7 @@ export default {
             formData.append("username", this.user.login);
             formData.append("phone_number", this.user.phone);
             formData.append("email", this.user.email);
+            formData.append("gender", this.user.gender);
 
             if (this.isCoach) {
                 formData.append("specialization", this.user.specialization);
@@ -164,7 +185,11 @@ export default {
                 : `http://26.100.29.243:3000/api/clients/${this.user.id}`;
 
             try {
-                const res = await fetch(endpoint, { method: "PUT", body: formData });
+                const res = await fetch(endpoint, {
+                    method: "PUT",
+                    body: formData
+                });
+
                 const result = await res.json();
                 if (res.ok) {
                     alert("Данные успешно обновлены!");
@@ -246,6 +271,25 @@ label {
     transform: translateY(-50%);
     color: gray;
     cursor: pointer;
+}
+
+.input-box select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.5s, color 0.5s, border-color 0.3s;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.input-box select:focus {
+    outline: none;
+    border-color: var(--button-hover-color);
 }
 
 .fa-info-circle {

@@ -36,7 +36,7 @@ const Progress = sequelize.define('Progress', {
     },
     unit_measurement_id: { // Соответствует столбцу 'unit_measurement_id'
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: 'measurements_in_units', // Имя таблицы в нижнем регистре
             key: 'measurementid',
@@ -46,7 +46,7 @@ const Progress = sequelize.define('Progress', {
     },
     percentage_measurement_id: { // Соответствует столбцу 'percentage_measurement_id'
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: 'measurements_in_percentage', // Имя таблицы в нижнем регистре
             key: 'percentageid',
@@ -56,7 +56,7 @@ const Progress = sequelize.define('Progress', {
     },
     kilogram_measurement_id: { // Соответствует столбцу 'kilogram_measurement_id'
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: 'measurements_in_kilograms', // Имя таблицы в нижнем регистре
             key: 'kilogramid',
@@ -66,7 +66,7 @@ const Progress = sequelize.define('Progress', {
     },
     centimetre_measurement_id: { // Соответствует столбцу 'centimetre_measurement_id'
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: 'measurements_in_centimeters', // Имя таблицы в нижнем регистре
             key: 'centimetreid',
@@ -76,7 +76,7 @@ const Progress = sequelize.define('Progress', {
     },
     weight_id: { // Соответствует столбцу 'weight_id'
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: 'weights_on_machine', // Имя таблицы в нижнем регистре
             key: 'weightid',

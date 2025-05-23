@@ -23,7 +23,8 @@ import TrainerMenu from "@/components/TrainerMenu.vue";
 import SettingsMenu from "@/components/SettingsMenu.vue";
 import SupportMenu from "@/components/SupportMenu.vue";
 import SubscriptionMenu from "@/components/SubscriptionMenu.vue";
-import CoachClients from "@/components/CoachClients.vue"; // Добавлен компонент клиентов
+import CoachClients from "@/components/CoachClients.vue";
+import CommentMenu from "@/components/CommentMenu.vue";
 
 export default {
     components: {
@@ -34,7 +35,8 @@ export default {
         SettingsMenu,
         SupportMenu,
         SubscriptionMenu,
-        CoachClients
+        CoachClients,
+        CommentMenu,
     },
     data() {
         return {
@@ -73,7 +75,8 @@ export default {
                 settings: SettingsMenu,
                 support: SupportMenu,
                 subscription: SubscriptionMenu,
-                clients: CoachClients
+                clients: CoachClients,
+                feedback: CommentMenu
             };
 
             this.selectedComponent = componentMap[menuItem] || UserMenu;

@@ -53,7 +53,6 @@ export default {
                 body_age: 'Возраст тела',
                 fat_percentage: 'Процент жира',
                 muscle_dynamics: 'Динамика мышц'
-                // добавь остальные поля при необходимости
             };
             return map[key] || key;
         },

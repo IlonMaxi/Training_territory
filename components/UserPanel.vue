@@ -44,12 +44,13 @@ export default {
     },
     data() {
         return {
-            selected: "progress",
+            selected: null,
             clientMenu: [
                 { id: "progress", label: "ВАШ ПРОГРЕСС", icon: "fa-solid fa-circle-user" },
                 { id: "trainer", label: "ВАШ ТРЕНЕР", icon: "fa-solid fa-user-tie" },
                 { id: "settings", label: "НАСТРОЙКИ", icon: "fa-solid fa-cogs" },
-                { id: "support", label: "ПОДДЕРЖКА", icon: "fa-solid fa-headset" }
+                { id: "support", label: "ПОДДЕРЖКА", icon: "fa-solid fa-headset" },
+                { id: "feedback", label: "ОСТАВИТЬ ОТЗЫВ", icon: "fa-solid fa-comment-dots" }
             ],
             coachMenu: [
                 { id: "clients", label: "ВАШИ КЛИЕНТЫ", icon: "fa-solid fa-users" },
@@ -65,6 +66,14 @@ export default {
         isCoach() {
             return this.user && this.user.coachid;
         }
+    },
+    mounted() {
+        if (this.isClient) {
+            this.selected = "progress";
+        } else if (this.isCoach) {
+            this.selected = "clients";
+        }
+        this.$emit("menu-selected", this.selected);
     },
     methods: {
         selectMenu(id) {

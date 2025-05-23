@@ -1,21 +1,26 @@
 <template>
-    <div>
-        <HeaderAfterLogin />
-        <ScheduleComponent :user="user" />
-        <FooterLastComponent />
-    </div>
+  <div>
+    <HeaderAfterLogin />
+    <ScheduleComponent :user="user" />
+    <section id="progress">
+      <AddMeasurements v-if="accountType === 'client'" :client="user" />
+    </section>
+    <FooterLastComponent />
+  </div>
 </template>
 
 <script>
 import HeaderAfterLogin from '~/components/Header.vue';
 import ScheduleComponent from '~/components/Schedule.vue';
 import FooterLastComponent from '~/components/FooterLast.vue';
+import AddMeasurements from '~/components/AddMeasurements.vue';
 
 export default {
     components: {
         HeaderAfterLogin,
         ScheduleComponent,
-        FooterLastComponent
+        FooterLastComponent,
+        AddMeasurements
     },
     data() {
         return {

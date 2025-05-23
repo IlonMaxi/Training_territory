@@ -29,11 +29,10 @@
                 <div>Возраст тела: {{ progress.body_age }}%</div>
                 <div>Процент жира: {{ progress.fat_percentage }}%</div>
                 <div>Динамика мышц: {{ progress.muscle_dynamics }}%</div>
-                <div>Объёмы тела (см): {{ progress.cm }}%</div>
             </div>
 
             <!-- Кнопки -->
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0;">
+            <div style="display: flex; gap: 10px; margin: 12px 0;">
                 <button class="unit-toggle" @click="loadAndSet('unit')">Прогресс в единицах</button>
                 <button class="unit-toggle" @click="loadAndSet('percentage')">Прогресс в процентах</button>
                 <button class="unit-toggle" @click="loadAndSet('kg')">Прогресс в килограммах</button>
@@ -281,6 +280,7 @@ export default {
     color: var(--background-color-white);
     flex-grow: 1;
     padding: 24px;
+    width: 940px;
 }
 
 .progress-ring-container {
