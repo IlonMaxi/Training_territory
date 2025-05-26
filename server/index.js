@@ -514,13 +514,17 @@ const MEALS = [
   { name: 'Ужин', ratio: 0.375 }
 ];
 
-const getTotalCalories = (workoutType, difficulty) => {
-  if (workoutType === 'силовая') {
-    return difficulty === 'Высокий' ? 3200 : 2500;
-  } else if (workoutType === 'кардио') {
-    return difficulty === 'Высокий' ? 2800 : 2200;
-  }
-  return 2000;
+// Базовая калорийность по полу
+const getBaseCalories = (gender) => {
+  return gender === 'female' ? 1800 : 2200;
+};
+
+// Бонус за тренировку
+const getWorkoutBonus = (type, difficulty) => {
+  if (!type || !difficulty) return 0;
+  if (type === 'силовая') return difficulty === 'Высокий' ? 800 : 500;
+  if (type === 'кардио') return difficulty === 'Высокий' ? 600 : 400;
+  return 0;
 };
 
 const generateNutritionSchedule = async () => {
@@ -528,13 +532,16 @@ const generateNutritionSchedule = async () => {
 
   try {
     const clients = await Clients.findAll();
-    if (!clients.length) {
-      console.log('❌ Нет клиентов для обработки.');
+    const allRecipes = await Recipe.findAll();
+
+    if (!clients.length || !allRecipes.length) {
+      console.log('❌ Нет клиентов или рецептов.');
       return;
     }
 
     for (const client of clients) {
       const clientId = client.clientid;
+      const gender = client.gender || 'male';
       const workouts = await Workout.findAll({ where: { coach_id: client.coach_id } });
 
       let currentDate = new Date();
@@ -547,43 +554,52 @@ const generateNutritionSchedule = async () => {
           new Date(w.date).toDateString() === currentDate.toDateString()
         );
 
-        const workout = dayWorkouts[0]; // берём первый в этот день, если есть
-        const totalCalories = getTotalCalories(workout?.workout_type, workout?.difficulty);
+        const workout = dayWorkouts[0];
+        const baseCalories = getBaseCalories(gender);
+        const bonusCalories = getWorkoutBonus(workout?.workout_type, workout?.difficulty);
+
+        // 🎯 Добавим разброс калорий: ±75 ккал
+        const variation = Math.floor(Math.random() * 151) - 75; // [-75..+75]
+        const totalCalories = baseCalories + bonusCalories + variation;
 
         const existingNutritions = await Nutrition.findAll({
           where: { client_id: clientId, date: currentDate }
         });
 
-        const recipes = await Recipe.findAll();
-        if (!recipes.length) {
-          console.error('⚠️ Нет доступных рецептов.');
-          continue;
-        }
-
         for (const meal of MEALS) {
           const mealCalories = Math.round(totalCalories * meal.ratio);
-          const existingMeal = existingNutritions.find(n => n.meal_type === meal.name);
-          const randomRecipe = recipes[Math.floor(Math.random() * recipes.length)];
+
+          // Подбор подходящего рецепта по калорийности
+          const suitableRecipes = allRecipes.filter(r =>
+            r.calories >= mealCalories - 100 && r.calories <= mealCalories + 100
+          );
+
+          const selectedRecipe = (suitableRecipes.length
+            ? suitableRecipes
+            : allRecipes)[Math.floor(Math.random() * (suitableRecipes.length || allRecipes.length))];
+
+          const actualCalories = selectedRecipe.calories || mealCalories;
 
           const mealData = {
-            name: randomRecipe.name,
-            protein_amount: (mealCalories * 0.3) / 4,
-            fat_amount: (mealCalories * 0.25) / 9,
-            carbohydrate_amount: (mealCalories * 0.45) / 4,
-            calories: mealCalories,
+            name: selectedRecipe.name,
+            protein_amount: +(actualCalories * 0.3 / 4).toFixed(2),
+            fat_amount: +(actualCalories * 0.25 / 9).toFixed(2),
+            carbohydrate_amount: +(actualCalories * 0.45 / 4).toFixed(2),
+            calories: actualCalories,
             water_amount: Math.round(Math.random() * 500 + 1500),
-            date: currentDate,
+            date: new Date(currentDate),
             client_id: clientId,
-            recipe_id: randomRecipe.recipeid,
+            recipe_id: selectedRecipe.recipeid,
             meal_type: meal.name
           };
 
+          const existingMeal = existingNutritions.find(n => n.meal_type === meal.name);
           if (existingMeal) {
             await existingMeal.update(mealData);
-            console.log(`🔄 Обновлено питание (${meal.name}) для клиента ${clientId} на ${currentDate.toDateString()}`);
+            console.log(`🔄 Обновлено (${meal.name}) для клиента ${clientId} на ${currentDate.toDateString()}`);
           } else {
             await Nutrition.create(mealData);
-            console.log(`➕ Добавлено питание (${meal.name}) для клиента ${clientId} на ${currentDate.toDateString()}`);
+            console.log(`➕ Добавлено (${meal.name}) для клиента ${clientId} на ${currentDate.toDateString()}`);
           }
         }
 
@@ -595,11 +611,13 @@ const generateNutritionSchedule = async () => {
   }
 };
 
+// Первый запуск
 (async () => {
   console.log('Первый запуск: генерация расписания...');
   await generateNutritionSchedule();
 })();
 
+// Плановая генерация каждый день
 cron.schedule('0 0 * * *', async () => {
   console.log('Запуск плановой генерации питания...');
   await generateNutritionSchedule();

@@ -13,12 +13,8 @@
         <i class="fa-solid fa-chevron-left"></i>
       </button>
       <div class="dates">
-        <div
-          v-for="(day, index) in currentWeek"
-          :key="index"
-          :class="['date', { active: isSelected(day.date), today: isToday(day.date) }]"
-          @click="selectDay(day)"
-        >
+        <div v-for="(day, index) in currentWeek" :key="index"
+          :class="['date', { active: isSelected(day.date), today: isToday(day.date) }]" @click="selectDay(day)">
           <p class="day-number">{{ day.date.getDate() }}</p>
           <p class="day-name">{{ getDayName(day.date) }}</p>
         </div>
@@ -33,29 +29,19 @@
       <div v-for="(day, index) in currentWeek" :key="'week-' + index" class="day-column">
         <h3 class="day-header">{{ dayjs(day.date).format('D MMMM, ddd') }}</h3>
 
-        <div
-          v-for="(session, i) in getSessionsByDate(day.date)"
-          :key="'s' + i"
-          class="session"
-          @click="openDetails(session, 'session')"
-        >
+        <div v-for="(session, i) in getSessionsByDate(day.date)" :key="'s' + i" class="session"
+          @click="openDetails(session, 'session')">
           <strong>{{ session.workout_name }}</strong><br>
           {{ formatTime(session.starttime) }} - {{ formatTime(session.endtime) }}
         </div>
 
-        <div
-          v-for="(meal, i) in getMealsByDate(day.date)"
-          :key="'m' + i"
-          class="meal"
-          @click="openDetails(meal, 'meal')"
-        >
+        <div v-for="(meal, i) in getMealsByDate(day.date)" :key="'m' + i" class="meal"
+          @click="openDetails(meal, 'meal')">
           <strong>{{ meal.meal_type }}</strong>: {{ meal.food_name }} ({{ meal.calories }} ккал)
         </div>
 
-        <div
-          v-if="getSessionsByDate(day.date).length === 0 && getMealsByDate(day.date).length === 0"
-          class="no-sessions"
-        >
+        <div v-if="getSessionsByDate(day.date).length === 0 && getMealsByDate(day.date).length === 0"
+          class="no-sessions">
           Нет данных
         </div>
       </div>
@@ -64,12 +50,8 @@
     <!-- Режим дня -->
     <div v-else>
       <div class="training-list">
-        <div
-          v-for="(session, index) in filteredTrainingSessions"
-          :key="index"
-          class="session-wrapper"
-          @click="openDetails(session, 'session')"
-        >
+        <div v-for="(session, index) in filteredTrainingSessions" :key="index" class="session-wrapper"
+          @click="openDetails(session, 'session')">
           <div class="bullet-line-wrapper">
             <div class="bullet"></div>
             <div class="line" v-if="index < filteredTrainingSessions.length - 1"></div>
@@ -105,12 +87,8 @@
       </div>
 
       <div id="nutrition" class="nutrition-list">
-        <div
-          v-for="(meal, index) in filteredNutritionData"
-          :key="index"
-          class="meal-wrapper"
-          @click="openDetails(meal, 'meal')"
-        >
+        <div v-for="(meal, index) in filteredNutritionData" :key="index" class="meal-wrapper"
+          @click="openDetails(meal, 'meal')">
           <div class="bullet-line-wrapper">
             <div class="bullet"></div>
             <div class="line" v-if="index < filteredNutritionData.length - 1"></div>
@@ -136,14 +114,16 @@
           <p><strong>Место:</strong> {{ selectedItem.location }}</p>
           <p><strong>Упражнение:</strong> {{ selectedItem.exercise_name }} — {{ selectedItem.exercise_description }}</p>
           <p><strong>Оборудование:</strong> {{ selectedItem.equipment }}</p>
-          <p><strong>Время:</strong> {{ formatTime(selectedItem.starttime) }} - {{ formatTime(selectedItem.endtime) }}</p>
+          <p><strong>Время:</strong> {{ formatTime(selectedItem.starttime) }} - {{ formatTime(selectedItem.endtime) }}
+          </p>
         </div>
 
         <div v-else-if="selectedType === 'meal'">
           <h2>Питание: {{ selectedItem.meal_type }}</h2>
           <p><strong>Название:</strong> {{ selectedItem.food_name }}</p>
           <p><strong>Калории:</strong> {{ selectedItem.calories }} ккал</p>
-          <p><strong>БЖУ:</strong> {{ selectedItem.proteins }} / {{ selectedItem.fats }} / {{ selectedItem.carbohydrates }}</p>
+          <p><strong>БЖУ:</strong> {{ selectedItem.proteins }} / {{ selectedItem.fats }} / {{ selectedItem.carbohydrates
+            }}</p>
           <p><strong>Рецепт:</strong> {{ selectedItem.recipe_name }}</p>
           <p><strong>Ингредиенты:</strong> {{ selectedItem.ingredients }}</p>
           <p><strong>Инструкция:</strong> {{ selectedItem.instructions }}</p>
@@ -161,7 +141,8 @@ export default {
   props: {
     user: {
       type: Object,
-      required: true
+      required: false,
+      default: () => null
     }
   },
   data() {
@@ -291,9 +272,16 @@ export default {
   created() {
     this.year = this.generateYear(this.selectedDay)
     this.currentWeekIndex = this.getWeekIndex(this.selectedDay)
-    this.fetchSchedule()
+
+    if (this.user && this.user.clientid) {
+      this.fetchSchedule()
+    } else {
+      console.warn('⚠ Пользователь не передан или clientid отсутствует — пропускаем fetchSchedule')
+    }
+
     dayjs.locale('ru')
   }
+
 }
 </script>
 
@@ -544,7 +532,7 @@ input[type="checkbox"] {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.6);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
