@@ -1,17 +1,20 @@
 <template>
   <div class="schedule">
-    <h1 class="title">РАСПИСАНИЕ</h1>
+    <h1 id="schedule" class="title">РАСПИСАНИЕ</h1>
+
+    <div class="view-toggle">
+      <button class="toggle-button" @click="showWeekView = !showWeekView">
+        {{ showWeekView ? 'Режим дня' : 'Режим недели' }}
+      </button>
+    </div>
+
     <div class="date-picker">
       <button class="arrow-button" @click="prevWeek">
         <i class="fa-solid fa-chevron-left"></i>
       </button>
       <div class="dates">
-        <div
-          v-for="(day, index) in currentWeek"
-          :key="index"
-          :class="['date', { active: isSelected(day.date), today: isToday(day.date) }]"
-          @click="selectDay(day)"
-        >
+        <div v-for="(day, index) in currentWeek" :key="index"
+          :class="['date', { active: isSelected(day.date), today: isToday(day.date) }]" @click="selectDay(day)">
           <p class="day-number">{{ day.date.getDate() }}</p>
           <p class="day-name">{{ getDayName(day.date) }}</p>
         </div>
@@ -20,20 +23,44 @@
         <i class="fa-solid fa-chevron-right"></i>
       </button>
     </div>
-    <div class="training-list">
-      <div
-        v-for="(session, index) in filteredTrainingSessions"
-        :key="index"
-        class="session-wrapper"
-      >
+
+    <!-- Режим недели -->
+    <div v-if="showWeekView" class="week-view">
+      <div v-for="(day, index) in currentWeek" :key="index" class="day-column">
+        <h3 class="day-header">
+          {{ day.date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' }) }}
+        </h3>
+
+        <div v-for="(session, i) in getSessionsByDateSorted(day.date)" :key="'s' + i" class="session-box"
+          @click="openDetails(session)">
+          <strong>{{ session.workout_name }}</strong>
+          <div class="session-time">{{ formatTime(session.starttime) }} - {{ formatTime(session.endtime) }}</div>
+          <div class="session-footer">
+            <button class="cancel-button" @click.stop="cancelSession(session.scheduleid)">Отменить</button>
+          </div>
+        </div>
+
+        <div v-if="getSessionsByDate(day.date).length === 0" class="no-sessions">
+          Нет данных
+        </div>
+      </div>
+    </div>
+
+    <!-- Режим дня -->
+    <div v-else class="training-list">
+      <div v-for="(session, index) in filteredTrainingSessionsSorted" :key="index" class="session-wrapper">
         <div class="bullet-line-wrapper">
           <div class="bullet"></div>
           <div class="line" v-if="index < filteredTrainingSessions.length - 1"></div>
         </div>
         <div class="session">
+          <div class="session-header">
+            <h2 class="session-title">{{ session.workout_name }}</h2>
+            <p class="session-time">{{ formatTime(session.starttime) }} - {{ formatTime(session.endtime) }}</p>
+          </div>
+
           <div class="session-info">
             <div class="session-details">
-              <h2 class="session-title">Тренировка - {{ session.workout_name }}</h2>
               <ul class="session-description">
                 <li>Место: {{ session.location }}</li>
                 <li>Описание: {{ session.workout_description }}</li>
@@ -41,22 +68,37 @@
               <h3>Упражнения:</h3>
               <ul class="exercises-list">
                 <li>
-                  <strong>{{ session.exercise_name }}</strong>:
-                  {{ session.exercise_description }} (Оборудование: {{ session.equipment }})
+                  <strong>{{ session.exercise_name }}</strong>: {{ session.exercise_description }}
+                  (Оборудование: {{ session.equipment }})
                 </li>
               </ul>
             </div>
           </div>
-          <div class="session-time">
-            <p>{{ formatTime(session.starttime) }} - {{ formatTime(session.endtime) }}</p>
+
+          <div class="session-footer">
+            <button class="cancel-button" @click="cancelSession(session.scheduleid)">Отменить</button>
           </div>
         </div>
       </div>
       <div v-if="filteredTrainingSessions.length === 0 && !error" class="no-sessions">
         Нет запланированных тренировок на этот день.
       </div>
-      <div v-if="error" class="error-message">
-        {{ error }}
+      <div v-if="error" class="error-message">{{ error }}</div>
+    </div>
+
+    <!-- Модальное окно -->
+    <div v-if="showModal" class="modal-overlay" @click.self="closeDetails">
+      <div class="modal-content">
+        <button class="close-button" @click="closeDetails">✖</button>
+        <div>
+          <h2>Тренировка: {{ selectedItem.workout_name }}</h2>
+          <p><strong>Описание:</strong> {{ selectedItem.workout_description }}</p>
+          <p><strong>Место:</strong> {{ selectedItem.location }}</p>
+          <p><strong>Упражнение:</strong> {{ selectedItem.exercise_name }} — {{ selectedItem.exercise_description }}</p>
+          <p><strong>Оборудование:</strong> {{ selectedItem.equipment }}</p>
+          <p><strong>Время:</strong> {{ formatTime(selectedItem.starttime) }} - {{ formatTime(selectedItem.endtime) }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -65,10 +107,7 @@
 <script>
 export default {
   props: {
-    user: {
-      type: Object,
-      required: true
-    }
+    user: { type: Object, default: () => null }
   },
   data() {
     return {
@@ -76,8 +115,11 @@ export default {
       currentWeekIndex: 0,
       year: [],
       trainingSessions: [],
-      error: null
-    };
+      showWeekView: false,
+      error: null,
+      showModal: false,
+      selectedItem: null
+    }
   },
   computed: {
     currentWeek() {
@@ -88,141 +130,112 @@ export default {
       if (!this.selectedDay) return [];
       return this.trainingSessions.filter(session => {
         const sessionDate = new Date(session.date);
-        return (
-          sessionDate.getFullYear() === this.selectedDay.getFullYear() &&
-          sessionDate.getMonth() === this.selectedDay.getMonth() &&
-          sessionDate.getDate() === this.selectedDay.getDate()
-        );
+        return sessionDate.toDateString() === this.selectedDay.toDateString();
       });
+    },
+    filteredTrainingSessionsSorted() {
+      return this.filteredTrainingSessions.slice().sort((a, b) => a.starttime.localeCompare(b.starttime));
     }
   },
   methods: {
-    // Получение куки (при необходимости)
-    getCookie(name) {
-      if (process.client) { // Проверяем, что код выполняется на клиенте
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
-      }
-      return null;
+    getSessionsByDate(date) {
+      return this.trainingSessions.filter(s => {
+        const sessionDate = new Date(s.date);
+        return sessionDate.toDateString() === date.toDateString();
+      });
     },
-    // Установка куки
-    setCookie(name, value, days) {
-      if (process.client) { // Проверяем, что код выполняется на клиенте
-        const date = new Date();
-        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-        document.cookie = `${name}=${encodeURIComponent(value)}; path=/; expires=${date.toUTCString()}`;
-      }
-    },
-    // Удаление куки
-    deleteCookie(name) {
-      if (process.client) { // Проверяем, что код выполняется на клиенте
-        document.cookie = `${name}=; path=/; max-age=0;`;
-      }
+    getSessionsByDateSorted(date) {
+      return this.getSessionsByDate(date).sort((a, b) => a.starttime.localeCompare(b.starttime));
     },
     async fetchSchedule() {
-      if (!this.user || !this.user.coachid) {
-        this.error = "Отсутствует идентификатор тренера.";
-        return;
-      }
-
       try {
         const coachId = this.user.coachid;
         const response = await fetch(`http://26.100.29.243:3000/api/schedule/${coachId}`);
-        if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`);
         const data = await response.json();
-        this.trainingSessions = data;
-        this.error = null;
-      } catch (error) {
-        console.error("Ошибка при получении расписания:", error);
-        this.error = "Не удалось загрузить расписание. Пожалуйста, попробуйте позже.";
+        this.trainingSessions = Array.isArray(data) ? data : [];
+      } catch (e) {
+        this.error = 'Ошибка загрузки данных.';
+        this.trainingSessions = [];
+      }
+    },
+    async cancelSession(scheduleId) {
+      if (!confirm('Вы уверены, что хотите отменить тренировку?')) return;
+      try {
+        await fetch(`http://26.100.29.243:3000/api/schedule/${scheduleId}`, { method: 'DELETE' });
+        this.trainingSessions = this.trainingSessions.filter(s => s.scheduleid !== scheduleId);
+      } catch (e) {
+        alert('Ошибка при удалении тренировки.');
       }
     },
     generateYear(startDate) {
       const year = [];
-      const startOfYear = new Date(startDate.getFullYear(), 0, 1);
-      const dayOfWeek = startOfYear.getDay();
-      const offset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-      startOfYear.setDate(startOfYear.getDate() + offset);
 
-      let currentDate = new Date(startOfYear);
-      const isLeapYear = (startDate.getFullYear() % 4 === 0 && startDate.getFullYear() % 100 !== 0) || (startDate.getFullYear() % 400 === 0);
-      const daysInYear = isLeapYear ? 366 : 365;
+      // Определяем 1 января текущего года
+      let current = new Date(startDate.getFullYear(), 0, 1);
 
-      for (let i = 0; i < daysInYear; i++) {
-        year.push({ date: new Date(currentDate) });
-        currentDate.setDate(currentDate.getDate() + 1);
+      // Смещаем current назад до понедельника
+      const dayOfWeek = current.getDay(); // 0 — воскресенье, 1 — понедельник, ..., 6 — суббота
+      const shift = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // если воскресенье, откат на -6, иначе до понедельника
+      current.setDate(current.getDate() + shift);
+
+      // Генерируем даты на год + запас на неполные недели
+      while (year.length < 370) {
+        year.push({ date: new Date(current) });
+        current.setDate(current.getDate() + 1);
       }
 
       return year;
     },
-    getDayName(date) {
-      return date.toLocaleDateString('ru-RU', { weekday: 'short' });
-    },
     selectDay(day) {
       this.selectedDay = day.date;
-      this.setCookie('selectedDay', day.date.toISOString(), 7); // Сохраняем выбранный день в куки
     },
     isToday(date) {
       const today = new Date();
-      return (
-        date.getFullYear() === today.getFullYear() &&
-        date.getMonth() === today.getMonth() &&
-        date.getDate() === today.getDate()
-      );
+      return date.toDateString() === today.toDateString();
     },
     isSelected(date) {
-      return (
-        date.getFullYear() === this.selectedDay.getFullYear() &&
-        date.getMonth() === this.selectedDay.getMonth() &&
-        date.getDate() === this.selectedDay.getDate()
-      );
+      return this.selectedDay && date.toDateString() === this.selectedDay.toDateString();
     },
     formatTime(time) {
-      return time.slice(0, 5);
+      return time?.slice?.(0, 5) || '';
     },
     prevWeek() {
       if (this.currentWeekIndex > 0) {
         this.currentWeekIndex--;
-        this.updateSelectedDay();
+        this.selectDay(this.currentWeek[0]);
       }
     },
     nextWeek() {
       if (this.currentWeekIndex < Math.floor(this.year.length / 7)) {
         this.currentWeekIndex++;
-        this.updateSelectedDay();
+        this.selectDay(this.currentWeek[0]);
       }
     },
-    updateSelectedDay() {
-      const week = this.currentWeek;
-      const found = week.find(day => this.isSelected(day.date));
-      if (!found) {
-        this.selectedDay = week[0].date;
-        this.setCookie('selectedDay', week[0].date.toISOString(), 7);
-      }
+    getDayName(date) {
+      return date.toLocaleDateString('ru-RU', { weekday: 'short' });
     },
-    /**
-     * Вычисляет индекс недели для заданной даты.
-     * @param {Date} date - Дата, для которой вычисляется индекс недели.
-     * @returns {Number} Индекс недели.
-     */
-    getWeekIndex(date) {
-      const startOfYear = new Date(date.getFullYear(), 0, 1);
-      const pastDaysOfYear = Math.floor((date - startOfYear) / (1000 * 60 * 60 * 24));
-      return Math.floor(pastDaysOfYear / 7);
+    openDetails(item) {
+      this.selectedItem = item;
+      this.showModal = true;
+    },
+    closeDetails() {
+      this.selectedItem = null;
+      this.showModal = false;
     }
   },
   created() {
-    if (process.client) { // Проверяем, что код выполняется на клиенте
-      const savedDay = this.getCookie('selectedDay');
-      const today = new Date();
-      this.selectedDay = savedDay ? new Date(savedDay) : today; // Восстанавливаем выбранный день из куки или используем сегодня
-      this.year = this.generateYear(this.selectedDay); // Генерация года
-      this.currentWeekIndex = this.getWeekIndex(this.selectedDay); // Индекс текущей недели
-      this.fetchSchedule(); // Загрузка расписания
-    }
+    const today = new Date();
+    this.selectedDay = today;
+    this.year = this.generateYear(today);
+
+    // Пересчёт индекса недели с учётом начала с понедельника
+    const firstDay = this.year[0].date;
+    const diffDays = Math.floor((today - firstDay) / (24 * 60 * 60 * 1000));
+    this.currentWeekIndex = Math.floor(diffDays / 7);
+
+    if (this.user && this.user.coachid) this.fetchSchedule();
   }
-};
+}
 </script>
 
 <style scoped>
@@ -240,7 +253,6 @@ export default {
 .title {
   text-align: center;
   margin-bottom: 20px;
-  font-size: 24px;
   color: var(--text-color);
   transition: color 0.5s;
 }
@@ -293,6 +305,18 @@ export default {
   font-size: 16px;
 }
 
+.toggle-button {
+  background-color: var(--button-hover-color);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
 .training-list {
   margin-top: 20px;
 }
@@ -329,22 +353,63 @@ export default {
   top: 25%;
   bottom: -90%;
   border-radius: 50px;
+  height: 70px;
+}
+
+.nutrition-list {
+  margin-top: 20px;
+}
+
+.meal-wrapper {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  position: relative;
+  max-height: 100px;
+}
+
+.meal {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-color-white);
+  padding: 15px;
+  border-radius: 10px;
+  color: var(--text-color);
+  transition: background-color 0.5s, color 0.5s;
+}
+
+.meal-title {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.meal-wrapper .bullet-line-wrapper {
+  margin-right: 20px;
+  position: relative;
+  min-height: 100px;
+  margin-top: 30px;
+}
+
+.meal-wrapper .bullet {
+  background-color: var(--button-hover-color);
 }
 
 .session {
   flex-grow: 1;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   background-color: var(--background-color-white);
   padding: 15px;
   border-radius: 10px;
   transition: background-color 0.5s, color 0.5s;
+  gap: 10px;
 }
 
 .session-info {
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 .session-details {
@@ -354,7 +419,6 @@ export default {
 .session-title {
   font-size: 24px;
   margin-bottom: 10px;
-  color: var(--text-color);
 }
 
 .session-description {
@@ -376,12 +440,130 @@ export default {
 .session-time {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   font-size: 20px;
-  color: var(--text-color);
+  margin-top: 4px;
 }
 
 input[type="checkbox"] {
   margin-top: 10px;
+}
+
+.week-view {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.day-column {
+  flex: 1;
+  background-color: var(--background-color-white);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 140px;
+}
+
+.day-header {
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: var(--text-color);
+  font-size: 14px;
+  text-align: center;
+}
+
+.session,
+.meal {
+  background-color: #f5f5f5;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #333;
+}
+
+.no-sessions {
+  font-style: italic;
+  font-size: 12px;
+  color: gray;
+  text-align: center;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #676161;
+  padding: 20px 30px;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.cancel-button {
+  align-self: flex-start;
+  background-color: #e53935;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.session-box {
+  background-color: #e0f0ff;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  color: black;
+}
+
+.session-block {
+  background-color: #e0f0ff;
+  padding: 15px;
+  border-radius: 12px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: background-color 0.3s;
 }
 </style>

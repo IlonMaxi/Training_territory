@@ -17,6 +17,11 @@
                 <i class="fa-brands fa-shopify"></i>
                 ПОДПИСКА
             </button>
+
+            <button class="chat-btn" @click="$emit('menu-selected', 'chat')">
+                <i class="fa-solid fa-comments"></i>
+                ЧАТ С ТРЕНЕРОМ
+            </button>
         </template>
 
         <!-- Меню для тренера -->
@@ -25,6 +30,11 @@
                 :class="['menu-btn', { active: selected === item.id }]" @click="selectMenu(item.id)">
                 <i :class="item.icon"></i>
                 {{ item.label }}
+            </button>
+
+            <button class="chat-btn" @click="$emit('menu-selected', 'chat')">
+                <i class="fa-solid fa-comments"></i>
+                ЧАТ С КЛИЕНТАМИ
             </button>
         </template>
 
@@ -86,15 +96,16 @@ export default {
 
 <style scoped>
 .user-panel {
-  align-self: flex-start;
-  margin-left: auto; /* Это ключевая строка: прижимает к правому краю */
-  display: flex;
-  flex-direction: column;
-  background: var(--background-color);
-  padding: 15px;
-  border-radius: 8px;
-  width: 250px;
-  transition: background-color 0.5s, color 0.5s;
+    align-self: flex-start;
+    margin-left: auto;
+    /* Это ключевая строка: прижимает к правому краю */
+    display: flex;
+    flex-direction: column;
+    background: var(--background-color);
+    padding: 15px;
+    border-radius: 8px;
+    width: 250px;
+    transition: background-color 0.5s, color 0.5s;
 }
 
 .user-info {
@@ -156,4 +167,20 @@ export default {
     margin-right: 10px;
     font-size: large;
 }
+
+.chat-btn {
+  background-color: var(--button-hover-color);
+  color: white;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 </style>

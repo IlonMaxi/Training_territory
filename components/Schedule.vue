@@ -3,7 +3,7 @@
     <h1 id="schedule" class="title">РАСПИСАНИЕ</h1>
 
     <div class="view-toggle">
-      <button @click="showWeekView = !showWeekView">
+      <button class="toggle-button" @click="showWeekView = !showWeekView">
         {{ showWeekView ? 'Режим дня' : 'Режим недели' }}
       </button>
     </div>
@@ -14,7 +14,8 @@
       </button>
       <div class="dates">
         <div v-for="(day, index) in currentWeek" :key="index"
-          :class="['date', { active: isSelected(day.date), today: isToday(day.date) }]" @click="selectDay(day)">
+             :class="['date', { active: isSelected(day.date), today: isToday(day.date) }]"
+             @click="selectDay(day)">
           <p class="day-number">{{ day.date.getDate() }}</p>
           <p class="day-name">{{ getDayName(day.date) }}</p>
         </div>
@@ -29,19 +30,20 @@
       <div v-for="(day, index) in currentWeek" :key="'week-' + index" class="day-column">
         <h3 class="day-header">{{ dayjs(day.date).format('D MMMM, ddd') }}</h3>
 
-        <div v-for="(session, i) in getSessionsByDate(day.date)" :key="'s' + i" class="session"
-          @click="openDetails(session, 'session')">
+        <div v-for="(session, i) in getSessionsByDate(day.date)" :key="'s' + i" class="session-box"
+             @click="openDetails(session, 'session')">
           <strong>{{ session.workout_name }}</strong><br>
           {{ formatTime(session.starttime) }} - {{ formatTime(session.endtime) }}
         </div>
 
-        <div v-for="(meal, i) in getMealsByDate(day.date)" :key="'m' + i" class="meal"
-          @click="openDetails(meal, 'meal')">
-          <strong>{{ meal.meal_type }}</strong>: {{ meal.food_name }} ({{ meal.calories }} ккал)
+        <div v-for="(meal, i) in getMealsByDate(day.date)" :key="'m' + i" class="meal-box"
+             @click="openDetails(meal, 'meal')">
+          <strong>{{ meal.meal_type }}</strong>: {{ meal.food_name }} 
+          ({{ meal.calories }} ккал / {{ meal.weight || '≈300' }} г)
         </div>
 
         <div v-if="getSessionsByDate(day.date).length === 0 && getMealsByDate(day.date).length === 0"
-          class="no-sessions">
+             class="no-sessions">
           Нет данных
         </div>
       </div>
@@ -51,7 +53,7 @@
     <div v-else>
       <div class="training-list">
         <div v-for="(session, index) in filteredTrainingSessions" :key="index" class="session-wrapper"
-          @click="openDetails(session, 'session')">
+             @click="openDetails(session, 'session')">
           <div class="bullet-line-wrapper">
             <div class="bullet"></div>
             <div class="line" v-if="index < filteredTrainingSessions.length - 1"></div>
@@ -88,14 +90,14 @@
 
       <div id="nutrition" class="nutrition-list">
         <div v-for="(meal, index) in filteredNutritionData" :key="index" class="meal-wrapper"
-          @click="openDetails(meal, 'meal')">
+             @click="openDetails(meal, 'meal')">
           <div class="bullet-line-wrapper">
             <div class="bullet"></div>
             <div class="line" v-if="index < filteredNutritionData.length - 1"></div>
           </div>
           <div class="meal">
             <h3 class="meal-title">{{ meal.meal_type }}</h3>
-            <h3 class="meal-title">{{ meal.food_name }} ({{ meal.calories }} ккал)</h3>
+            <h3 class="meal-title">{{ meal.food_name }} ({{ meal.calories }} ккал / {{ meal.weight || '≈300' }} г)</h3>
           </div>
         </div>
         <div v-if="filteredNutritionData.length === 0 && !error" class="no-meals">
@@ -104,26 +106,26 @@
       </div>
     </div>
 
-    <!-- Модальное окно с деталями -->
+    <!-- Модальное окно -->
     <div v-if="showModal" class="modal-overlay" @click.self="closeDetails">
       <div class="modal-content">
         <button class="close-button" @click="closeDetails">✖</button>
+
         <div v-if="selectedType === 'session'">
           <h2>Тренировка: {{ selectedItem.workout_name }}</h2>
           <p><strong>Описание:</strong> {{ selectedItem.workout_description }}</p>
           <p><strong>Место:</strong> {{ selectedItem.location }}</p>
           <p><strong>Упражнение:</strong> {{ selectedItem.exercise_name }} — {{ selectedItem.exercise_description }}</p>
           <p><strong>Оборудование:</strong> {{ selectedItem.equipment }}</p>
-          <p><strong>Время:</strong> {{ formatTime(selectedItem.starttime) }} - {{ formatTime(selectedItem.endtime) }}
-          </p>
+          <p><strong>Время:</strong> {{ formatTime(selectedItem.starttime) }} - {{ formatTime(selectedItem.endtime) }}</p>
         </div>
 
         <div v-else-if="selectedType === 'meal'">
           <h2>Питание: {{ selectedItem.meal_type }}</h2>
           <p><strong>Название:</strong> {{ selectedItem.food_name }}</p>
           <p><strong>Калории:</strong> {{ selectedItem.calories }} ккал</p>
-          <p><strong>БЖУ:</strong> {{ selectedItem.proteins }} / {{ selectedItem.fats }} / {{ selectedItem.carbohydrates
-            }}</p>
+          <p><strong>Вес блюда:</strong> {{ selectedItem.weight || '≈300' }} г</p>
+          <p><strong>БЖУ:</strong> {{ selectedItem.proteins }} / {{ selectedItem.fats }} / {{ selectedItem.carbohydrates }}</p>
           <p><strong>Рецепт:</strong> {{ selectedItem.recipe_name }}</p>
           <p><strong>Ингредиенты:</strong> {{ selectedItem.ingredients }}</p>
           <p><strong>Инструкция:</strong> {{ selectedItem.instructions }}</p>
@@ -352,6 +354,18 @@ export default {
   font-size: 16px;
 }
 
+.toggle-button {
+  background-color: var(--button-hover-color);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
 .training-list {
   margin-top: 20px;
 }
@@ -453,7 +467,6 @@ export default {
 .session-title {
   font-size: 24px;
   margin-bottom: 10px;
-  color: var(--text-color);
 }
 
 .session-description {
@@ -477,7 +490,6 @@ export default {
   flex-direction: column;
   align-items: center;
   font-size: 20px;
-  color: var(--text-color);
 }
 
 input[type="checkbox"] {
@@ -568,5 +580,39 @@ input[type="checkbox"] {
   border: none;
   font-size: 18px;
   cursor: pointer;
+}
+
+.session-box {
+  background-color: #ddeeff;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #222;
+}
+
+.meal-box {
+  background-color: #fff3d6;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #222;
+}
+
+.session {
+  background-color: #e3f2fd; /* голубой фон для тренировок */
+  border: 1px solid #90caf9;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.meal {
+  background-color: #fff3e0; /* бежевый фон для еды */
+  border: 1px solid #ffcc80;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
 }
 </style>

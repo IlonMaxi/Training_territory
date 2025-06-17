@@ -10,7 +10,7 @@
 
             <div class="divider-line"></div>
             <div class="footer-bottom">
-                <p>© 2024 TRAINING TERRITORY, All Rights Reserved.</p>
+                <p>© 2025 TRAINING TERRITORY, All Rights Reserved.</p>
                 <div class="social-icons">
                     <a href="#" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-facebook-f"></i>

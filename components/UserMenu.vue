@@ -1,64 +1,75 @@
 <template>
-    <div class="user-menu">
-        <!-- Фото пользователя -->
-        <div class="user-card">
-            <div class="user-image">
-                <img :src="photoUrl" alt="Фото пользователя" />
-            </div>
-        </div>
-
-        <!-- Прогресс -->
-        <div class="progress-card">
-            <div class="progress-ring-container">
-                <svg viewBox="0 0 36 36" class="progress-ring">
-                    <circle class="circle-track" cx="18" cy="18" r="15.9155" />
-                    <circle class="circle-segment" cx="18" cy="18" r="15.9155"
-                        stroke-dasharray="22, 6, 22, 6, 22, 6, 22, 6" />
-                    <text x="18" y="16" class="ring-title">СТАНОВИСЬ ЛУЧШЕ С</text>
-                    <text x="18" y="24" class="ring-subtitle">TT</text>
-                </svg>
-            </div>
-
-            <div class="progress-details" v-if="progress">
-                <div>Прогресс веса: {{ progress.weight }}%</div>
-                <div>Жировая масса: {{ progress.fat_mass }}%</div>
-                <div>Мышечная масса: {{ progress.muscle_mass }}%</div>
-                <div>Содержание воды: {{ progress.water_content }}%</div>
-                <div>BMI: {{ progress.bmi }}%</div>
-                <div>Метаболизм: {{ progress.metabolism }}%</div>
-                <div>Возраст тела: {{ progress.body_age }}%</div>
-                <div>Процент жира: {{ progress.fat_percentage }}%</div>
-                <div>Динамика мышц: {{ progress.muscle_dynamics }}%</div>
-            </div>
-
-            <!-- Кнопки -->
-            <div style="display: flex; gap: 10px; margin: 12px 0;">
-                <button class="unit-toggle" @click="loadAndSet('unit')">Прогресс в единицах</button>
-                <button class="unit-toggle" @click="loadAndSet('percentage')">Прогресс в процентах</button>
-                <button class="unit-toggle" @click="loadAndSet('kg')">Прогресс в килограммах</button>
-                <button class="unit-toggle" @click="loadAndSet('cm')">Прогресс в сантиметрах</button>
-            </div>
-
-            <!-- Блок с графиками -->
-            <div v-if="currentType && currentHistory.length" class="unit-graphs">
-                <h3 class="unit-title">Прогресс: {{ typeLabels[currentType] }}</h3>
-                <div class="unit-grid">
-                    <div v-for="param in currentParams" :key="param" class="unit-card">
-                        <div class="unit-header">
-                            <div class="unit-name">{{ paramLabels[param] }}</div>
-                            <div class="unit-value">
-                                {{ getLast(param) }}
-                                <span :class="{ 'up': getTrend(param) > 0, 'down': getTrend(param) < 0 }">
-                                    {{ getTrend(param) > 0 ? '↑' : getTrend(param) < 0 ? '↓' : '' }} {{
-                                        Math.abs(getTrend(param)) }}% </span>
-                            </div>
-                        </div>
-                        <canvas :ref="param + 'Chart'" style="height: 100px; width: 100%;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="user-menu">
+    <!-- Фото пользователя -->
+    <div class="user-card">
+      <div class="user-image">
+        <img :src="photoUrl" alt="Фото пользователя" />
+      </div>
     </div>
+
+    <!-- Прогресс -->
+    <div class="progress-card">
+      <div class="progress-ring-container">
+        <svg viewBox="0 0 36 36" class="progress-ring">
+          <circle class="circle-track" cx="18" cy="18" r="15.9155" />
+          <circle class="circle-segment" cx="18" cy="18" r="15.9155"
+            stroke-dasharray="22, 6, 22, 6, 22, 6, 22, 6" />
+          <text x="18" y="16" class="ring-title">СТАНОВИСЬ ЛУЧШЕ С</text>
+          <text x="18" y="24" class="ring-subtitle">TT</text>
+        </svg>
+      </div>
+
+      <div class="progress-data-blocks" v-if="progress">
+        <div class="progress-details">
+  <div>Прогресс веса: {{ progress['Вес'] }}%</div>
+  <div>Жировая масса: {{ progress['Жировая масса'] }}%</div>
+  <div>Мышечная масса: {{ progress['Мышечная масса'] }}%</div>
+  <div>Содержание воды: {{ progress['Содержание воды'] }}%</div>
+  <div>ИМТ: {{ progress['ИМТ'] }}%</div>
+  <div>Метаболизм: {{ progress['Метаболизм'] }}%</div>
+  <div>Возраст тела: {{ progress['Возраст тела'] }}%</div>
+  <div>Процент жира: {{ progress['Процент жира'] }}%</div>
+  <div>Динамика мышц: {{ progress['Динамика мышц'] }}%</div>
+</div>
+
+<div class="progress-analysis">
+  <h4>Анализ последнего прогресса</h4>
+  <p><strong>Мышечный анализ:</strong> {{ progress['Анализ замеров'] || '—' }}</p>
+  <p><strong>Весовой анализ:</strong> {{ progress['Анализ веса'] || '—' }}</p>
+  <p><strong>Общий анализ массы:</strong> {{ progress['Полный анализ замеров'] || '—' }}</p>
+  <p><strong>Общий анализ веса:</strong> {{ progress['Полный анализ веса'] || '—' }}</p>
+</div>
+
+      </div>
+
+      <!-- Кнопки -->
+      <div style="display: flex; gap: 10px; margin: 12px 0;">
+        <button class="unit-toggle" @click="loadAndSet('unit')">Прогресс в единицах</button>
+        <button class="unit-toggle" @click="loadAndSet('percentage')">Прогресс в процентах</button>
+        <button class="unit-toggle" @click="loadAndSet('kg')">Прогресс в килограммах</button>
+        <button class="unit-toggle" @click="loadAndSet('cm')">Прогресс в сантиметрах</button>
+      </div>
+
+      <!-- Блок с графиками -->
+      <div v-if="currentType && currentHistory.length" class="unit-graphs">
+        <h3 class="unit-title">Прогресс: {{ typeLabels[currentType] }}</h3>
+        <div class="unit-grid">
+          <div v-for="param in currentParams" :key="param" class="unit-card">
+            <div class="unit-header">
+              <div class="unit-name">{{ paramLabels[param] }}</div>
+              <div class="unit-value">
+                {{ getLast(param) }}
+                <span :class="{ 'up': getTrend(param) > 0, 'down': getTrend(param) < 0 }">
+                  {{ getTrend(param) > 0 ? '↑' : getTrend(param) < 0 ? '↓' : '' }}
+                  {{ Math.abs(getTrend(param)) }}%</span>
+              </div>
+            </div>
+            <canvas :ref="param + 'Chart'" style="height: 100px; width: 100%;"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -274,8 +285,7 @@ export default {
 }
 
 .progress-card {
-    background: linear-gradient(135deg, #f15a29, #f7941e);
-    /* можно заменить на переменные при желании */
+    background: linear-gradient(135deg, #f15a29, #f7941e); /* оставлен как просили */
     border-radius: 16px;
     color: var(--background-color-white);
     flex-grow: 1;
@@ -325,12 +335,22 @@ export default {
     transform-origin: center;
 }
 
+.progress-data-blocks {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
 .progress-details {
     font-size: 14px;
     display: flex;
     flex-direction: column;
     gap: 8px;
     margin-bottom: 16px;
+    flex: 1;
+    min-width: 300px;
+    font-weight: bold;
 }
 
 .progress-details div {
@@ -338,6 +358,24 @@ export default {
     justify-content: space-between;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     padding-bottom: 4px;
+}
+
+.progress-analysis {
+  flex: 1;
+  min-width: 300px;
+  background-color: var(--background-color-white);
+  padding: 10px 20px;
+  border-radius: 8px;
+  color: var(--button-hover-color);
+  font-weight: 500;
+  border: 1px solid var(--button-hover-color);
+}
+
+.progress-analysis h4 {
+  margin-bottom: 10px;
+  color: var(--button-hover-color);
+  font-size: 20px;
+    font-weight: bold;
 }
 
 .unit-toggle {

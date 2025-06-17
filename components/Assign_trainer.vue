@@ -1,6 +1,6 @@
 <template>
   <div class="assign-form">
-    <h2>НАЗНАЧИТЬ ТРЕНИРОВКУ</h2>
+    <h2 id="assign">НАЗНАЧИТЬ ТРЕНИРОВКУ</h2>
     <form @submit.prevent="assignTraining">
       <div class="form-group">
         <label for="client">Выберите клиента:</label>

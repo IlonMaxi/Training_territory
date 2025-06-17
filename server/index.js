@@ -12,6 +12,9 @@ const PORT = process.env.PORT || 3000;
 
 const nodemailer = require('nodemailer');
 
+// Временное хранилище сообщений в памяти
+const chatMessages = [];
+
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
@@ -470,27 +473,28 @@ app.get('/nutrition/client/:clientId', async (req, res) => {
 
   try {
     const nutritionData = await sequelize.query(`
-      SELECT 
-        f.foodid AS foodId, 
-        f.name AS food_name,
-        f.protein_amount AS proteins, 
-        f.fat_amount AS fats, 
-        f.carbohydrate_amount AS carbohydrates,
-        f.calories AS calories,
-        f.date AS food_date,
-        f.meal_type AS meal_type,
-        r.recipeid AS recipeId,
-        r.name AS recipe_name,
-        r.ingredients AS ingredients,
-        r.preparation_time AS preparation_time,
-        r.instructions AS instructions
-      FROM 
-        nutrition AS f
-      LEFT JOIN 
-        recipes AS r ON f.recipe_id = r.recipeid
-      WHERE 
-        f.client_id = :clientId
-    `, {
+  SELECT 
+    f.foodid AS foodId, 
+    f.name AS food_name,
+    f.protein_amount AS proteins, 
+    f.fat_amount AS fats, 
+    f.carbohydrate_amount AS carbohydrates,
+    f.calories AS calories,
+    f.weight AS weight, -- ✅ вот это добавь!
+    f.date AS food_date,
+    f.meal_type AS meal_type,
+    r.recipeid AS recipeId,
+    r.name AS recipe_name,
+    r.ingredients AS ingredients,
+    r.preparation_time AS preparation_time,
+    r.instructions AS instructions
+  FROM 
+    nutrition AS f
+  LEFT JOIN 
+    recipes AS r ON f.recipe_id = r.recipeid
+  WHERE 
+    f.client_id = :clientId
+`, {
       replacements: { clientId },
       type: Sequelize.QueryTypes.SELECT
     });
@@ -519,17 +523,42 @@ const getBaseCalories = (gender) => {
   return gender === 'female' ? 1800 : 2200;
 };
 
-// Бонус за тренировку
+// Бонус калорий в зависимости от типа и сложности тренировки
 const getWorkoutBonus = (type, difficulty) => {
   if (!type || !difficulty) return 0;
-  if (type === 'силовая') return difficulty === 'Высокий' ? 800 : 500;
-  if (type === 'кардио') return difficulty === 'Высокий' ? 600 : 400;
+  type = type.toLowerCase();
+  difficulty = difficulty.toLowerCase();
+
+  if (type === 'силовая') {
+    if (difficulty === 'высокий') return 800;
+    if (difficulty === 'средний') return 600;
+    return 400;
+  }
+
+  if (type === 'кардио') {
+    if (difficulty === 'высокий') return 600;
+    if (difficulty === 'средний') return 400;
+    return 300;
+  }
+
+  if (type === 'функциональная') {
+    if (difficulty === 'высокий') return 500;
+    if (difficulty === 'средний') return 350;
+    return 250;
+  }
+
+  if (type === 'круговая') {
+    if (difficulty === 'высокий') return 550;
+    if (difficulty === 'средний') return 400;
+    return 300;
+  }
+
   return 0;
 };
 
+// Главная функция генерации питания
 const generateNutritionSchedule = async () => {
-  console.log('🚀 Запуск задачи по генерации питания...');
-
+  console.log('🚀 Запуск генерации питания...');
   try {
     const clients = await Clients.findAll();
     const allRecipes = await Recipe.findAll();
@@ -542,34 +571,45 @@ const generateNutritionSchedule = async () => {
     for (const client of clients) {
       const clientId = client.clientid;
       const gender = client.gender || 'male';
-      const workouts = await Workout.findAll({ where: { coach_id: client.coach_id } });
 
       let currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
 
-      console.log(`📅 Генерация питания для клиента ${clientId} с ${currentDate.toDateString()}`);
-
       for (let i = 0; i < 7; i++) {
-        const dayWorkouts = workouts.filter(w =>
-          new Date(w.date).toDateString() === currentDate.toDateString()
-        );
+        const dateOnly = new Date(currentDate);
+        dateOnly.setHours(0, 0, 0, 0);
 
-        const workout = dayWorkouts[0];
+        // Получаем тренировку клиента через client_schedule → schedule → workout
+        const scheduleEntry = await ClientSchedule.findOne({
+          where: { client_id: clientId },
+          include: [{
+            model: Schedule,
+            as: 'schedule',
+            where: { date: dateOnly },
+            include: [{
+              model: Workout,
+              as: 'workout'
+            }]
+          }]
+        });
+
+        const workout = scheduleEntry?.schedule?.workout;
+
         const baseCalories = getBaseCalories(gender);
         const bonusCalories = getWorkoutBonus(workout?.workout_type, workout?.difficulty);
-
-        // 🎯 Добавим разброс калорий: ±75 ккал
-        const variation = Math.floor(Math.random() * 151) - 75; // [-75..+75]
+        const variation = Math.floor(Math.random() * 151) - 75;
         const totalCalories = baseCalories + bonusCalories + variation;
 
         const existingNutritions = await Nutrition.findAll({
-          where: { client_id: clientId, date: currentDate }
+          where: {
+            client_id: clientId,
+            date: dateOnly
+          }
         });
 
         for (const meal of MEALS) {
           const mealCalories = Math.round(totalCalories * meal.ratio);
 
-          // Подбор подходящего рецепта по калорийности
           const suitableRecipes = allRecipes.filter(r =>
             r.calories >= mealCalories - 100 && r.calories <= mealCalories + 100
           );
@@ -580,14 +620,20 @@ const generateNutritionSchedule = async () => {
 
           const actualCalories = selectedRecipe.calories || mealCalories;
 
+          const generatedWeight = Math.max(150, Math.min(
+            Math.floor((actualCalories / 2.5) + (Math.random() * 100 - 50)),
+            600
+          ));
+
           const mealData = {
             name: selectedRecipe.name,
             protein_amount: +(actualCalories * 0.3 / 4).toFixed(2),
             fat_amount: +(actualCalories * 0.25 / 9).toFixed(2),
             carbohydrate_amount: +(actualCalories * 0.45 / 4).toFixed(2),
             calories: actualCalories,
+            weight: generatedWeight,
             water_amount: Math.round(Math.random() * 500 + 1500),
-            date: new Date(currentDate),
+            date: new Date(dateOnly),
             client_id: clientId,
             recipe_id: selectedRecipe.recipeid,
             meal_type: meal.name
@@ -596,10 +642,10 @@ const generateNutritionSchedule = async () => {
           const existingMeal = existingNutritions.find(n => n.meal_type === meal.name);
           if (existingMeal) {
             await existingMeal.update(mealData);
-            console.log(`🔄 Обновлено (${meal.name}) для клиента ${clientId} на ${currentDate.toDateString()}`);
+            console.log(`🔄 Обновлено (${meal.name}) для клиента ${clientId} на ${dateOnly.toDateString()}`);
           } else {
             await Nutrition.create(mealData);
-            console.log(`➕ Добавлено (${meal.name}) для клиента ${clientId} на ${currentDate.toDateString()}`);
+            console.log(`➕ Добавлено (${meal.name}) для клиента ${clientId} на ${dateOnly.toDateString()}`);
           }
         }
 
@@ -607,7 +653,7 @@ const generateNutritionSchedule = async () => {
       }
     }
   } catch (error) {
-    console.error('❗ Ошибка при генерации питания:', error);
+    console.error('❗ Ошибка генерации питания:', error);
   }
 };
 
@@ -758,7 +804,7 @@ app.post('/admin/clients', async (req, res) => {
       phone_number,
       email,
       birth_date,
-      gender, 
+      gender,
       image
     } = req.body;
 
@@ -1629,6 +1675,36 @@ app.get('/clients/:clientId/coach', async (req, res) => {
   }
 });
 
+// Получение всех тренеров
+app.get('/coaches', async (req, res) => {
+  const coaches = await Coaches.findAll();
+  res.json(coaches);
+});
+
+// Назначение тренера клиенту
+app.post('/clients/:clientId/coach', async (req, res) => {
+  const { coachId } = req.body;
+  await Clients.update({ coach_id: coachId }, { where: { clientid: req.params.clientId } });
+  res.json({ message: 'Тренер назначен' });
+});
+
+// Удаление тренера у клиента
+app.delete('/clients/:clientId/coach', async (req, res) => {
+  const { clientId } = req.params;
+  try {
+    const client = await Clients.findByPk(clientId);
+    if (!client) return res.status(404).json({ error: 'Клиент не найден' });
+
+    client.coach_id = null; // Сбросить тренера
+    await client.save();
+
+    res.json({ message: 'Тренер успешно убран' });
+  } catch (error) {
+    console.error('Ошибка при удалении тренера:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
 // Маршрут для получения данных клиента по ID
 app.get('/clients/:clientId', async (req, res) => {
   const { clientId } = req.params;
@@ -1719,30 +1795,45 @@ app.get('/clients/:clientId/progress-summary', async (req, res) => {
     );
 
     const result = {
-      // Kilograms
-      weight: percentOrZero(firstKg?.weight, lastKg?.weight),
-      fat_mass: percentOrZero(firstKg?.fat_mass, lastKg?.fat_mass),
-      muscle_mass: percentOrZero(firstKg?.muscle_mass, lastKg?.muscle_mass),
-      water_content: percentOrZero(firstKg?.water_content, lastKg?.water_content),
-      skeletal_mass: percentOrZero(firstKg?.skeletal_mass, lastKg?.skeletal_mass),
-      bone_mass: percentOrZero(firstKg?.bone_mass, lastKg?.bone_mass),
-      lbm: percentOrZero(firstKg?.lbm, lastKg?.lbm),
+      // Измерения в килограммах
+      'Вес': percentOrZero(firstKg?.weight, lastKg?.weight),
+      'Жировая масса': percentOrZero(firstKg?.fat_mass, lastKg?.fat_mass),
+      'Мышечная масса': percentOrZero(firstKg?.muscle_mass, lastKg?.muscle_mass),
+      'Содержание воды': percentOrZero(firstKg?.water_content, lastKg?.water_content),
+      'Скелетная масса': percentOrZero(firstKg?.skeletal_mass, lastKg?.skeletal_mass),
+      'Костная масса': percentOrZero(firstKg?.bone_mass, lastKg?.bone_mass),
+      'Масса без жира': percentOrZero(firstKg?.lbm, lastKg?.lbm),
 
-      // Units
-      bmi: percentOrZero(firstUnit?.bmi, lastUnit?.bmi),
-      metabolism: percentOrZero(firstUnit?.metabolism, lastUnit?.metabolism),
-      body_age: percentOrZero(firstUnit?.body_age, lastUnit?.body_age),
+      // Единичные измерения
+      'Индекс массы тела': percentOrZero(firstUnit?.bmi, lastUnit?.bmi),
+      'Метаболизм': percentOrZero(firstUnit?.metabolism, lastUnit?.metabolism),
+      'Возраст тела': percentOrZero(firstUnit?.body_age, lastUnit?.body_age),
 
-      // Percentage
-      fat_percentage: percentOrZero(firstPerc?.fat_percentage, lastPerc?.fat_percentage),
-      skeletal_mass_percentage: percentOrZero(firstPerc?.skeletal_mass_percentage, lastPerc?.skeletal_mass_percentage),
-      muscle_dynamics: percentOrZero(firstPerc?.muscle_dynamics, lastPerc?.muscle_dynamics),
-      body_water: percentOrZero(firstPerc?.body_water, lastPerc?.body_water),
-      protein: percentOrZero(firstPerc?.protein, lastPerc?.protein),
-      fat_content: percentOrZero(firstPerc?.fat_content, lastPerc?.fat_content),
+      // Измерения в процентах
+      'Процент жира': percentOrZero(firstPerc?.fat_percentage, lastPerc?.fat_percentage),
+      'Процент скелетных мышц': percentOrZero(firstPerc?.skeletal_mass_percentage, lastPerc?.skeletal_mass_percentage),
+      'Динамика мышц': percentOrZero(firstPerc?.muscle_dynamics, lastPerc?.muscle_dynamics),
+      'Вода в организме': percentOrZero(firstPerc?.body_water, lastPerc?.body_water),
+      'Белок': percentOrZero(firstPerc?.protein, lastPerc?.protein),
+      'Жировое содержание': percentOrZero(firstPerc?.fat_content, lastPerc?.fat_content),
 
-      // Centimeters
-      ...cmProgress
+      // Объёмы тела в сантиметрах
+      'Обхват груди': cmProgress.chest_circumference,
+      'Обхват талии': cmProgress.waist_circumference,
+      'Обхват бёдер': cmProgress.hip_circumference,
+      'Обхват бицепса': cmProgress.bicep_circumference,
+      'Обхват предплечья': cmProgress.forearm_circumference,
+      'Обхват квадрицепса': cmProgress.quadriceps_circumference,
+      'Обхват икры': cmProgress.calf_circumference,
+      'Обхват бедра': cmProgress.thigh_circumference,
+      'Обхват шеи': cmProgress.neck_circumference,
+      'Обхват талии при вдохе': cmProgress.waist_inhale_circumference,
+
+      // Анализ
+      'Анализ замеров': lastProgress.measurement_analysis || '',
+      'Анализ веса': lastProgress.weight_analysis || '',
+      'Полный анализ замеров': lastProgress.full_measurement_analysis || '',
+      'Полный анализ веса': lastProgress.full_weight_analysis || ''
     };
 
     res.json(result);
@@ -1876,32 +1967,37 @@ app.get('/clients/:id/percentage-measurements-history', async (req, res) => {
   }
 });
 
-// Получение текущей активной подписки клиента
+// Получение совокупной активной подписки
 app.get('/clients/:clientId/subscription', async (req, res) => {
   const { clientId } = req.params;
 
   try {
     const now = new Date();
 
-    const payment = await Payments.findOne({
+    const activePayments = await Payments.findAll({
       where: {
         client_id: clientId,
-        start_date: { [Op.lte]: now },
-        end_date: { [Op.gte]: now }
+        end_date: { [Op.gte]: now } // Все текущие и будущие
       },
-      order: [['payment_date', 'DESC']]
+      order: [['start_date', 'ASC']]
     });
 
-    if (!payment) {
-      return res.json(null); // Нет активной подписки
+    if (!activePayments.length) {
+      return res.json(null);
     }
 
+    const totalTraining = activePayments.reduce((acc, p) => acc + p.training_sessions, 0);
+    const usedTraining = activePayments.reduce((acc, p) => acc + p.used_training_sessions, 0);
+
     res.json({
-      tariff: payment.tariff,             // 'basic' / 'standard' / 'premium'
-      start_date: payment.start_date,
-      end_date: payment.end_date,
+      tariff: activePayments[activePayments.length - 1].tariff, // последний оплаченный тариф
+      start_date: activePayments[0].start_date,
+      end_date: activePayments[activePayments.length - 1].end_date,
+      training_sessions: totalTraining,
+      used_training_sessions: usedTraining,
       active: true
     });
+
   } catch (error) {
     console.error('Ошибка при получении подписки:', error);
     res.status(500).json({ error: 'Ошибка сервера' });
@@ -2069,4 +2165,51 @@ ${comment}
   }
 });
 
+app.delete('/schedule/:scheduleId', async (req, res) => {
+  const { scheduleId } = req.params;
+  try {
+    const deleted = await Schedule.destroy({ where: { scheduleid: scheduleId } });
+    if (deleted) {
+      res.json({ message: 'Тренировка отменена' });
+    } else {
+      res.status(404).json({ error: 'Тренировка не найдена' });
+    }
+  } catch (error) {
+    console.error('Ошибка при удалении тренировки:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+// Получить сообщения между двумя пользователями
+app.get('/chat', (req, res) => {
+  const { senderId, recipientId } = req.query;
+
+  if (!senderId || !recipientId) {
+    return res.status(400).json({ error: 'Необходимы senderId и recipientId' });
+  }
+
+  const sId = parseInt(senderId);
+  const rId = parseInt(recipientId);
+
+  const messages = chatMessages.filter(msg =>
+    (msg.sender_id === sId && msg.recipient_id === rId) ||
+    (msg.sender_id === rId && msg.recipient_id === sId)
+  );
+
+  res.json(messages);
+});
+
+// Отправить сообщение
+app.post('/chat/send', (req, res) => {
+  const { sender_id, recipient_id, text, timestamp } = req.body;
+
+  if (!sender_id || !recipient_id || !text || !timestamp) {
+    return res.status(400).json({ error: 'Все поля обязательны' });
+  }
+
+  const newMessage = { sender_id, recipient_id, text, timestamp };
+  chatMessages.push(newMessage);
+
+  res.json({ success: true, message: newMessage });
+});
 module.exports = app;

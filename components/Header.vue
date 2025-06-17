@@ -6,27 +6,28 @@
             </div>
             <div class="navbar">
                 <ul class="desktop-menu">
-                    <li><a href="#" class="nav-button" @click="navigateToSection('schedule')">РАСПИСАНИЕ</a></li>
-                    <li><a href="#" class="nav-button" @click="navigateToSection('nutrition')">ПИТАНИЕ</a></li>
-                    <li><a href="#" class="nav-button" @click="navigateToSection('progress')">ПРОГРЕСС</a></li>
+                    <li><a href="#" class="nav-button" @click="navigateToSection('schedule')">Расписание</a></li>
+
+                    <!-- Только для клиента -->
+                    <li v-if="accountType === 'client'"><a href="#" class="nav-button"
+                            @click="navigateToSection('nutrition')">Питание</a></li>
+                    <li v-if="accountType === 'client'"><a href="#" class="nav-button"
+                            @click="navigateToSection('progress')">Прогресс</a></li>
+
+                    <!-- Только для тренера -->
+                    <li v-if="accountType === 'trainer'">
+                        <a href="#" class="nav-button" @click="navigateToSection('schedule')">Тренировки</a>
+                    </li>
+
                     <li v-if="isAdmin">
-                        <router-link to="/AdminPage" class="nav-button">АДМИН-ПАНЕЛЬ</router-link>
+                        <router-link to="/AdminPage" class="nav-button">Админ-панель</router-link>
                     </li>
-                    <li>
-                        <router-link to="/profile" class="profile-icon">
-                            <i class="fa-solid fa-user"></i>
-                        </router-link>
+                    <li><router-link to="/profile" class="profile-icon"><i class="fa-solid fa-user"></i></router-link>
                     </li>
-                    <li>
-                        <button class="nav-button theme-button" @click.prevent="toggleTheme">
-                            <i :class="themeIcon"></i> Тема
-                        </button>
-                    </li>
-                    <li>
-                        <button class="nav-button logout-button" @click="logout">
-                            <i class="fa-solid fa-right-from-bracket"></i> Выход
-                        </button>
-                    </li>
+                    <li><button class="nav-button theme-button" @click.prevent="toggleTheme"><i :class="themeIcon"></i>
+                            Тема</button></li>
+                    <li><button class="nav-button logout-button" @click="logout"><i
+                                class="fa-solid fa-right-from-bracket"></i>Выход</button></li>
                 </ul>
 
                 <div class="burger-icon" @click="toggleMobileMenu" role="button" aria-label="Открыть мобильное меню"
@@ -34,24 +35,24 @@
                     <i class="fa-solid fa-bars"></i>
                 </div>
                 <div class="mobile-menu-overlay" v-if="isMobileMenuOpen" @click="closeMobileMenu"></div>
+                <!-- Мобильное меню -->
                 <ul class="mobile-menu" :class="{ 'active': isMobileMenuOpen }">
-                    <li><a href="#" class="nav-button" @click="navigateToSection('schedule')">РАСПИСАНИЕ</a></li>
-                    <li><a href="#" class="nav-button" @click="navigateToSection('nutrition')">ПИТАНИЕ</a></li>
-                    <li><a href="#" class="nav-button" @click="navigateToSection('progress')">ПРОГРЕСС</a></li>
-                    <li v-if="isAdmin">
-                        <router-link to="/admin" class="nav-button" @click="closeMobileMenu">АДМИН-ПАНЕЛЬ</router-link>
-                    </li>
-                    <li><button class="nav-button theme-button" @click="toggleTheme">
-                            <i :class="themeIcon"></i> Тема
-                        </button></li>
-                    <li><button class="nav-button logout-button" @click="logout">
-                            <i class="fa-solid fa-right-from-bracket"></i> Выход
-                        </button></li>
-                    <li>
-                        <router-link to="/profile" class="profile-icon" @click="closeMobileMenu">
-                            <i class="fa-solid fa-user"></i> ПРОФИЛЬ
-                        </router-link>
-                    </li>
+                    <li><a href="#" class="nav-button" @click="navigateToSection('schedule')">Расписание</a></li>
+                    <li v-if="accountType === 'client'"><a href="#" class="nav-button"
+                            @click="navigateToSection('nutrition')">Питание</a></li>
+                    <li v-if="accountType === 'client'"><a href="#" class="nav-button"
+                            @click="navigateToSection('progress')">Прогресс</a></li>
+                    <li v-if="accountType === 'trainer'"><a href="#" class="nav-button"
+                            @click="navigateToSection('trainings')">Тренировки</a></li>
+
+                    <li v-if="isAdmin"><router-link to="/admin" class="nav-button"
+                            @click="closeMobileMenu">Админ-панель</router-link></li>
+                    <li><button class="nav-button theme-button" @click="toggleTheme"><i :class="themeIcon"></i>
+                            Тема</button></li>
+                    <li><button class="nav-button logout-button" @click="logout"><i
+                                class="fa-solid fa-right-from-bracket"></i>Выход</button></li>
+                    <li><router-link to="/profile" class="profile-icon" @click="closeMobileMenu"><i
+                                class="fa-solid fa-user"></i>Профиль</router-link></li>
                 </ul>
             </div>
         </nav>
@@ -66,6 +67,7 @@ export default {
             isMobileMenuOpen: false,
             isAdmin: false,
             isDark: false,
+            accountType: null
         };
     },
     mounted() {
@@ -73,9 +75,8 @@ export default {
         if (savedTheme === 'dark') {
             document.body.classList.add('dark-theme');
             this.isDark = true;
-        } else {
-            this.isDark = false;
         }
+        this.accountType = this.getCookie('accountType');
         this.checkIfAdmin();
     },
     computed: {
@@ -95,10 +96,10 @@ export default {
             }
         },
         logout() {
-            document.cookie = "user=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            document.cookie = "accountType=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            document.cookie = "theme=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            this.$router.push('/'); // Перенаправление на главную
+            ['user', 'accountType', 'theme'].forEach(name => {
+                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            });
+            this.$router.push('/');
         },
         toggleMobileMenu() {
             this.isMobileMenuOpen = !this.isMobileMenuOpen;
@@ -109,10 +110,8 @@ export default {
             }
         },
         async navigateToSection(section) {
-            const accountType = this.getCookie('accountType');
-
-            let routeName = accountType === 'trainer' ? 'TrainerPage' :
-                accountType === 'client' ? 'ClientPage' : null;
+            let routeName = this.accountType === 'trainer' ? 'TrainerPage' :
+                this.accountType === 'client' ? 'ClientPage' : null;
 
             if (routeName) {
                 try {

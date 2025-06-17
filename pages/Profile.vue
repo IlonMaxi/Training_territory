@@ -25,6 +25,7 @@ import SupportMenu from "@/components/SupportMenu.vue";
 import SubscriptionMenu from "@/components/SubscriptionMenu.vue";
 import CoachClients from "@/components/CoachClients.vue";
 import CommentMenu from "@/components/CommentMenu.vue";
+import ChatMenu from "@/components/ChatMenu.vue";
 
 export default {
     components: {
@@ -37,6 +38,7 @@ export default {
         SubscriptionMenu,
         CoachClients,
         CommentMenu,
+        ChatMenu
     },
     data() {
         return {
@@ -76,7 +78,8 @@ export default {
                 support: SupportMenu,
                 subscription: SubscriptionMenu,
                 clients: CoachClients,
-                feedback: CommentMenu
+                feedback: CommentMenu,
+                chat: ChatMenu
             };
 
             this.selectedComponent = componentMap[menuItem] || UserMenu;

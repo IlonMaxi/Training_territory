@@ -54,16 +54,16 @@ export default {
             username: '',
             password: '',
             accountType: '',
-            errorMessage: '' // Сообщение об ошибке
+            errorMessage: ''
         };
     },
     methods: {
         closeModal() {
             this.$emit('close');
-            this.errorMessage = ''; // Сброс сообщения об ошибке при закрытии
+            this.errorMessage = '';
         },
         async login() {
-            this.errorMessage = ''; // Сброс перед новым входом
+            this.errorMessage = '';
             if (this.username && this.password && this.accountType) {
                 const url = this.accountType === 'trainer'
                     ? 'http://26.100.29.243:3000/api/login/coaches'
@@ -91,7 +91,6 @@ export default {
                         document.cookie = `user=${encodeURIComponent(JSON.stringify(data.user))}; path=/; max-age=86400;`;
                         document.cookie = `accountType=${this.accountType}; path=/; max-age=86400;`;
 
-                        // Переход на нужную страницу
                         if (this.accountType === 'trainer') {
                             this.$router.push({
                                 name: 'TrainerPage'

@@ -35,6 +35,12 @@ const Nutrition = sequelize.define('Nutrition', {
     allowNull: true,
     validate: { min: 0 },
   },
+  weight: { // ✅ новое поле
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    validate: { min: 50, max: 1000 },
+    comment: 'Вес блюда в граммах',
+  },
   water_amount: {
     type: DataTypes.NUMERIC(10, 2),
     allowNull: true,
