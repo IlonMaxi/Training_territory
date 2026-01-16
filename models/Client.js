@@ -36,7 +36,7 @@ const Client = sequelize.define('Client', {
   username: {
     type: DataTypes.STRING(255),
     allowNull: false,
-    // unique: true, // Раскомментируй, если нужно
+    // unique: true,
   },
   password: {
     type: DataTypes.STRING(255),

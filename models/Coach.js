@@ -27,7 +27,7 @@ const Coach = sequelize.define('Coach', {
   email: {
     type: DataTypes.TEXT,
     allowNull: false,
-    // unique: true, // Раскомментируй, если нужно
+    // unique: true, 
   },
   phone_number: {
     type: DataTypes.STRING(20),

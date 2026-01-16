@@ -61,7 +61,7 @@ export default {
   },
   computed: {
     coachId() {
-      return this.$root.user?.coachid; // Используйте правильное написание
+      return this.$root.user?.coachid;
     }
   },
   methods: {

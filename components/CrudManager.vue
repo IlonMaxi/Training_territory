@@ -189,7 +189,7 @@ export default {
             this.form = { ...item };
             this.currentId = item[this.primaryKey];
             this.isEditing = true;
-            window.scrollTo({ top: 0, behavior: 'smooth' }); // ⬆️ Автопрокрутка наверх
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         },
         cancelEdit() {
             this.resetForm();

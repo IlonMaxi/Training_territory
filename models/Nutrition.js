@@ -35,7 +35,7 @@ const Nutrition = sequelize.define('Nutrition', {
     allowNull: true,
     validate: { min: 0 },
   },
-  weight: { // ✅ новое поле
+  weight: {
     type: DataTypes.INTEGER,
     allowNull: true,
     validate: { min: 50, max: 1000 },

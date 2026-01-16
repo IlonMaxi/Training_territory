@@ -49,7 +49,7 @@ export default {
       newMessage: '',
       selectedClientId: '',
       clients: [],
-      coachId: null // 👈 сюда будет сохранён coach_id клиента
+      coachId: null
     };
   },
   computed: {
@@ -144,7 +144,7 @@ export default {
     if (this.isCoach) {
       this.fetchClients();
     } else if (this.isClient) {
-      this.fetchCoachId(); // 👈 загружаем coach_id через API
+      this.fetchCoachId();
     }
   }
 };
