@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <HeaderAfterLogin />
     <ScheduleComponent :user="user" />
@@ -10,10 +10,10 @@
 </template>
 
 <script>
-import HeaderAfterLogin from '~/components/Header.vue';
-import ScheduleComponent from '~/components/Schedule.vue';
-import FooterLastComponent from '~/components/FooterLast.vue';
-import AddMeasurements from '~/components/AddMeasurements.vue';
+import HeaderAfterLogin from '~/components/common/Header.vue';
+import ScheduleComponent from '~/components/client/Schedule.vue';
+import FooterLastComponent from '~/components/common/FooterLast.vue';
+import AddMeasurements from '~/components/client/AddMeasurements.vue';
 
 export default {
     components: {
@@ -24,14 +24,14 @@ export default {
     },
     data() {
         return {
-            user: null, // Храним данные пользователя
-            accountType: null // Тип аккаунта
+            user: null, // РҐСЂР°РЅРёРј РґР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+            accountType: null // РўРёРї Р°РєРєР°СѓРЅС‚Р°
         };
     },
     methods: {
-        // Функция для получения куки
+        // Р¤СѓРЅРєС†РёСЏ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РєСѓРєРё
         getCookie(name) {
-            if (process.client) { // Убедимся, что код выполняется на клиенте
+            if (process.client) { // РЈР±РµРґРёРјСЃСЏ, С‡С‚Рѕ РєРѕРґ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РЅР° РєР»РёРµРЅС‚Рµ
                 const value = `; ${document.cookie}`;
                 const parts = value.split(`; ${name}=`);
                 if (parts.length === 2) {
@@ -41,23 +41,23 @@ export default {
             return null;
         },
 
-        // Восстановление данных пользователя из куки
+        // Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РґР°РЅРЅС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР· РєСѓРєРё
         restoreUserData() {
             const userCookie = this.getCookie('user');
             const accountTypeCookie = this.getCookie('accountType');
 
             if (userCookie && accountTypeCookie) {
-                this.user = JSON.parse(userCookie); // Преобразуем строку JSON в объект
+                this.user = JSON.parse(userCookie); // РџСЂРµРѕР±СЂР°Р·СѓРµРј СЃС‚СЂРѕРєСѓ JSON РІ РѕР±СЉРµРєС‚
                 this.accountType = accountTypeCookie;
             } else {
-                // Если данных нет, перенаправляем на страницу входа
+                // Р•СЃР»Рё РґР°РЅРЅС‹С… РЅРµС‚, РїРµСЂРµРЅР°РїСЂР°РІР»СЏРµРј РЅР° СЃС‚СЂР°РЅРёС†Сѓ РІС…РѕРґР°
                 this.$router.push({ name: 'LoginPage' });
             }
         },
 
-        // Удаление куки и выход
+        // РЈРґР°Р»РµРЅРёРµ РєСѓРєРё Рё РІС‹С…РѕРґ
         logout() {
-            if (process.client) { // Убедимся, что код выполняется на клиенте
+            if (process.client) { // РЈР±РµРґРёРјСЃСЏ, С‡С‚Рѕ РєРѕРґ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РЅР° РєР»РёРµРЅС‚Рµ
                 document.cookie = 'user=; path=/; max-age=0;';
                 document.cookie = 'accountType=; path=/; max-age=0;';
                 this.$router.push({ name: 'LoginPage' });
@@ -65,7 +65,7 @@ export default {
         }
     },
     created() {
-        this.restoreUserData(); // Восстанавливаем данные при загрузке страницы
+        this.restoreUserData(); // Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј РґР°РЅРЅС‹Рµ РїСЂРё Р·Р°РіСЂСѓР·РєРµ СЃС‚СЂР°РЅРёС†С‹
     }
 };
 </script>

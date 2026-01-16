@@ -1,14 +1,14 @@
-<template>
+﻿<template>
     <div v-if="loading" class="loading">
-        <p>Проверка доступа...</p>
+        <p>РџСЂРѕРІРµСЂРєР° РґРѕСЃС‚СѓРїР°...</p>
     </div>
 
     <div v-else-if="user.id === 1" class="admin-container">
         <div class="admin-text">
-            <h1>Панель администратора</h1>
-            <p>Добро пожаловать, <strong>{{ user.firstName }} {{ user.lastName }}</strong></p>
+            <h1>РџР°РЅРµР»СЊ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°</h1>
+            <p>Р”РѕР±СЂРѕ РїРѕР¶Р°Р»РѕРІР°С‚СЊ, <strong>{{ user.firstName }} {{ user.lastName }}</strong></p>
         </div>
-        <button class="logout-btn" @click="logout">Выйти</button>
+        <button class="logout-btn" @click="logout">Р’С‹Р№С‚Рё</button>
 
         <div class="admin-page">
             <div class="crud-container">
@@ -24,8 +24,8 @@
 </template>
 
 <script>
-import AdminPanel from '../components/AdminPanel.vue';
-import CrudManager from '../components/CrudManager.vue';
+import AdminPanel from '../components/admin/AdminPanel.vue';
+import CrudManager from '../components/admin/CrudManager.vue';
 
 export default {
     components: { AdminPanel, CrudManager },
@@ -78,8 +78,8 @@ export default {
                     endpoint: 'admin/weights-on-machines',
                     primaryKey: 'weightid',
                     fields: [
-                        { name: 'machine_weight', label: 'Вес (кг)', type: 'number', step: 0.01 },
-                        { name: 'date', label: 'Дата', type: 'date' },
+                        { name: 'machine_weight', label: 'Р’РµСЃ (РєРі)', type: 'number', step: 0.01 },
+                        { name: 'date', label: 'Р”Р°С‚Р°', type: 'date' },
                     ],
                 },
 
@@ -88,15 +88,15 @@ export default {
                     endpoint: 'admin/clients',
                     primaryKey: 'clientid',
                     fields: [
-                        { name: 'last_name', label: 'Фамилия' },
-                        { name: 'first_name', label: 'Имя' },
-                        { name: 'patronymic', label: 'Отчество' },
-                        { name: 'username', label: 'Логин' },
-                        { name: 'password', label: 'Пароль' },
-                        { name: 'phone_number', label: 'Телефон' },
+                        { name: 'last_name', label: 'Р¤Р°РјРёР»РёСЏ' },
+                        { name: 'first_name', label: 'РРјСЏ' },
+                        { name: 'patronymic', label: 'РћС‚С‡РµСЃС‚РІРѕ' },
+                        { name: 'username', label: 'Р›РѕРіРёРЅ' },
+                        { name: 'password', label: 'РџР°СЂРѕР»СЊ' },
+                        { name: 'phone_number', label: 'РўРµР»РµС„РѕРЅ' },
                         { name: 'email', label: 'Email' },
-                        { name: 'birth_date', label: 'Дата рождения', type: 'date' },
-                        { name: 'gender', label: 'Пол'},
+                        { name: 'birth_date', label: 'Р”Р°С‚Р° СЂРѕР¶РґРµРЅРёСЏ', type: 'date' },
+                        { name: 'gender', label: 'РџРѕР»'},
                     ],
                 },
 
@@ -105,15 +105,15 @@ export default {
                     endpoint: 'admin/payments',
                     primaryKey: 'paymentid',
                     fields: [
-                        { name: 'payment_date', label: 'Дата оплаты', type: 'date' },
-                        { name: 'tariff', label: 'Тариф' },
-                        { name: 'tariff_type', label: 'Тип тарифа' },
-                        { name: 'training_sessions', label: 'Всего тренировок', type: 'number' },
-                        { name: 'used_training_sessions', label: 'Использовано', type: 'number' },
-                        { name: 'start_date', label: 'Дата начала', type: 'date' },
-                        { name: 'end_date', label: 'Дата окончания', type: 'date' },
-                        { name: 'amount', label: 'Сумма', type: 'number', step: 0.01 },
-                        { name: 'client_id', label: 'Клиент', type: 'select', source: 'clients' }
+                        { name: 'payment_date', label: 'Р”Р°С‚Р° РѕРїР»Р°С‚С‹', type: 'date' },
+                        { name: 'tariff', label: 'РўР°СЂРёС„' },
+                        { name: 'tariff_type', label: 'РўРёРї С‚Р°СЂРёС„Р°' },
+                        { name: 'training_sessions', label: 'Р’СЃРµРіРѕ С‚СЂРµРЅРёСЂРѕРІРѕРє', type: 'number' },
+                        { name: 'used_training_sessions', label: 'РСЃРїРѕР»СЊР·РѕРІР°РЅРѕ', type: 'number' },
+                        { name: 'start_date', label: 'Р”Р°С‚Р° РЅР°С‡Р°Р»Р°', type: 'date' },
+                        { name: 'end_date', label: 'Р”Р°С‚Р° РѕРєРѕРЅС‡Р°РЅРёСЏ', type: 'date' },
+                        { name: 'amount', label: 'РЎСѓРјРјР°', type: 'number', step: 0.01 },
+                        { name: 'client_id', label: 'РљР»РёРµРЅС‚', type: 'select', source: 'clients' }
                     ],
                 },
 
@@ -122,17 +122,17 @@ export default {
                     endpoint: 'admin/coaches',
                     primaryKey: 'coachid',
                     fields: [
-                        { name: 'last_name', label: 'Фамилия' },
-                        { name: 'first_name', label: 'Имя' },
-                        { name: 'patronymic', label: 'Отчество' },
-                        { name: 'birth_date', label: 'Дата рождения', type: 'date' },
+                        { name: 'last_name', label: 'Р¤Р°РјРёР»РёСЏ' },
+                        { name: 'first_name', label: 'РРјСЏ' },
+                        { name: 'patronymic', label: 'РћС‚С‡РµСЃС‚РІРѕ' },
+                        { name: 'birth_date', label: 'Р”Р°С‚Р° СЂРѕР¶РґРµРЅРёСЏ', type: 'date' },
                         { name: 'email', label: 'Email' },
-                        { name: 'phone_number', label: 'Телефон' },
-                        { name: 'specialization', label: 'Специализация' },
-                        { name: 'experience', label: 'Опыт работы' },
-                        { name: 'username', label: 'Логин' },
-                        { name: 'password', label: 'Пароль' },
-                        { name: 'gender', label: 'Пол'},
+                        { name: 'phone_number', label: 'РўРµР»РµС„РѕРЅ' },
+                        { name: 'specialization', label: 'РЎРїРµС†РёР°Р»РёР·Р°С†РёСЏ' },
+                        { name: 'experience', label: 'РћРїС‹С‚ СЂР°Р±РѕС‚С‹' },
+                        { name: 'username', label: 'Р›РѕРіРёРЅ' },
+                        { name: 'password', label: 'РџР°СЂРѕР»СЊ' },
+                        { name: 'gender', label: 'РџРѕР»'},
                     ],
                 },
 
@@ -141,12 +141,12 @@ export default {
                     endpoint: 'admin/schedule',
                     primaryKey: 'scheduleid',
                     fields: [
-                        { name: 'date', label: 'Дата', type: 'date' },
-                        { name: 'start_time', label: 'Начало', type: 'time' },
-                        { name: 'end_time', label: 'Конец', type: 'time' },
-                        { name: 'location', label: 'Локация' },
-                        { name: 'workout_id', label: 'Тренировка', type: 'select', source: 'workouts' },
-                        { name: 'coach_id', label: 'Тренер', type: 'select', source: 'coaches' }
+                        { name: 'date', label: 'Р”Р°С‚Р°', type: 'date' },
+                        { name: 'start_time', label: 'РќР°С‡Р°Р»Рѕ', type: 'time' },
+                        { name: 'end_time', label: 'РљРѕРЅРµС†', type: 'time' },
+                        { name: 'location', label: 'Р›РѕРєР°С†РёСЏ' },
+                        { name: 'workout_id', label: 'РўСЂРµРЅРёСЂРѕРІРєР°', type: 'select', source: 'workouts' },
+                        { name: 'coach_id', label: 'РўСЂРµРЅРµСЂ', type: 'select', source: 'coaches' }
                     ]
                 },
 
@@ -155,9 +155,9 @@ export default {
                     endpoint: 'admin/client-schedule',
                     primaryKey: 'clientscheduleid',
                     fields: [
-                        { name: 'client_id', label: 'Клиент', type: 'select', source: 'clients' },
-                        { name: 'schedule_id', label: 'Занятие', type: 'select', source: 'schedule' },
-                        { name: 'status', label: 'Статус' }
+                        { name: 'client_id', label: 'РљР»РёРµРЅС‚', type: 'select', source: 'clients' },
+                        { name: 'schedule_id', label: 'Р—Р°РЅСЏС‚РёРµ', type: 'select', source: 'schedule' },
+                        { name: 'status', label: 'РЎС‚Р°С‚СѓСЃ' }
                     ]
                 },
 
@@ -166,18 +166,18 @@ export default {
                     endpoint: 'admin/nutrition',
                     primaryKey: 'foodid',
                     fields: [
-                        { name: 'name', label: 'Название' },
-                        { name: 'description', label: 'Описание' },
-                        { name: 'protein_amount', label: 'Белки', type: 'number', step: 0.01 },
-                        { name: 'fat_amount', label: 'Жиры', type: 'number', step: 0.01 },
-                        { name: 'carbohydrate_amount', label: 'Углеводы', type: 'number', step: 0.01 },
-                        { name: 'calories', label: 'Калории', type: 'number' },
-                        { name: 'water_amount', label: 'Вода (л)', type: 'number', step: 0.01 },
-                        { name: 'date', label: 'Дата', type: 'date' },
-                        { name: 'coach_id', label: 'Тренер', type: 'select', source: 'coaches' },
-                        { name: 'client_id', label: 'Клиент', type: 'select', source: 'clients' },
-                        { name: 'recipe_id', label: 'Рецепт', type: 'select', source: 'recipes' },
-                        { name: 'meal_type', label: 'Тип приёма пищи' },
+                        { name: 'name', label: 'РќР°Р·РІР°РЅРёРµ' },
+                        { name: 'description', label: 'РћРїРёСЃР°РЅРёРµ' },
+                        { name: 'protein_amount', label: 'Р‘РµР»РєРё', type: 'number', step: 0.01 },
+                        { name: 'fat_amount', label: 'Р–РёСЂС‹', type: 'number', step: 0.01 },
+                        { name: 'carbohydrate_amount', label: 'РЈРіР»РµРІРѕРґС‹', type: 'number', step: 0.01 },
+                        { name: 'calories', label: 'РљР°Р»РѕСЂРёРё', type: 'number' },
+                        { name: 'water_amount', label: 'Р’РѕРґР° (Р»)', type: 'number', step: 0.01 },
+                        { name: 'date', label: 'Р”Р°С‚Р°', type: 'date' },
+                        { name: 'coach_id', label: 'РўСЂРµРЅРµСЂ', type: 'select', source: 'coaches' },
+                        { name: 'client_id', label: 'РљР»РёРµРЅС‚', type: 'select', source: 'clients' },
+                        { name: 'recipe_id', label: 'Р РµС†РµРїС‚', type: 'select', source: 'recipes' },
+                        { name: 'meal_type', label: 'РўРёРї РїСЂРёС‘РјР° РїРёС‰Рё' },
                     ],
                 },
 
@@ -186,10 +186,10 @@ export default {
                     endpoint: 'admin/recipes',
                     primaryKey: 'recipeid',
                     fields: [
-                        { name: 'name', label: 'Название' },
-                        { name: 'ingredients', label: 'Ингредиенты' },
-                        { name: 'preparation_time', label: 'Время приготовления', type: 'text' },
-                        { name: 'instructions', label: 'Инструкция' },
+                        { name: 'name', label: 'РќР°Р·РІР°РЅРёРµ' },
+                        { name: 'ingredients', label: 'РРЅРіСЂРµРґРёРµРЅС‚С‹' },
+                        { name: 'preparation_time', label: 'Р’СЂРµРјСЏ РїСЂРёРіРѕС‚РѕРІР»РµРЅРёСЏ', type: 'text' },
+                        { name: 'instructions', label: 'РРЅСЃС‚СЂСѓРєС†РёСЏ' },
                     ],
                 },
 
@@ -198,14 +198,14 @@ export default {
                     endpoint: 'admin/workouts',
                     primaryKey: 'workoutid',
                     fields: [
-                        { name: 'name', label: 'Название' },
-                        { name: 'description', label: 'Описание' },
-                        { name: 'difficulty', label: 'Сложность' },
-                        { name: 'duration', label: 'Длительность', type: 'text' },
-                        { name: 'workout_type', label: 'Тип' },
-                        { name: 'max_participants', label: 'Макс. участников', type: 'number' },
-                        { name: 'coach_id', label: 'Тренер', type: 'select', source: 'coaches' },
-                        { name: 'exercise_id', label: 'Упражнение', type: 'select', source: 'exercises' }
+                        { name: 'name', label: 'РќР°Р·РІР°РЅРёРµ' },
+                        { name: 'description', label: 'РћРїРёСЃР°РЅРёРµ' },
+                        { name: 'difficulty', label: 'РЎР»РѕР¶РЅРѕСЃС‚СЊ' },
+                        { name: 'duration', label: 'Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ', type: 'text' },
+                        { name: 'workout_type', label: 'РўРёРї' },
+                        { name: 'max_participants', label: 'РњР°РєСЃ. СѓС‡Р°СЃС‚РЅРёРєРѕРІ', type: 'number' },
+                        { name: 'coach_id', label: 'РўСЂРµРЅРµСЂ', type: 'select', source: 'coaches' },
+                        { name: 'exercise_id', label: 'РЈРїСЂР°Р¶РЅРµРЅРёРµ', type: 'select', source: 'exercises' }
                     ]
                 },
 
@@ -214,10 +214,10 @@ export default {
                     endpoint: 'admin/exercises',
                     primaryKey: 'exerciseid',
                     fields: [
-                        { name: 'name', label: 'Название' },
-                        { name: 'description', label: 'Описание' },
-                        { name: 'difficulty_level', label: 'Уровень сложности' },
-                        { name: 'machine', label: 'Тренажёр' }
+                        { name: 'name', label: 'РќР°Р·РІР°РЅРёРµ' },
+                        { name: 'description', label: 'РћРїРёСЃР°РЅРёРµ' },
+                        { name: 'difficulty_level', label: 'РЈСЂРѕРІРµРЅСЊ СЃР»РѕР¶РЅРѕСЃС‚Рё' },
+                        { name: 'machine', label: 'РўСЂРµРЅР°Р¶С‘СЂ' }
                     ]
                 },
 
@@ -226,13 +226,13 @@ export default {
                     endpoint: 'admin/percentage-measurements',
                     primaryKey: 'percentageid',
                     fields: [
-                        { name: 'fat_percentage', label: 'Процент жира (%)', type: 'number', step: 0.01 },
-                        { name: 'skeletal_mass_percentage', label: 'Скелетная масса (%)', type: 'number', step: 0.01 },
-                        { name: 'muscle_dynamics', label: 'Мышечная динамика (%)', type: 'number', step: 0.01 },
-                        { name: 'body_water', label: 'Вода в теле (%)', type: 'number', step: 0.01 },
-                        { name: 'protein', label: 'Белок (%)', type: 'number', step: 0.01 },
-                        { name: 'fat_content', label: 'Жировая масса (%)', type: 'number', step: 0.01 },
-                        { name: 'date', label: 'Дата', type: 'date' }
+                        { name: 'fat_percentage', label: 'РџСЂРѕС†РµРЅС‚ Р¶РёСЂР° (%)', type: 'number', step: 0.01 },
+                        { name: 'skeletal_mass_percentage', label: 'РЎРєРµР»РµС‚РЅР°СЏ РјР°СЃСЃР° (%)', type: 'number', step: 0.01 },
+                        { name: 'muscle_dynamics', label: 'РњС‹С€РµС‡РЅР°СЏ РґРёРЅР°РјРёРєР° (%)', type: 'number', step: 0.01 },
+                        { name: 'body_water', label: 'Р’РѕРґР° РІ С‚РµР»Рµ (%)', type: 'number', step: 0.01 },
+                        { name: 'protein', label: 'Р‘РµР»РѕРє (%)', type: 'number', step: 0.01 },
+                        { name: 'fat_content', label: 'Р–РёСЂРѕРІР°СЏ РјР°СЃСЃР° (%)', type: 'number', step: 0.01 },
+                        { name: 'date', label: 'Р”Р°С‚Р°', type: 'date' }
                     ]
                 },
 
@@ -241,10 +241,10 @@ export default {
                     endpoint: 'admin/unit-measurements',
                     primaryKey: 'measurementid',
                     fields: [
-                        { name: 'bmi', label: 'ИМТ', type: 'number', step: 0.01 },
-                        { name: 'metabolism', label: 'Метаболизм', type: 'number', step: 0.01 },
-                        { name: 'body_age', label: 'Возраст тела', type: 'number', step: 0.01 },
-                        { name: 'date', label: 'Дата', type: 'date' }
+                        { name: 'bmi', label: 'РРњРў', type: 'number', step: 0.01 },
+                        { name: 'metabolism', label: 'РњРµС‚Р°Р±РѕР»РёР·Рј', type: 'number', step: 0.01 },
+                        { name: 'body_age', label: 'Р’РѕР·СЂР°СЃС‚ С‚РµР»Р°', type: 'number', step: 0.01 },
+                        { name: 'date', label: 'Р”Р°С‚Р°', type: 'date' }
                     ]
                 },
 
@@ -253,14 +253,14 @@ export default {
                     endpoint: 'admin/kg-measurements',
                     primaryKey: 'kilogramid',
                     fields: [
-                        { name: 'weight', label: 'Вес (кг)', type: 'number', step: 0.01 },
-                        { name: 'fat_mass', label: 'Жировая масса (кг)', type: 'number', step: 0.01 },
-                        { name: 'skeletal_mass', label: 'Скелетная масса (кг)', type: 'number', step: 0.01 },
-                        { name: 'muscle_mass', label: 'Мышечная масса (кг)', type: 'number', step: 0.01 },
-                        { name: 'water_content', label: 'Содержание воды (кг)', type: 'number', step: 0.01 },
-                        { name: 'bone_mass', label: 'Костная масса (кг)', type: 'number', step: 0.01 },
-                        { name: 'lbm', label: 'Масса без жира (LBM)', type: 'number', step: 0.01 },
-                        { name: 'date', label: 'Дата', type: 'date' }
+                        { name: 'weight', label: 'Р’РµСЃ (РєРі)', type: 'number', step: 0.01 },
+                        { name: 'fat_mass', label: 'Р–РёСЂРѕРІР°СЏ РјР°СЃСЃР° (РєРі)', type: 'number', step: 0.01 },
+                        { name: 'skeletal_mass', label: 'РЎРєРµР»РµС‚РЅР°СЏ РјР°СЃСЃР° (РєРі)', type: 'number', step: 0.01 },
+                        { name: 'muscle_mass', label: 'РњС‹С€РµС‡РЅР°СЏ РјР°СЃСЃР° (РєРі)', type: 'number', step: 0.01 },
+                        { name: 'water_content', label: 'РЎРѕРґРµСЂР¶Р°РЅРёРµ РІРѕРґС‹ (РєРі)', type: 'number', step: 0.01 },
+                        { name: 'bone_mass', label: 'РљРѕСЃС‚РЅР°СЏ РјР°СЃСЃР° (РєРі)', type: 'number', step: 0.01 },
+                        { name: 'lbm', label: 'РњР°СЃСЃР° Р±РµР· Р¶РёСЂР° (LBM)', type: 'number', step: 0.01 },
+                        { name: 'date', label: 'Р”Р°С‚Р°', type: 'date' }
                     ]
                 },
 
@@ -269,17 +269,17 @@ export default {
                     endpoint: 'admin/cm-measurements',
                     primaryKey: 'centimetreid',
                     fields: [
-                        { name: 'chest_circumference', label: 'Обхват груди (см)', type: 'number', step: 0.01 },
-                        { name: 'waist_circumference', label: 'Обхват талии (см)', type: 'number', step: 0.01 },
-                        { name: 'hip_circumference', label: 'Обхват бёдер (см)', type: 'number', step: 0.01 },
-                        { name: 'bicep_circumference', label: 'Обхват бицепса (см)', type: 'number', step: 0.01 },
-                        { name: 'forearm_circumference', label: 'Обхват предплечья (см)', type: 'number', step: 0.01 },
-                        { name: 'quadriceps_circumference', label: 'Обхват квадрицепса (см)', type: 'number', step: 0.01 },
-                        { name: 'calf_circumference', label: 'Обхват икры (см)', type: 'number', step: 0.01 },
-                        { name: 'thigh_circumference', label: 'Обхват бедра (см)', type: 'number', step: 0.01 },
-                        { name: 'neck_circumference', label: 'Обхват шеи (см)', type: 'number', step: 0.01 },
-                        { name: 'waist_inhale_circumference', label: 'Обхват талии при вдохе (см)', type: 'number', step: 0.01 },
-                        { name: 'date', label: 'Дата', type: 'date' }
+                        { name: 'chest_circumference', label: 'РћР±С…РІР°С‚ РіСЂСѓРґРё (СЃРј)', type: 'number', step: 0.01 },
+                        { name: 'waist_circumference', label: 'РћР±С…РІР°С‚ С‚Р°Р»РёРё (СЃРј)', type: 'number', step: 0.01 },
+                        { name: 'hip_circumference', label: 'РћР±С…РІР°С‚ Р±С‘РґРµСЂ (СЃРј)', type: 'number', step: 0.01 },
+                        { name: 'bicep_circumference', label: 'РћР±С…РІР°С‚ Р±РёС†РµРїСЃР° (СЃРј)', type: 'number', step: 0.01 },
+                        { name: 'forearm_circumference', label: 'РћР±С…РІР°С‚ РїСЂРµРґРїР»РµС‡СЊСЏ (СЃРј)', type: 'number', step: 0.01 },
+                        { name: 'quadriceps_circumference', label: 'РћР±С…РІР°С‚ РєРІР°РґСЂРёС†РµРїСЃР° (СЃРј)', type: 'number', step: 0.01 },
+                        { name: 'calf_circumference', label: 'РћР±С…РІР°С‚ РёРєСЂС‹ (СЃРј)', type: 'number', step: 0.01 },
+                        { name: 'thigh_circumference', label: 'РћР±С…РІР°С‚ Р±РµРґСЂР° (СЃРј)', type: 'number', step: 0.01 },
+                        { name: 'neck_circumference', label: 'РћР±С…РІР°С‚ С€РµРё (СЃРј)', type: 'number', step: 0.01 },
+                        { name: 'waist_inhale_circumference', label: 'РћР±С…РІР°С‚ С‚Р°Р»РёРё РїСЂРё РІРґРѕС…Рµ (СЃРј)', type: 'number', step: 0.01 },
+                        { name: 'date', label: 'Р”Р°С‚Р°', type: 'date' }
                     ]
                 },
 
@@ -288,16 +288,16 @@ export default {
                     endpoint: 'admin/progress',
                     primaryKey: 'progressid',
                     fields: [
-                        { name: 'measurement_analysis', label: 'Анализ измерений' },
-                        { name: 'weight_analysis', label: 'Анализ веса' },
-                        { name: 'full_measurement_analysis', label: 'Полный анализ замеров' },
-                        { name: 'full_weight_analysis', label: 'Полный анализ веса' },
-                        { name: 'client_id', label: 'Клиент', type: 'select', source: 'clients' },
-                        { name: 'unit_measurement_id', label: 'Ед. замеры', type: 'select', source: 'measurements_in_units' },
-                        { name: 'percentage_measurement_id', label: 'Проценты', type: 'select', source: 'measurements_in_percentage' },
-                        { name: 'kilogram_measurement_id', label: 'Кг замеры', type: 'select', source: 'measurements_in_kilograms' },
-                        { name: 'centimetre_measurement_id', label: 'См замеры', type: 'select', source: 'measurements_in_centimeters' },
-                        { name: 'weight_id', label: 'Вес на тренажёре', type: 'select', source: 'weights_on_machine' }
+                        { name: 'measurement_analysis', label: 'РђРЅР°Р»РёР· РёР·РјРµСЂРµРЅРёР№' },
+                        { name: 'weight_analysis', label: 'РђРЅР°Р»РёР· РІРµСЃР°' },
+                        { name: 'full_measurement_analysis', label: 'РџРѕР»РЅС‹Р№ Р°РЅР°Р»РёР· Р·Р°РјРµСЂРѕРІ' },
+                        { name: 'full_weight_analysis', label: 'РџРѕР»РЅС‹Р№ Р°РЅР°Р»РёР· РІРµСЃР°' },
+                        { name: 'client_id', label: 'РљР»РёРµРЅС‚', type: 'select', source: 'clients' },
+                        { name: 'unit_measurement_id', label: 'Р•Рґ. Р·Р°РјРµСЂС‹', type: 'select', source: 'measurements_in_units' },
+                        { name: 'percentage_measurement_id', label: 'РџСЂРѕС†РµРЅС‚С‹', type: 'select', source: 'measurements_in_percentage' },
+                        { name: 'kilogram_measurement_id', label: 'РљРі Р·Р°РјРµСЂС‹', type: 'select', source: 'measurements_in_kilograms' },
+                        { name: 'centimetre_measurement_id', label: 'РЎРј Р·Р°РјРµСЂС‹', type: 'select', source: 'measurements_in_centimeters' },
+                        { name: 'weight_id', label: 'Р’РµСЃ РЅР° С‚СЂРµРЅР°Р¶С‘СЂРµ', type: 'select', source: 'weights_on_machine' }
                     ]
                 }
 
@@ -373,3 +373,4 @@ button.logout-btn:hover {
     background: var(--button-border-color);
 }
 </style>
+

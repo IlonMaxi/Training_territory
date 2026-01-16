@@ -1,4 +1,4 @@
-<template>
+﻿<template>
     <div>
         <HeaderLast @open-login-modal="showLoginModal = true" @open-register-modal="showRegisterModal = true"
             @activate-train-flip="activateTrainFlip" @activate-client-flip="activateClientFlip"
@@ -18,12 +18,12 @@
 </template>
 
 <script>
-import HeaderLast from '~/components/HeaderLast.vue';
-import LoginModal from '~/components/LoginModal.vue';
-import RegisterModal from '~/components/RegisterModal.vue';
-import FooterComponent from '~/components/Footer.vue';
-import TrainFlip from '~/components/TrainFlip.vue';
-import ClientFlip from '~/components/ClientFlip.vue';
+import HeaderLast from '~/components/common/HeaderLast.vue';
+import LoginModal from '~/components/modals/LoginModal.vue';
+import RegisterModal from '~/components/modals/RegisterModal.vue';
+import FooterComponent from '~/components/common/Footer.vue';
+import TrainFlip from '~/components/flip/TrainFlip.vue';
+import ClientFlip from '~/components/flip/ClientFlip.vue';
 
 export default {
     components: {
@@ -75,3 +75,4 @@ button:hover {
     background-color: var(--button-hover-color);
 }
 </style>
+

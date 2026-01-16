@@ -1,31 +1,31 @@
-<template>
+﻿<template>
     <div class="profile-page">
-        <!-- Хедер -->
+        <!-- РҐРµРґРµСЂ -->
         <Header />
 
         <div class="profile-container">
-            <!-- Левый динамический компонент -->
+            <!-- Р›РµРІС‹Р№ РґРёРЅР°РјРёС‡РµСЃРєРёР№ РєРѕРјРїРѕРЅРµРЅС‚ -->
             <transition name="fade" mode="out-in">
                 <component :is="selectedComponent" :user="user" @menu-selected="changeLeftComponent" />
             </transition>
 
-            <!-- Правая панель с пользовательским меню -->
+            <!-- РџСЂР°РІР°СЏ РїР°РЅРµР»СЊ СЃ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёРј РјРµРЅСЋ -->
             <UserPanel v-if="user" :user="user" @menu-selected="changeLeftComponent" />
         </div>
     </div>
 </template>
 
 <script>
-import Header from "@/components/Header.vue";
-import UserMenu from "@/components/UserMenu.vue";
-import UserPanel from "@/components/UserPanel.vue";
-import TrainerMenu from "@/components/TrainerMenu.vue";
-import SettingsMenu from "@/components/SettingsMenu.vue";
-import SupportMenu from "@/components/SupportMenu.vue";
-import SubscriptionMenu from "@/components/SubscriptionMenu.vue";
-import CoachClients from "@/components/CoachClients.vue";
-import CommentMenu from "@/components/CommentMenu.vue";
-import ChatMenu from "@/components/ChatMenu.vue";
+import Header from "@/components/common/Header.vue";
+import UserMenu from "@/components/profile/UserMenu.vue";
+import UserPanel from "@/components/profile/UserPanel.vue";
+import TrainerMenu from "@/components/profile/TrainerMenu.vue";
+import SettingsMenu from "@/components/profile/SettingsMenu.vue";
+import SupportMenu from "@/components/profile/SupportMenu.vue";
+import SubscriptionMenu from "@/components/profile/SubscriptionMenu.vue";
+import CoachClients from "@/components/trainer/CoachClients.vue";
+import CommentMenu from "@/components/profile/CommentMenu.vue";
+import ChatMenu from "@/components/profile/ChatMenu.vue";
 
 export default {
     components: {
@@ -104,7 +104,7 @@ export default {
     padding: 20px;
 }
 
-/* Плавная анимация появления/исчезновения */
+/* РџР»Р°РІРЅР°СЏ Р°РЅРёРјР°С†РёСЏ РїРѕСЏРІР»РµРЅРёСЏ/РёСЃС‡РµР·РЅРѕРІРµРЅРёСЏ */
 .fade-enter-active,
 .fade-leave-active {
     transition: opacity 0.4s ease;

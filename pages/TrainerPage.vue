@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div>
     <HeaderAfterLogin />
     
@@ -15,10 +15,10 @@
 </template>
 
 <script>
-import HeaderAfterLogin from '~/components/Header.vue';
-import ScheduleComponent from '~/components/Schedule_trainer.vue';
-import AssignComponent from '~/components/Assign_trainer.vue';
-import FooterLast from '~/components/FooterLast.vue';
+import HeaderAfterLogin from '~/components/common/Header.vue';
+import ScheduleComponent from '~/components/trainer/Schedule_trainer.vue';
+import AssignComponent from '~/components/trainer/Assign_trainer.vue';
+import FooterLast from '~/components/common/FooterLast.vue';
 
 export default {
   components: {
@@ -83,3 +83,4 @@ body {
     transition: background-color 0.5s ease, color 0.5s ease;
 }
 </style>
+
