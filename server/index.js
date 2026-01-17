@@ -38,5 +38,6 @@ app.use(require('./routes/measurements'));
 app.use(require('./routes/payments'));
 app.use(require('./routes/feedback'));
 app.use(require('./routes/chat'));
+app.use(require('./routes/ml'));
 
 module.exports = app;

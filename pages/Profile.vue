@@ -4,13 +4,15 @@
         <Header />
 
         <div class="profile-container">
-            <!-- Р›РµРІС‹Р№ РґРёРЅР°РјРёС‡РµСЃРєРёР№ РєРѕРјРїРѕРЅРµРЅС‚ -->
-            <transition name="fade" mode="out-in">
-                <component :is="selectedComponent" :user="user" @menu-selected="changeLeftComponent" />
-            </transition>
+            <div class="profile-main">
+                <transition name="fade" mode="out-in">
+                    <component :is="selectedComponent" :user="user" @menu-selected="changeLeftComponent" />
+                </transition>
+            </div>
 
-            <!-- РџСЂР°РІР°СЏ РїР°РЅРµР»СЊ СЃ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёРј РјРµРЅСЋ -->
-            <UserPanel v-if="user" :user="user" @menu-selected="changeLeftComponent" />
+            <div class="profile-side">
+                <UserPanel v-if="user" :user="user" @menu-selected="changeLeftComponent" />
+            </div>
         </div>
     </div>
 </template>
@@ -100,8 +102,20 @@ export default {
 
 .profile-container {
     display: flex;
-    justify-content: space-between;
-    padding: 20px;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 20px 24px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.profile-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.profile-side {
+    flex: 0 0 280px;
 }
 
 /* РџР»Р°РІРЅР°СЏ Р°РЅРёРјР°С†РёСЏ РїРѕСЏРІР»РµРЅРёСЏ/РёСЃС‡РµР·РЅРѕРІРµРЅРёСЏ */
