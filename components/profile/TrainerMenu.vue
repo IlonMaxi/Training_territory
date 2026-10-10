@@ -150,7 +150,7 @@ export default {
 
 .trainer-info {
   flex: 1;
-  font-size: 16px;
+  font-size: var(--text-h7);
   line-height: 1.6;
 }
 
@@ -202,7 +202,7 @@ export default {
 
 .coach-info {
   margin-top: 10px;
-  font-size: 14px;
+  font-size: var(--text-h8);
 }
 
 .coach-info button {

@@ -2,13 +2,24 @@
 
 const Payments = require('../../models/Payments');
 
+const { currentUser, isAdmin } = require('../middlewares/auth');
+
 const router = express.Router();
 
 router.post('/payments', async (req, res) => {
   const {
     tariff, tariff_type, training_sessions,
-    amount, start_date, end_date, client_id
+    amount, start_date, end_date
   } = req.body;
+
+  // client_id берём из сессии, а не из тела запроса:
+  // иначе любой мог оформить подписку на чужой аккаунт
+  const user = currentUser(req);
+  const client_id = isAdmin(user) && req.body.client_id ? req.body.client_id : user.id;
+
+  if (!isAdmin(user) && user.role !== 'client') {
+    return res.status(403).json({ error: 'Подписку оформляет только клиент' });
+  }
 
   try {
     await Payments.create({

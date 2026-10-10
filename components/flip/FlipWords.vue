@@ -1,6 +1,6 @@
-﻿<template>
+<template>
     <div class="flip-words">
-        <transition name="pixel-fade" @before-enter="beforeEnter" @enter="enter" @leave="leave" mode="out-in">
+        <transition name="pixel-fade" mode="out-in">
             <span class="pixel-text" :key="currentWordIndex">
                 {{ words[currentWordIndex] }}
             </span>
@@ -10,6 +10,7 @@
 
 <script>
 export default {
+    name: 'FlipWords',
     props: {
         words: {
             type: Array,
@@ -22,44 +23,32 @@ export default {
     },
     data() {
         return {
-            currentWordIndex: 0
+            currentWordIndex: 0,
+            timer: null
         };
     },
     mounted() {
         this.startFlipping();
     },
+    beforeDestroy() {
+        this.stopFlipping();
+    },
     methods: {
         startFlipping() {
-            setInterval(() => {
+            // Компонент пересоздаётся при переключении «Тренеру/Клиенту»,
+            // поэтому старый таймер обязательно гасим — иначе они копятся
+            this.stopFlipping();
+            if (this.words.length < 2) return;
+
+            this.timer = setInterval(() => {
                 this.currentWordIndex = (this.currentWordIndex + 1) % this.words.length;
-            }, this.interval); // Интервал для смены слов
+            }, this.interval);
         },
-        beforeEnter(el) {
-            el.style.opacity = 0;
-            el.style.transform = 'scale(1.3)';
-            el.style.filter = 'blur(10px)';
-        },
-        enter(el, done) {
-            el.offsetHeight; // Перерисовка элемента
-            el.style.transition = 'opacity 0.8s ease, transform 0.8s ease, filter 0.8s ease';
-            el.style.opacity = 1;
-            el.style.transform = 'scale(1)';
-            el.style.filter = 'blur(0px)';
-            setTimeout(() => {
-                done();
-            }, 800); // Завершение анимации появления
-        },
-        leave(el, done) {
-            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease, filter 0.5s ease';
-            el.style.opacity = 0;
-            el.style.transform = 'scale(1.3)';
-            el.style.filter = 'blur(10px)';
-            el.classList.add('pixelate');
-            // Удаление класса после анимации
-            setTimeout(() => {
-                el.classList.remove('pixelate');
-                done();
-            }, 500); // Длительность анимации рассыпания
+        stopFlipping() {
+            if (this.timer) {
+                clearInterval(this.timer);
+                this.timer = null;
+            }
         }
     }
 };
@@ -67,8 +56,8 @@ export default {
 
 <style scoped>
 .flip-words {
-    font-size: 2rem;
-    font-weight: bold;
+    font-size: var(--text-h3);
+    font-weight: var(--weight-bold);
     display: inline-block;
     position: relative;
 }
@@ -77,39 +66,38 @@ export default {
     display: inline-block;
 }
 
-.pixel-fade-enter-active,
+/*
+  Анимация целиком на CSS. Раньше JS-хуки писали инлайновые стили поверх этих
+  классов, и обе системы боролись за opacity/transform/filter с разной
+  длительностью — отсюда рывки.
+*/
+.pixel-fade-enter-active {
+    transition: opacity 0.45s ease, transform 0.45s ease, filter 0.45s ease;
+}
+
 .pixel-fade-leave-active {
-    transition: opacity 0.5s ease, transform 0.5s ease, filter 0.5s ease;
+    transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
 }
 
 .pixel-fade-enter,
 .pixel-fade-leave-to {
-    transform: scale(1.1);
     opacity: 0;
-    filter: blur(10px);
+    transform: scale(1.15);
+    filter: blur(8px);
 }
 
-.pixel-text.pixelate {
-    animation: pixelate 0.5s ease both;
+.pixel-fade-enter-to,
+.pixel-fade-leave {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
 }
 
-@keyframes pixelate {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-        filter: blur(0);
-    }
+@media (prefers-reduced-motion: reduce) {
 
-    50% {
-        opacity: 0.8;
-        filter: blur(3px);
-        transform: scale(1.1);
-    }
-
-    100% {
-        transform: scale(1.1);
-        opacity: 0;
-        filter: blur(10px);
+    .pixel-fade-enter-active,
+    .pixel-fade-leave-active {
+        transition: none;
     }
 }
 </style>

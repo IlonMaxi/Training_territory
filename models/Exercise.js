@@ -24,6 +24,29 @@ const Exercise = sequelize.define('Exercise', {
     type: DataTypes.STRING(255),
     allowNull: true,
   },
+  // Поля справочника, импортированного из free-exercise-db.
+  // muscle_group нужен фильтру по травмам: без него не понять,
+  // что «Приседания со штангой» нагружают колено.
+  muscle_group: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+  },
+  name_en: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  external_id: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  source: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+  },
+  translated: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+  },
   weight_id: {
     type: DataTypes.INTEGER,
     allowNull: true,

@@ -55,7 +55,14 @@ router.put('/admin/clients/:id', async (req, res) => {
   try {
     const client = await Clients.findByPk(req.params.id);
     if (!client) return res.status(404).json({ error: 'Клиент не найден' });
-    await client.update(req.body);
+
+    // Пустой пароль в форме = не менять; новый — хешируем, а не пишем как есть
+    const { password, ...fields } = req.body;
+    if (password) {
+      fields.password = await bcrypt.hash(password, 10);
+    }
+
+    await client.update(fields);
     res.json(client);
   } catch (err) {
     res.status(500).json({ error: err.message });

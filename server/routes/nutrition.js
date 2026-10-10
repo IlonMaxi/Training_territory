@@ -4,9 +4,11 @@ const sequelize = require('../../config/database');
 
 const Nutrition = require('../../models/Nutrition');
 
+const { requireCoachOrAdmin, requireClientAccess } = require('../middlewares/auth');
+
 const router = express.Router();
 
-router.get('/nutrition', async (req, res) => {
+router.get('/nutrition', requireCoachOrAdmin, async (req, res) => {
   try {
     const nutrition = await Nutrition.findAll();
     res.json(nutrition);
@@ -15,7 +17,7 @@ router.get('/nutrition', async (req, res) => {
   }
 });
 
-router.post('/nutrition', async (req, res) => {
+router.post('/nutrition', requireCoachOrAdmin, async (req, res) => {
   try {
     const food = await Nutrition.create(req.body);
     res.status(201).json(food);
@@ -24,7 +26,7 @@ router.post('/nutrition', async (req, res) => {
   }
 });
 
-router.get('/nutrition/client/:clientId', async (req, res) => {
+router.get('/nutrition/client/:clientId', requireClientAccess('clientId'), async (req, res) => {
   const { clientId } = req.params;
 
   try {

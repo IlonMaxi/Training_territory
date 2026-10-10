@@ -15,71 +15,47 @@
                 <div class="background-rectangle"></div>
 
                 <div class="image-container">
-                    <div class="flip-card">
-                        <div class="flip-card-inner">
-                            <div class="flip-card-front">
-                                <img src="https://i.pinimg.com/originals/bb/13/ac/bb13ac3dd63fd93fe3b16b8d0fb635c9.jpg"
-                                    alt="Изображение 1" width="300" height="500" class="flip-image">
-                            </div>
-                            <div class="flip-card-back">
-                                <div class="text-on-back">
-                                    <p>
-                                        10:00-12:00 – Тренировка в фитнес-центре<br> <br>
-                                        12:30-13:00 – Полдник (орехи и ягоды)<br> <br>
-                                        13:00-14:00 – Обед (курица гриль с овощами)<br><br>
-                                        19:00-20:00 – Ужин (рыба с овощами и гречкой)<br><br>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <FlipCard
+                        image="https://i.pinimg.com/originals/bb/13/ac/bb13ac3dd63fd93fe3b16b8d0fb635c9.jpg"
+                        alt="Распорядок дня">
+                        <p>
+                            10:00-12:00 – Тренировка в фитнес-центре<br> <br>
+                            12:30-13:00 – Полдник (орехи и ягоды)<br> <br>
+                            13:00-14:00 – Обед (курица гриль с овощами)<br><br>
+                            19:00-20:00 – Ужин (рыба с овощами и гречкой)<br><br>
+                        </p>
+                    </FlipCard>
                 </div>
                 <div class="image-container">
-                    <div class="flip-card">
-                        <div class="flip-card-inner">
-                            <div class="flip-card-front">
-                                <img src="https://i.pinimg.com/originals/5e/95/37/5e953797561655e176b16ba054548400.png"
-                                    alt="Изображение 1" width="300" height="500" class="flip-image">
-                            </div>
-                            <div class="flip-card-back">
-                                <div class="text-on-back">
-                                    <p>Завтрак:<br>
-                                        1. Белковый смузи<br>
-                                        2. Омлет с овощами<br>
-                                        3. Тост с авокадо и лососем<br>
-                                        <br>
-                                        Обед:<br>
-                                        1. Куриные грудки с картофельным пюре<br>
-                                        2. Греческий йогурт с орехами и медом<br>
-                                        <br>
-                                        Ужин:<br>
-                                        1. Тунец на гриле с овощами<br>
-                                        2. Зеленый салат с крабовыми палочками<br>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <FlipCard
+                        image="https://i.pinimg.com/originals/5e/95/37/5e953797561655e176b16ba054548400.png"
+                        alt="Примеры блюд">
+                        <p>Завтрак:<br>
+                            1. Белковый смузи<br>
+                            2. Омлет с овощами<br>
+                            3. Тост с авокадо и лососем<br>
+                            <br>
+                            Обед:<br>
+                            1. Куриные грудки с картофельным пюре<br>
+                            2. Греческий йогурт с орехами и медом<br>
+                            <br>
+                            Ужин:<br>
+                            1. Тунец на гриле с овощами<br>
+                            2. Зеленый салат с крабовыми палочками<br>
+                        </p>
+                    </FlipCard>
                 </div>
                 <div class="image-container">
-                    <div class="flip-card">
-                        <div class="flip-card-inner">
-                            <div class="flip-card-front">
-                                <img src="https://sun9-44.userapi.com/impg/rvI4M_XCHB9H3TlKQ6RA6r2c6-fLUY5YiZwviQ/KcstCwpM87Y.jpg?size=453x604&quality=95&sign=f6db54fc6c5152f645891bd5d556517f&c_uniq_tag=rhl55Pcp69zwtPywQYPY5m4qFPzqRWoGxgAp868jfic&type=album"
-                                    alt="Изображение 1" width="300" height="500" class="flip-image">
-                            </div>
-                            <div class="flip-card-back">
-                                <div class="text-on-back">
-                                    <p>Жим штанги - базовое упражнение для грудных, плеч и трицепса<br>
-                                        <br>
-                                        Становая тяга - базовое упражнение для спины и ног<br>
-                                        <br>
-                                        Присяд со штангой - базовое упражнение для низа тела<br>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <FlipCard
+                        image="https://sun9-44.userapi.com/impg/rvI4M_XCHB9H3TlKQ6RA6r2c6-fLUY5YiZwviQ/KcstCwpM87Y.jpg?size=453x604&quality=95&sign=f6db54fc6c5152f645891bd5d556517f&c_uniq_tag=rhl55Pcp69zwtPywQYPY5m4qFPzqRWoGxgAp868jfic&type=album"
+                        alt="Базовые упражнения">
+                        <p>Жим штанги - базовое упражнение для грудных, плеч и трицепса<br>
+                            <br>
+                            Становая тяга - базовое упражнение для спины и ног<br>
+                            <br>
+                            Присяд со штангой - базовое упражнение для низа тела<br>
+                        </p>
+                    </FlipCard>
                 </div>
 
             </div>
@@ -163,30 +139,11 @@
 </template>
 
 <script>
+import FlipCard from '@/components/flip/FlipCard.vue';
+
 export default {
     name: 'ClientFlip',
-    mounted() {
-        this.initializeFlipCards();
-    },
-    methods: {
-        initializeFlipCards() {
-            document.querySelectorAll('.flip-card').forEach(card => {
-                let isFlipped = false;
-
-                function flipCard() {
-                    const innerCard = card.querySelector('.flip-card-inner');
-                    isFlipped = !isFlipped;
-                    innerCard.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0)';
-                }
-
-                card.addEventListener('mouseenter', flipCard);
-                card.addEventListener('mouseleave', flipCard);
-                card.addEventListener('click', function (event) {
-                    flipCard();
-                });
-            });
-        }
-    }
+    components: { FlipCard }
 };
 </script>
 
@@ -215,7 +172,7 @@ a:hover {
 .btn-container button {
     padding: 15px 30px;
     margin: 10px;
-    font-size: 18px;
+    font-size: var(--text-h6);
 }
 
 .schedule-btn {
@@ -225,7 +182,7 @@ a:hover {
     color: var(--text-color);
     padding: 15px 30px;
     margin: 10px;
-    font-size: 18px;
+    font-size: var(--text-h6);
     transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease-out;
 }
 
@@ -243,7 +200,7 @@ a:hover {
     color: var(--text-color);
     padding: 15px 30px;
     margin: 10px;
-    font-size: 18px;
+    font-size: var(--text-h6);
     transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease-out;
 }
 
@@ -278,12 +235,12 @@ a:hover {
 }
 
 .schedule-section h2 {
-    font-size: 32px;
+    font-size: var(--text-h3);
     margin-bottom: 10px;
 }
 
 .schedule-section p {
-    font-size: 20px;
+    font-size: var(--text-h5);
     margin-bottom: 30px;
 }
 
@@ -305,34 +262,7 @@ a:hover {
     align-items: center;
 }
 
-.flip-card {
-    perspective: 1000px;
-}
-
-.flip-card-inner {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
-}
-
-.flip-card:hover .flip-card-inner {
-    transform: rotateY(180deg);
-}
-
-.flip-card-front,
-.flip-card-back {
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-}
-
-.flip-card-back {
-    transform: rotateY(180deg);
-    background-color: var(--background-color);
-}
+/* Карточки-перевёртыши: components/flip/FlipCard.vue */
 
 .fa-solid,
 .fas {
@@ -413,7 +343,7 @@ a:hover {
 
 .advantage-heading {
     color: var(--text-color);
-    font-size: 32px;
+    font-size: var(--text-h3);
 }
 
 .coaching-section {
@@ -427,7 +357,7 @@ a:hover {
 }
 
 .coaching-section h2 {
-    font-size: 32px;
+    font-size: var(--text-h3);
     margin-bottom: 20px;
 }
 

@@ -22,6 +22,9 @@
                     <li v-if="isAdmin">
                         <router-link to="/AdminPage" class="nav-button">Админ-панель</router-link>
                     </li>
+                    <li><button class="nav-button assistant-button" :class="{ active: aiChat.isOpen }"
+                            @click.prevent="aiChat.toggle()" aria-label="Помощник по навигации"><i
+                                class="fa-solid fa-compass"></i> Помощник</button></li>
                     <li><router-link to="/profile" class="profile-icon"><i class="fa-solid fa-user"></i></router-link>
                     </li>
                     <li><button class="nav-button theme-button" @click.prevent="toggleTheme"><i :class="themeIcon"></i>
@@ -47,6 +50,9 @@
 
                     <li v-if="isAdmin"><router-link to="/admin" class="nav-button"
                             @click="closeMobileMenu">Админ-панель</router-link></li>
+                    <li><button class="nav-button assistant-button"
+                            @click="aiChat.open(); closeMobileMenu()"><i class="fa-solid fa-compass"></i>
+                            Помощник</button></li>
                     <li><button class="nav-button theme-button" @click="toggleTheme"><i :class="themeIcon"></i>
                             Тема</button></li>
                     <li><button class="nav-button logout-button" @click="logout"><i
@@ -60,10 +66,13 @@
 </template>
 
 <script>
+import aiChat from '@/components/utils/AiChatState.js';
+
 export default {
     name: 'HeaderLast',
     data() {
         return {
+            aiChat,
             isMobileMenuOpen: false,
             isAdmin: false,
             isDark: false,
@@ -95,7 +104,12 @@ export default {
                 this.setCookie('theme', 'light', 365);
             }
         },
-        logout() {
+        async logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+            } catch (err) {
+                console.error('Ошибка при выходе:', err);
+            }
             ['user', 'accountType', 'theme'].forEach(name => {
                 document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
             });
@@ -188,7 +202,7 @@ nav {
 .logo h1 {
     margin: 0;
     color: var(--text-color);
-    font-size: 24px;
+    font-size: var(--text-h4);
 }
 
 /* Меню для ПК */
@@ -202,7 +216,7 @@ nav {
 
 .desktop-menu li {
     margin-left: 20px;
-    font-size: 18px;
+    font-size: var(--text-h6);
 }
 
 .desktop-menu li:first-child {
@@ -223,6 +237,12 @@ nav {
 }
 
 .nav-button:hover {
+    background-color: var(--button-hover-color);
+    color: var(--button-hover-color-white);
+}
+
+/* Кнопка помощника подсвечена, пока панель открыта */
+.assistant-button.active {
     background-color: var(--button-hover-color);
     color: var(--button-hover-color-white);
 }
@@ -290,7 +310,7 @@ nav {
     align-items: center;
     justify-content: center;
     padding: 12px;
-    font-size: 16px;
+    font-size: var(--text-h7);
     font-weight: bold;
     text-decoration: none;
     color: var(--text-color);
@@ -308,7 +328,7 @@ nav {
 .mobile-menu li i {
     margin-right: 20px;
     color: var(--button-hover-color);
-    font-size: 22px;
+    font-size: var(--text-h5);
     border: 2px solid var(--button-border-color);
     border-radius: 50%;
     width: 51px;

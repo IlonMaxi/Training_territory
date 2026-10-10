@@ -120,12 +120,12 @@ export default {
 
 .client-name {
     font-weight: bold;
-    font-size: 18px;
+    font-size: var(--text-h6);
     margin-bottom: 8px;
 }
 
 .client-info {
-    font-size: 14px;
+    font-size: var(--text-h8);
     color: var(--text-color);
 }
 
@@ -148,7 +148,7 @@ export default {
 
 .progress-details {
     margin-top: 10px;
-    font-size: 14px;
+    font-size: var(--text-h8);
     background-color: var(--background-color-white);
     padding: 10px;
     border-radius: 8px;

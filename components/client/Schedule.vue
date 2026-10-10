@@ -293,7 +293,7 @@ export default {
   padding: 20px;
   border-radius: 8px;
   color: var(--text-color);
-  font-family: Arial, sans-serif;
+  font-family: var(--font-sans);
   width: 90%;
   margin: 0 auto;
   transition: background-color 0.5s, color 0.5s;
@@ -317,7 +317,7 @@ export default {
   background: none;
   border: none;
   color: var(--text-color);
-  font-size: 24px;
+  font-size: var(--text-h4);
   cursor: pointer;
   transition: color 0.3s;
 }
@@ -346,12 +346,12 @@ export default {
 }
 
 .day-number {
-  font-size: 24px;
+  font-size: var(--text-h4);
   margin-bottom: 5px;
 }
 
 .day-name {
-  font-size: 16px;
+  font-size: var(--text-h7);
 }
 
 .toggle-button {
@@ -361,7 +361,7 @@ export default {
   padding: 10px 16px;
   border-radius: 8px;
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--text-h7);
   cursor: pointer;
   transition: background-color 0.3s;
 }
@@ -429,7 +429,7 @@ export default {
 }
 
 .meal-title {
-  font-size: 20px;
+  font-size: var(--text-h5);
   margin-bottom: 5px;
 }
 
@@ -465,7 +465,7 @@ export default {
 }
 
 .session-title {
-  font-size: 24px;
+  font-size: var(--text-h4);
   margin-bottom: 10px;
 }
 
@@ -473,7 +473,7 @@ export default {
   list-style-type: none;
   padding-left: 0;
   margin: 0;
-  font-size: 18px;
+  font-size: var(--text-h6);
   margin-bottom: 10px;
 }
 
@@ -481,7 +481,7 @@ export default {
   list-style-type: none;
   padding-left: 0;
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-h8);
   margin-bottom: 10px;
 }
 
@@ -489,7 +489,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 20px;
+  font-size: var(--text-h5);
 }
 
 input[type="checkbox"] {
@@ -518,7 +518,7 @@ input[type="checkbox"] {
   font-weight: bold;
   margin-bottom: 6px;
   color: var(--text-color);
-  font-size: 14px;
+  font-size: var(--text-h8);
   text-align: center;
 }
 
@@ -527,13 +527,13 @@ input[type="checkbox"] {
   background-color: #f5f5f5;
   padding: 8px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: var(--text-h8);
   color: #333;
 }
 
 .no-sessions {
   font-style: italic;
-  font-size: 12px;
+  font-size: var(--text-caption);
   color: gray;
   text-align: center;
 }
@@ -568,7 +568,7 @@ input[type="checkbox"] {
   right: 12px;
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: var(--text-h5);
   cursor: pointer;
 }
 
@@ -578,7 +578,7 @@ input[type="checkbox"] {
   right: 12px;
   background: transparent;
   border: none;
-  font-size: 18px;
+  font-size: var(--text-h6);
   cursor: pointer;
 }
 
@@ -586,7 +586,7 @@ input[type="checkbox"] {
   background-color: #ddeeff;
   padding: 8px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: var(--text-h8);
   color: #222;
 }
 
@@ -594,7 +594,7 @@ input[type="checkbox"] {
   background-color: #fff3d6;
   padding: 8px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: var(--text-h8);
   color: #222;
 }
 

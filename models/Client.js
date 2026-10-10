@@ -63,4 +63,11 @@ const Client = sequelize.define('Client', {
   timestamps: false,
 });
 
+// Хеш пароля не должен попадать ни в один JSON-ответ
+Client.prototype.toJSON = function () {
+  const values = { ...this.get() };
+  delete values.password;
+  return values;
+};
+
 module.exports = Client;

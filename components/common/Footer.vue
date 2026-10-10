@@ -107,7 +107,7 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 14px;
+    font-size: var(--text-h8);
     width: 80%;
     margin: 0 auto;
 }

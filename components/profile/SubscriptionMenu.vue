@@ -195,18 +195,18 @@ export default {
 }
 
 .plan-title {
-  font-size: 20px;
+  font-size: var(--text-h5);
   margin-bottom: 5px;
 }
 
 .plan-desc {
-  font-size: 14px;
+  font-size: var(--text-h8);
   color: #aaa;
   margin-bottom: 10px;
 }
 
 .plan-price {
-  font-size: 22px;
+  font-size: var(--text-h5);
   margin: 10px 0;
 }
 
@@ -230,7 +230,7 @@ export default {
   background: var(--background-color-white);
   padding: 15px;
   border-radius: 10px;
-  font-size: 14px;
+  font-size: var(--text-h8);
   min-width: 230px;
   max-width: 300px;
   color: var(--text-color);

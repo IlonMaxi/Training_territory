@@ -20,6 +20,21 @@ export default {
     { path: '/api', handler: '~/server/index.js' },
   ],
 
+  // Плавный переход между страницами
+  pageTransition: {
+    name: 'page',
+    mode: 'out-in'
+  },
+
+  router: {
+    // Якоря прокручиваются плавно, при обычном переходе — наверх
+    scrollBehavior(to, from, savedPosition) {
+      if (savedPosition) return savedPosition;
+      if (to.hash) return { selector: to.hash, behavior: 'smooth' };
+      return { x: 0, y: 0 };
+    }
+  },
+
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
     '@/assets/global.css'

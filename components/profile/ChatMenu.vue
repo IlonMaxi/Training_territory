@@ -163,7 +163,7 @@ export default {
 }
 
 .chat-title {
-  font-size: 22px;
+  font-size: var(--text-h5);
   margin-bottom: 16px;
   text-align: center;
   color: var(--text-color);
@@ -219,7 +219,7 @@ export default {
 }
 
 .time {
-  font-size: 12px;
+  font-size: var(--text-caption);
   color: gray;
   margin-top: 4px;
 }

@@ -1,21 +1,34 @@
 ﻿const express = require('express');
 const bcrypt = require('bcrypt');
-const { Op } = require('sequelize');
 
 const Coaches = require('../../models/Coach');
 const Clients = require('../../models/Client');
 
+const { currentUser, startSession, isAdmin } = require('../middlewares/auth');
+
 const router = express.Router();
+
+// Логины в БД не уникальны, а findOne без сортировки отдаёт строку в физическом
+// порядке кучи — после любого UPDATE выбор молча менялся. Поэтому: сначала точное
+// совпадение по username, потом по email, при дублях — самая старая запись.
+const findAccount = async (Model, idField, login) => {
+  const byUsername = await Model.findOne({
+    where: { username: login },
+    order: [[idField, 'ASC']]
+  });
+  if (byUsername) return byUsername;
+
+  return Model.findOne({
+    where: { email: login },
+    order: [[idField, 'ASC']]
+  });
+};
 
 // Вход для тренера
 router.post('/login/coaches', async (req, res) => {
   const { username, password } = req.body;
   try {
-    const coach = await Coaches.findOne({
-      where: {
-        [Op.or]: [{ username }, { email: username }]
-      }
-    });
+    const coach = await findAccount(Coaches, 'coachid', username);
 
     if (!coach) {
       return res.status(404).json({ error: 'Coach not found' });
@@ -40,7 +53,9 @@ router.post('/login/coaches', async (req, res) => {
       gender: coach.gender
     };
 
-    res.status(200).json({ message: 'Login successful', user: coach });
+    await startSession(req, { id: coach.coachid, role: 'coach' });
+
+    res.status(200).json({ message: 'Login successful', user });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -50,11 +65,7 @@ router.post('/login/coaches', async (req, res) => {
 router.post('/login/clients', async (req, res) => {
   const { username, password } = req.body;
   try {
-    const client = await Clients.findOne({
-      where: {
-        [Op.or]: [{ username }, { email: username }]
-      }
-    });
+    const client = await findAccount(Clients, 'clientid', username);
 
     if (!client) {
       return res.status(404).json({ error: 'User not found' });
@@ -77,7 +88,9 @@ router.post('/login/clients', async (req, res) => {
       gender: client.gender
     };
 
-    res.status(200).json({ message: 'Login successful', user: client });
+    await startSession(req, { id: client.clientid, role: 'client' });
+
+    res.status(200).json({ message: 'Login successful', user });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -121,6 +134,42 @@ router.post('/register', async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
+});
+
+// Кто вошёл сейчас — единственный достоверный источник для фронта
+router.get('/me', async (req, res) => {
+  const session = currentUser(req);
+  if (!session) {
+    return res.status(401).json({ error: 'Требуется вход' });
+  }
+
+  try {
+    const account = session.role === 'coach'
+      ? await Coaches.findByPk(session.id)
+      : await Clients.findByPk(session.id);
+
+    if (!account) {
+      return req.session.destroy(() => res.status(401).json({ error: 'Требуется вход' }));
+    }
+
+    res.json({ user: account, role: session.role, isAdmin: isAdmin(session) });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/logout', (req, res) => {
+  if (!req.session) {
+    return res.json({ message: 'Logged out' });
+  }
+
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ error: 'Не удалось завершить сессию' });
+    }
+    res.clearCookie('tt.sid');
+    res.json({ message: 'Logged out' });
+  });
 });
 
 module.exports = router;

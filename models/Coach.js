@@ -68,4 +68,11 @@ const Coach = sequelize.define('Coach', {
   timestamps: false,
 });
 
+// Хеш пароля не должен попадать ни в один JSON-ответ
+Coach.prototype.toJSON = function () {
+  const values = { ...this.get() };
+  delete values.password;
+  return values;
+};
+
 module.exports = Coach;

@@ -12,10 +12,17 @@ const PercentageMeasurement = require('../../models/PercentageMeasurement');
 const Payments = require('../../models/Payments');
 
 const { upload } = require('../middlewares/upload');
+const ClientLimitation = require('../../models/ClientLimitation');
+
+const { requireClientAccess, startSession } = require('../middlewares/auth');
+const { getLimitations, INJURY, ALLERGY } = require('../services/healthProfileService');
 const { getProgressSummary } = require('../services/progressService');
 const { addFullMeasurement } = require('../services/measurementService');
 
 const router = express.Router();
+
+// POST /clients — регистрация, единственный публичный роут в этом файле.
+// Всё остальное ниже закрыто проверкой владения: сам клиент, его тренер или админ.
 
 router.post('/clients', async (req, res) => {
   const { last_name, first_name, patronymic, username, password, phone_number, email, birth_date, gender } = req.body;
@@ -35,6 +42,8 @@ router.post('/clients', async (req, res) => {
       gender
     });
 
+    await startSession(req, { id: newUser.clientid, role: 'client' });
+
     res.status(201).json(newUser);
   } catch (error) {
     console.error('Registration error:', error.message, error.stack);
@@ -42,7 +51,7 @@ router.post('/clients', async (req, res) => {
   }
 });
 
-router.put('/clients/:id', upload.single('image'), async (req, res) => {
+router.put('/clients/:id', requireClientAccess('id'), upload.single('image'), async (req, res) => {
   const { id } = req.params;
   const {
     first_name,
@@ -78,7 +87,7 @@ router.put('/clients/:id', upload.single('image'), async (req, res) => {
   }
 });
 
-router.get('/clients/:clientId/coach', async (req, res) => {
+router.get('/clients/:clientId/coach', requireClientAccess('clientId'), async (req, res) => {
   const { clientId } = req.params;
 
   try {
@@ -99,13 +108,13 @@ router.get('/clients/:clientId/coach', async (req, res) => {
   }
 });
 
-router.post('/clients/:clientId/coach', async (req, res) => {
+router.post('/clients/:clientId/coach', requireClientAccess('clientId'), async (req, res) => {
   const { coachId } = req.body;
   await Clients.update({ coach_id: coachId }, { where: { clientid: req.params.clientId } });
   res.json({ message: 'Тренер назначен' });
 });
 
-router.delete('/clients/:clientId/coach', async (req, res) => {
+router.delete('/clients/:clientId/coach', requireClientAccess('clientId'), async (req, res) => {
   const { clientId } = req.params;
   try {
     const client = await Clients.findByPk(clientId);
@@ -121,7 +130,7 @@ router.delete('/clients/:clientId/coach', async (req, res) => {
   }
 });
 
-router.get('/clients/:clientId', async (req, res) => {
+router.get('/clients/:clientId', requireClientAccess('clientId'), async (req, res) => {
   const { clientId } = req.params;
 
   try {
@@ -148,7 +157,7 @@ router.get('/clients/:clientId', async (req, res) => {
   }
 });
 
-router.get('/clients/:clientId/progress-summary', async (req, res) => {
+router.get('/clients/:clientId/progress-summary', requireClientAccess('clientId'), async (req, res) => {
   const { clientId } = req.params;
 
   try {
@@ -164,7 +173,7 @@ router.get('/clients/:clientId/progress-summary', async (req, res) => {
   }
 });
 
-router.get('/clients/:id/unit-measurements-history', async (req, res) => {
+router.get('/clients/:id/unit-measurements-history', requireClientAccess('id'), async (req, res) => {
   const { id: clientId } = req.params;
 
   try {
@@ -190,7 +199,7 @@ router.get('/clients/:id/unit-measurements-history', async (req, res) => {
   }
 });
 
-router.get('/clients/:id/kg-measurements-history', async (req, res) => {
+router.get('/clients/:id/kg-measurements-history', requireClientAccess('id'), async (req, res) => {
   const { id: clientId } = req.params;
 
   try {
@@ -220,7 +229,7 @@ router.get('/clients/:id/kg-measurements-history', async (req, res) => {
   }
 });
 
-router.get('/clients/:id/cm-measurements-history', async (req, res) => {
+router.get('/clients/:id/cm-measurements-history', requireClientAccess('id'), async (req, res) => {
   const { id: clientId } = req.params;
 
   try {
@@ -256,7 +265,7 @@ router.get('/clients/:id/cm-measurements-history', async (req, res) => {
   }
 });
 
-router.get('/clients/:id/percentage-measurements-history', async (req, res) => {
+router.get('/clients/:id/percentage-measurements-history', requireClientAccess('id'), async (req, res) => {
   const { id: clientId } = req.params;
 
   try {
@@ -288,7 +297,7 @@ router.get('/clients/:id/percentage-measurements-history', async (req, res) => {
   }
 });
 
-router.get('/clients/:clientId/subscription', async (req, res) => {
+router.get('/clients/:clientId/subscription', requireClientAccess('clientId'), async (req, res) => {
   const { clientId } = req.params;
 
   try {
@@ -324,7 +333,63 @@ router.get('/clients/:clientId/subscription', async (req, res) => {
   }
 });
 
-router.post('/clients/:id/add-full-measurement', async (req, res) => {
+// --- Профиль здоровья: травмы и аллергии ---
+
+router.get('/clients/:clientId/limitations', requireClientAccess('clientId'), async (req, res) => {
+  try {
+    const limitations = await getLimitations(req.params.clientId);
+    res.json(limitations);
+  } catch (error) {
+    console.error('Ошибка при получении ограничений:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+router.post('/clients/:clientId/limitations', requireClientAccess('clientId'), async (req, res) => {
+  const { kind, value, note } = req.body;
+
+  if (![INJURY, ALLERGY].includes(kind)) {
+    return res.status(400).json({ error: 'kind должен быть injury или allergy' });
+  }
+  if (!value || !String(value).trim()) {
+    return res.status(400).json({ error: 'Не указано, что именно ограничивает' });
+  }
+
+  try {
+    const created = await ClientLimitation.create({
+      client_id: req.params.clientId,
+      kind,
+      value: String(value).trim(),
+      note: note || null,
+      is_active: true
+    });
+    res.status(201).json(created);
+  } catch (error) {
+    console.error('Ошибка при добавлении ограничения:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+router.delete('/clients/:clientId/limitations/:limitationId', requireClientAccess('clientId'), async (req, res) => {
+  try {
+    // Удаляем только своё: id клиента в условии, чтобы нельзя было
+    // снести чужую запись, подставив её limitationId
+    const deleted = await ClientLimitation.destroy({
+      where: {
+        limitationid: req.params.limitationId,
+        client_id: req.params.clientId
+      }
+    });
+
+    if (!deleted) return res.status(404).json({ error: 'Ограничение не найдено' });
+    res.json({ message: 'Ограничение удалено' });
+  } catch (error) {
+    console.error('Ошибка при удалении ограничения:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+router.post('/clients/:id/add-full-measurement', requireClientAccess('id'), async (req, res) => {
   const { id: clientId } = req.params;
 
   try {
