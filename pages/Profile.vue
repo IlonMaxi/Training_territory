@@ -1,6 +1,6 @@
 ﻿<template>
     <div class="profile-page">
-        <!-- РҐРµРґРµСЂ -->
+        <!-- Хедер -->
         <Header />
 
         <div class="profile-container">
@@ -45,11 +45,19 @@ export default {
     data() {
         return {
             user: null,
+            accountType: null,
             selectedComponent: null
         };
     },
     mounted() {
         this.loadUserData();
+    },
+    watch: {
+        // Помощник переходит на /Profile?menu=progress; при переходе внутри
+        // той же страницы компонент не пересоздаётся, поэтому следим за query
+        '$route.query.menu'(menu) {
+            if (menu) this.changeLeftComponent(menu);
+        }
     },
     methods: {
         loadUserData() {
@@ -61,16 +69,23 @@ export default {
                 }, {});
                 if (cookies.user) {
                     this.user = JSON.parse(cookies.user);
+                    this.accountType = cookies.accountType || null;
                     this.setDefaultComponent();
                 }
             }
         },
         setDefaultComponent() {
-            if (this.user.role === "client") {
-                this.selectedComponent = UserMenu;
-            } else if (this.user.role === "coach") {
-                this.selectedComponent = CoachClients;
+            // Раздел из ссылки имеет приоритет — по нему приходит помощник
+            const fromQuery = this.$route.query.menu;
+            if (fromQuery) {
+                this.changeLeftComponent(fromQuery);
+                return;
             }
+
+            // В cookie у пользователя нет поля role — роль определяем
+            // по accountType, а если её нет, то по наличию coachid
+            const isCoach = this.accountType === "trainer" || !!this.user.coachid;
+            this.selectedComponent = isCoach ? CoachClients : UserMenu;
         },
         changeLeftComponent(menuItem) {
             const componentMap = {
@@ -118,7 +133,7 @@ export default {
     flex: 0 0 280px;
 }
 
-/* РџР»Р°РІРЅР°СЏ Р°РЅРёРјР°С†РёСЏ РїРѕСЏРІР»РµРЅРёСЏ/РёСЃС‡РµР·РЅРѕРІРµРЅРёСЏ */
+/* Плавная анимация появления/исчезновения */
 .fade-enter-active,
 .fade-leave-active {
     transition: opacity 0.4s ease;

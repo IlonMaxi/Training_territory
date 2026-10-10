@@ -212,7 +212,7 @@ h2 {
   background: transparent;
   border: none;
   color: var(--text-color);
-  font-size: 20px;
+  font-size: var(--text-h5);
   cursor: pointer;
   transition: color 0.5s ease;
 }
@@ -254,7 +254,7 @@ button {
   background-color: var(--button-hover-color);
   border: none;
   color: var(--button-hover-color-white);
-  font-size: 16px;
+  font-size: var(--text-h7);
   cursor: pointer;
   border-radius: 5px;
   margin-top: 20px;
@@ -270,7 +270,7 @@ button:hover {
   color: red;
   margin-top: 10px;
   text-align: center;
-  font-size: 14px;
+  font-size: var(--text-h8);
 }
 
 @media (max-width: 768px) {

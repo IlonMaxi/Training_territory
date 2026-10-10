@@ -1,17 +1,19 @@
 ﻿const express = require('express');
 
 const { getMessages, addMessage } = require('../services/chatService');
+const { currentUser } = require('../middlewares/auth');
 
 const router = express.Router();
 
+// Читать и писать можно только от своего имени — id отправителя берём из сессии
 router.get('/chat', (req, res) => {
-  const { senderId, recipientId } = req.query;
+  const { recipientId } = req.query;
 
-  if (!senderId || !recipientId) {
-    return res.status(400).json({ error: 'Необходимы senderId и recipientId' });
+  if (!recipientId) {
+    return res.status(400).json({ error: 'Необходим recipientId' });
   }
 
-  const sId = parseInt(senderId);
+  const sId = currentUser(req).id;
   const rId = parseInt(recipientId);
 
   const messages = getMessages(sId, rId);
@@ -20,13 +22,13 @@ router.get('/chat', (req, res) => {
 });
 
 router.post('/chat/send', (req, res) => {
-  const { sender_id, recipient_id, text, timestamp } = req.body;
+  const { recipient_id, text, timestamp } = req.body;
 
-  if (!sender_id || !recipient_id || !text || !timestamp) {
+  if (!recipient_id || !text || !timestamp) {
     return res.status(400).json({ error: 'Все поля обязательны' });
   }
 
-  const newMessage = { sender_id, recipient_id, text, timestamp };
+  const newMessage = { sender_id: currentUser(req).id, recipient_id, text, timestamp };
   addMessage(newMessage);
 
   res.json({ success: true, message: newMessage });

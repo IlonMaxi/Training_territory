@@ -78,11 +78,19 @@ export default {
         }
     },
     mounted() {
-        if (this.isClient) {
+        // Раздел из адреса имеет приоритет: по ссылке /Profile?menu=settings
+        // приходит помощник, и панель не должна перебивать выбор своим
+        // значением по умолчанию — её mounted срабатывает позже страницы.
+        const fromQuery = this.$route && this.$route.query.menu;
+
+        if (fromQuery) {
+            this.selected = fromQuery;
+        } else if (this.isClient) {
             this.selected = "progress";
         } else if (this.isCoach) {
             this.selected = "clients";
         }
+
         this.$emit("menu-selected", this.selected);
     },
     methods: {
@@ -111,7 +119,7 @@ export default {
 .user-info {
     display: flex;
     align-items: center;
-    font-size: 16px;
+    font-size: var(--text-h7);
     color: var(--text-color);
     margin-bottom: 10px;
     transition: color 0.5s;
@@ -131,7 +139,7 @@ export default {
     text-align: left;
     cursor: pointer;
     transition: 0.3s;
-    font-size: 14px;
+    font-size: var(--text-h8);
     border-radius: 10px;
     font-weight: bold;
 }

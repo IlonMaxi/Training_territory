@@ -150,12 +150,12 @@ export default {
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   color: var(--text-color);
-  font-family: sans-serif;
+  font-family: var(--font-sans);
 }
 
 .form-title {
   text-align: center;
-  font-size: 24px;
+  font-size: var(--text-h4);
   font-weight: 700;
   margin-bottom: 20px;
   color: var(--text-color);
@@ -210,7 +210,7 @@ export default {
 label {
   margin-bottom: 6px;
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--text-h8);
   color: var(--text-color);
 }
 
@@ -220,7 +220,7 @@ input {
   border: 1px solid var(--button-border-color);
   background-color: var(--background-color);
   color: var(--text-color);
-  font-size: 14px;
+  font-size: var(--text-h8);
   transition: border 0.3s ease;
 }
 
@@ -237,7 +237,7 @@ button[type="submit"] {
   background-color: var(--button-hover-color);
   color: var(--button-hover-color-white);
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--text-h7);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -252,7 +252,7 @@ button[type="submit"]:hover {
   margin-top: 20px;
   text-align: center;
   color: red;
-  font-size: 15px;
+  font-size: var(--text-h7);
   font-weight: 500;
 }
 

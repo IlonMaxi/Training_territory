@@ -88,3 +88,19 @@ sw.*
 
 # Vim swap files
 *.swp
+
+# Разовые дампы с чувствительными данными
+backup_*_passwords_*.json
+
+# Python / ML-сервис
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.whl
+
+# Загруженные пользователями файлы
+uploads/*
+!uploads/default.jpg
+!uploads/client.jpg
+!uploads/trainer.jpg

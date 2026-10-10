@@ -1,69 +1,101 @@
-# my-nuxt-app
+# Training Territory
 
-## Build Setup
+Веб-платформа для взаимодействия тренера и клиента: тренировки, расписание, питание, измерения тела и отслеживание прогресса в одном месте. Платформа развивается как интеллектуальная система сопровождения клиента: в разработке модули на основе методов искусственного интеллекта.
 
-```bash
-# install dependencies
-$ npm install
+## Возможности
 
-# serve with hot reload at localhost:3000
-$ npm run dev
+### Для клиента
 
-# build for production and launch server
-$ npm run build
-$ npm run start
+- регистрация и вход в личный кабинет;
+- расписание тренировок, назначенных тренером;
+- измерения тела: масса и состав тела, процентные показатели, обхваты, ИМТ, метаболизм; графики динамики и прогресс в процентах относительно первого измерения;
+- рацион питания, который составляется автоматически каждый день с учётом тренировок, пола и аллергий;
+- профиль здоровья: травмы и аллергии - упражнения на больные зоны и блюда с аллергенами не предлагаются;
+- чат с тренером;
+- подписка: тариф, количество оставшихся тренировок, оплаты;
+- отзывы, поддержка и настройки профиля.
 
-# generate static project
-$ npm run generate
+### Для тренера
+
+- список своих клиентов и их прогресс;
+- расписание и назначение тренировок клиентам с проверкой пересечений по времени;
+- программы тренировок из упражнений справочника.
+
+### Для администратора
+
+- админ-панель для управления данными: клиенты, тренеры, упражнения, программы тренировок, питание, рецепты, измерения, оплаты, расписание;
+- справочник упражнений импортируется из открытой базы free-exercise-db с переводом на русский язык.
+
+## Интеллектуальные модули (в разработке)
+
+| Модуль | Что делает | Методы | Срок |
+|---|---|---|---|
+| Прогнозирование результатов | прогноз показателей тела (масса тела, мышечная масса, процент жира, обхваты) на 4 недели вперёд по истории измерений | регрессия: Ridge, Random Forest, Gradient Boosting, нейросеть MLP | декабрь 2026 |
+| ИИ-навигатор | понимает запрос на естественном языке («где моё расписание», «хочу тренировку на ноги»), открывает нужный раздел или подбирает программу тренировок с учётом травм | классификация текста: TF-IDF по символьным n-граммам, нейросеть MLP | февраль 2027 |
+| ИИ-консультант по питанию | чат, который анализирует данные клиента (измерения, динамику, прогноз, рацион, аллергии) и даёт рекомендации по питанию | большая языковая модель с подстановкой данных клиента (RAG), проверка рекомендаций правилами | май 2027 |
+
+Модули выносятся в отдельный ML-сервис на Python (FastAPI) - папка `ml_service`. Основная платформа работает и без него.
+
+## Технологии
+
+- **Frontend:** Nuxt.js 2 (Vue.js 2), Tailwind CSS, Chart.js
+- **Backend:** Node.js, Express (подключён к Nuxt как serverMiddleware, префикс `/api`), Sequelize, express-session
+- **База данных:** PostgreSQL
+- **Почта:** Nodemailer
+- **Планировщик:** node-cron (ежедневное составление рациона)
+- **ML-сервис (в разработке):** Python, FastAPI, scikit-learn
+
+## Структура проекта
+
+```
+pages/          страницы: главная, кабинеты клиента и тренера, профиль, админ-панель
+components/     компоненты интерфейса
+server/         backend: маршруты API, сервисы, middleware, скрипты наполнения базы
+models/         модели Sequelize (структура таблиц базы данных)
+config/         подключение к базе данных
+ml_service/     ML-сервис (в разработке)
+static/         статические файлы
+uploads/        загруженные изображения
 ```
 
-For detailed explanation on how things work, check out the [documentation](https://nuxtjs.org).
+## Запуск
 
-## Special Directories
+Требования: Node.js 18+, PostgreSQL, Python 3.10+ (только для ML-сервиса).
 
-You can create the following extra directories, some of which have special behaviors. Only `pages` is required; you can delete them if you don't want to use their functionality.
+1. Установить зависимости:
 
-### `assets`
+   ```bash
+   npm install
+   ```
 
-The assets directory contains your uncompiled assets such as Stylus or Sass files, images, or fonts.
+2. Скопировать `.env.example` в `.env` и заполнить: доступ к базе данных, почта для отзывов, `SESSION_SECRET`.
 
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/assets).
+3. Создать базу данных PostgreSQL. Структура основных таблиц соответствует моделям в папке `models`. Наполнить справочники:
 
-### `components`
+   ```bash
+   npm run import:exercises
+   npm run seed:workouts
+   npm run seed:health
+   ```
 
-The components directory contains your Vue.js components. Components make up the different parts of your page and can be reused and imported into your pages, layouts and even other components.
+4. Запустить платформу:
 
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/components).
+   ```bash
+   npm run dev
+   ```
 
-### `layouts`
+   Платформа откроется на http://localhost:3000.
 
-Layouts are a great help when you want to change the look and feel of your Nuxt app, whether you want to include a sidebar or have distinct layouts for mobile and desktop.
+5. ML-сервис (в разработке, необязательно):
 
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/layouts).
+   ```bash
+   python -m venv ml_service/.venv
+   ml_service\.venv\Scripts\pip install -r ml_service\requirements.txt
+   npm run ml
+   ```
 
+   Сервис запустится на http://127.0.0.1:8001.
 
-### `pages`
+## Автор
 
-This directory contains your application views and routes. Nuxt will read all the `*.vue` files inside this directory and setup Vue Router automatically.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/get-started/routing).
-
-### `plugins`
-
-The plugins directory contains JavaScript plugins that you want to run before instantiating the root Vue.js Application. This is the place to add Vue plugins and to inject functions or constants. Every time you need to use `Vue.use()`, you should create a file in `plugins/` and add its path to plugins in `nuxt.config.js`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/plugins).
-
-### `static`
-
-This directory contains your static files. Each file inside this directory is mapped to `/`.
-
-Example: `/static/robots.txt` is mapped as `/robots.txt`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/static).
-
-### `store`
-
-This directory contains your Vuex store files. Creating a file in this directory automatically activates Vuex.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/store).
+Елфимов Максим Александрович, ДГТУ, направление 09.04.02 «Информационные системы и технологии».

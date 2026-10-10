@@ -25,9 +25,9 @@ const Workout = sequelize.define('Workout', {
   difficulty: { // Соответствует столбцу 'difficulty'
     type: DataTypes.STRING(20),
     allowNull: true,
-    validate: {
-      isIn: [['easy', 'medium', 'hard']], // Пример: ограничение допустимых значений
-    },
+    // В базе значения русские ('Низкий'/'Средний'/'Высокий'), и на них же
+    // завязан getWorkoutBonus в планировщике питания. Прежний
+    // isIn: ['easy','medium','hard'] отвергал любую реальную запись.
   },
   duration: { // Соответствует столбцу 'duration'
     type: DataTypes.STRING, // Хранение как строка
@@ -39,10 +39,8 @@ const Workout = sequelize.define('Workout', {
   workout_type: { // Соответствует столбцу 'workout_type'
     type: DataTypes.STRING(20),
     allowNull: true,
-    defaultValue: 'individual',
-    validate: {
-      isIn: [['individual', 'group']], // Пример: допустимые значения
-    },
+    // Реальные значения в базе: 'силовая', 'кардио', 'функциональная'.
+    // Прежние 'individual'/'group' не встречаются ни в одной записи.
   },
   max_participants: { // Соответствует столбцу 'max_participants'
     type: DataTypes.INTEGER,
@@ -54,7 +52,9 @@ const Workout = sequelize.define('Workout', {
   },
   coach_id: { // Соответствует столбцу 'coach_id'
     type: DataTypes.INTEGER,
-    allowNull: false,
+    // В базе колонка nullable. NULL = программа-шаблон, не привязанная
+    // к конкретному тренеру: такие показывает помощник.
+    allowNull: true,
     references: {
       model: 'coaches', // Имя таблицы в нижнем регистре
       key: 'coachid',

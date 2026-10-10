@@ -6,7 +6,11 @@
     "dev": "nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
-    "generate": "nuxt generate"
+    "generate": "nuxt generate",
+    "ml": "ml_service\\.venv\\Scripts\\python.exe -m uvicorn main:app --app-dir ml_service --port 8001",
+    "seed:workouts": "node server/scripts/seedWorkoutPrograms.js",
+    "import:exercises": "node server/scripts/importExercises.js",
+    "seed:health": "node server/scripts/seedHealthProfile.js"
   },
   "dependencies": {
     "@nuxtjs/tailwindcss": "^6.12.1",
@@ -19,6 +23,7 @@
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-session": "^1.19.0",
     "framer-motion": "^11.5.4",
     "multer": "^1.4.5-lts.2",
     "node-cron": "^3.0.3",

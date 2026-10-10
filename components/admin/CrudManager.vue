@@ -21,6 +21,8 @@
             </div>
         </form>
 
+        <p v-if="loadError" class="load-error">{{ loadError }}</p>
+
         <!-- Список -->
         <ul>
             <li v-for="item in paginatedItems" :key="item[primaryKey]">
@@ -62,6 +64,7 @@ export default {
     data() {
         return {
             items: [],
+            loadError: null,
             form: {},
             isEditing: false,
             currentId: null,
@@ -109,10 +112,24 @@ export default {
         async fetchItems() {
             try {
                 const res = await fetch(`/api/${this.endpoint}`);
-                this.items = await res.json();
+                const data = await res.json();
+
+                // При 401/403/500 сервер отвечает объектом {error}, а не массивом,
+                // и вся страница падала на this.items.slice
+                if (!Array.isArray(data)) {
+                    console.error('Ошибка при получении данных:', data && data.error);
+                    this.items = [];
+                    this.loadError = (data && data.error) || 'Не удалось загрузить данные';
+                    return;
+                }
+
+                this.items = data;
+                this.loadError = null;
                 this.currentPage = 1;
             } catch (err) {
                 console.error('Ошибка при получении данных:', err);
+                this.items = [];
+                this.loadError = 'Не удалось загрузить данные';
             }
         },
         async fetchRelatedOptions() {
@@ -131,6 +148,10 @@ export default {
                 try {
                     const res = await fetch(`/api/${url}`);
                     const data = await res.json();
+                    if (!Array.isArray(data)) {
+                        console.error(`Ошибка загрузки ${key}:`, data && data.error);
+                        continue;
+                    }
                     this.selectOptions[key] = data.map(entry => ({
                         value: this.getId(entry),
                         label: this.getLabel(entry)
@@ -219,6 +240,12 @@ export default {
 </script>
 
 <style scoped>
+.load-error {
+    color: var(--button-hover-color);
+    font-size: var(--text-h8);
+    margin: 8px 0;
+}
+
 .pagination-controls {
     display: flex;
     flex-wrap: wrap;
@@ -230,7 +257,7 @@ export default {
 
 .pagination-controls button {
     padding: 6px 12px;
-    font-size: 14px;
+    font-size: var(--text-h8);
     cursor: pointer;
     background-color: var(--background-color);
     color: var(--text-color);
@@ -267,14 +294,14 @@ export default {
     padding: 32px;
     max-width: 800px;
     margin: 40px auto;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: var(--font-sans);
     color: var(--text-color);
     transition: background-color 0.5s, color 0.5s;
 }
 
 .crud-manager h2 {
     color: var(--button-hover-color);
-    font-size: 22px;
+    font-size: var(--text-h5);
     font-weight: 600;
     margin-bottom: 24px;
 }
@@ -295,7 +322,7 @@ export default {
 .form-label {
     min-width: 100px;
     font-weight: 500;
-    font-size: 14px;
+    font-size: var(--text-h8);
     color: var(--text-color);
     transition: color 0.5s;
 }
@@ -303,7 +330,7 @@ export default {
 .form-input {
     flex: 1;
     padding: 10px 14px;
-    font-size: 14px;
+    font-size: var(--text-h8);
     border: 1px solid var(--button-border-color);
     border-radius: 12px;
     background: var(--background-color);
@@ -324,7 +351,7 @@ export default {
 
 .form-button {
     padding: 8px 18px;
-    font-size: 14px;
+    font-size: var(--text-h8);
     border-radius: 12px;
     font-weight: 600;
     border: 1.5px solid var(--button-border-color);
@@ -366,7 +393,7 @@ li {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 15px;
+    font-size: var(--text-h7);
     flex-wrap: wrap;
     transition: background-color 0.3s, color 0.3s;
 }
@@ -375,7 +402,7 @@ li button {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--text-h8);
     margin-left: 12px;
     padding: 4px 8px;
     border-radius: 8px;
@@ -404,7 +431,7 @@ li button:hover {
 .record-field {
     display: flex;
     gap: 6px;
-    font-size: 15px;
+    font-size: var(--text-h7);
 }
 
 .field-label {

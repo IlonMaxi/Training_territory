@@ -7,6 +7,7 @@ const Workout = require('../../models/Workout');
 
 const { upload } = require('../middlewares/upload');
 const { assignTraining } = require('../services/trainingService');
+const { requireAuth, requireCoachAccess, startSession } = require('../middlewares/auth');
 
 const router = express.Router();
 
@@ -28,6 +29,8 @@ router.post('/coaches', async (req, res) => {
       gender
     });
 
+    await startSession(req, { id: newCoach.coachid, role: 'coach' });
+
     res.status(201).json(newCoach);
   } catch (error) {
     console.error('Error during registration:', error);
@@ -35,7 +38,7 @@ router.post('/coaches', async (req, res) => {
   }
 });
 
-router.put('/coaches/:id', upload.single('image'), async (req, res) => {
+router.put('/coaches/:id', requireCoachAccess('id'), upload.single('image'), async (req, res) => {
   const { id } = req.params;
   const {
     first_name,
@@ -75,7 +78,7 @@ router.put('/coaches/:id', upload.single('image'), async (req, res) => {
   }
 });
 
-router.get('/coaches/:coachId/workouts', async (req, res) => {
+router.get('/coaches/:coachId/workouts', requireCoachAccess('coachId'), async (req, res) => {
   const { coachId } = req.params;
 
   try {
@@ -96,12 +99,12 @@ router.get('/coaches/:coachId/workouts', async (req, res) => {
   }
 });
 
-router.get('/coaches', async (req, res) => {
+router.get('/coaches', requireAuth, async (req, res) => {
   const coaches = await Coaches.findAll();
   res.json(coaches);
 });
 
-router.get('/coaches/:coachId/clients', async (req, res) => {
+router.get('/coaches/:coachId/clients', requireCoachAccess('coachId'), async (req, res) => {
   const { coachId } = req.params;
 
   try {
@@ -122,7 +125,7 @@ router.get('/coaches/:coachId/clients', async (req, res) => {
   }
 });
 
-router.post('/coaches/:coachId/assign-training', async (req, res) => {
+router.post('/coaches/:coachId/assign-training', requireCoachAccess('coachId'), async (req, res) => {
   const { coachId } = req.params;
   const { client_id, workout_id, date, start_time, end_time, location } = req.body;
 

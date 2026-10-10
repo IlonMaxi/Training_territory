@@ -126,7 +126,7 @@ nav {
 .logo h1 {
     margin: 0;
     color: var(--text-color);
-    font-size: 24px;
+    font-size: var(--text-h4);
 }
 
 .navbar ul {
@@ -138,7 +138,7 @@ nav {
 
 .navbar ul li {
     margin-left: 5vw;
-    font-size: 18px;
+    font-size: var(--text-h6);
 }
 
 .navbar ul li:first-child {
@@ -183,7 +183,7 @@ nav {
     .logo h1 {
         margin: 0;
         color: var(--text-color);
-        font-size: 20px;
+        font-size: var(--text-h5);
     }
 }
 
@@ -194,7 +194,7 @@ nav {
     }
 
     .logo h1 {
-        font-size: 20px;
+        font-size: var(--text-h5);
     }
 
     .navbar ul {
@@ -203,7 +203,7 @@ nav {
 
     .navbar ul li {
         margin-left: 20px;
-        font-size: 16px;
+        font-size: var(--text-h7);
     }
 
     .navbar ul li:first-child {

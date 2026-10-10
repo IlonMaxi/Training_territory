@@ -108,7 +108,7 @@ export default {
     background: none;
     border: none;
     color: var(--button-hover-color-white);
-    font-size: 18px;
+    font-size: var(--text-h6);
     cursor: pointer;
 }
 

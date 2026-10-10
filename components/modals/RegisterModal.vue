@@ -252,7 +252,7 @@ export default {
     color: white;
     padding: 5px;
     border-radius: 5px;
-    font-size: 12px;
+    font-size: var(--text-caption);
     text-align: center;
     display: flex;
     align-items: center;
@@ -292,14 +292,14 @@ export default {
     background: transparent;
     border: none;
     color: #DD7548 !important;
-    font-size: 24px;
+    font-size: var(--text-h4);
     cursor: pointer;
     transition: color 0.3s ease;
 }
 
 .close i {
     color: #DD7548 !important; /* ОРАНЖЕВЫЙ для самого крестика */
-    font-size: 24px;
+    font-size: var(--text-h4);
 }
 
 .close:hover {
@@ -323,7 +323,7 @@ form {
 form label {
     align-items: flex-start;
     margin-bottom: 15px;
-    font-size: 14px;
+    font-size: var(--text-h8);
     font-weight: bold;
     text-align: left;
     width: 100%;
@@ -452,7 +452,7 @@ form label {
     }
 
     .tooltip {
-        font-size: 10px;
+        font-size: var(--text-caption);
         padding: 4px;
     }
 }

@@ -11,6 +11,7 @@ router.use(require('./admin/nutrition'));
 router.use(require('./admin/recipes'));
 router.use(require('./admin/schedule'));
 router.use(require('./admin/workouts'));
+router.use(require('./admin/workoutExercises'));
 router.use(require('./admin/exercises'));
 router.use(require('./admin/measurements'));
 router.use(require('./admin/progress'));

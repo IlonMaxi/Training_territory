@@ -161,14 +161,14 @@ h2 {
     background: transparent;
     border: none;
     color: #DD7548 !important;
-    font-size: 24px;
+    font-size: var(--text-h4);
     cursor: pointer;
     transition: color 0.3s ease;
 }
 
 .close i {
     color: #DD7548 !important; /* ОРАНЖЕВЫЙ для самого крестика */
-    font-size: 24px;
+    font-size: var(--text-h4);
 }
 
 .close:hover {
@@ -191,7 +191,7 @@ h2 {
 
 .branding p {
     margin: 0;
-    font-size: 24px;
+    font-size: var(--text-h4);
     color: var(--text-color);
     display: inline-block;
     letter-spacing: 0;
@@ -211,7 +211,7 @@ form {
 form label {
     align-items: flex-start;
     margin-bottom: 15px;
-    font-size: 14px;
+    font-size: var(--text-h8);
     font-weight: bold;
     text-align: left;
     color: var(--text-color);
@@ -252,7 +252,7 @@ form label {
     background: var(--button-hover-color);
     border: none;
     color: var(--button-hover-color-white);
-    font-size: 14px;
+    font-size: var(--text-h8);
     border-radius: 5px;
     cursor: pointer;
     width: 50%;

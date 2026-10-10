@@ -7,6 +7,8 @@ const Recipe = require('../../models/Recipe');
 const Schedule = require('../../models/Schedule');
 const Workout = require('../../models/Workout');
 
+const { getBlockedMuscles, filterRecipes } = require('./healthProfileService');
+
 const MEALS = [
   { name: 'Завтрак', ratio: 0.25 },
   { name: 'Обед', ratio: 0.375 },
@@ -64,6 +66,17 @@ const generateNutritionSchedule = async () => {
       const clientId = client.clientid;
       const gender = client.gender || 'male';
 
+      // Аллергии клиента убирают блюда с этим продуктом из его меню.
+      // Если после фильтра не остаётся ничего — пропускаем клиента,
+      // пусть меню составит тренер, а не генератор наугад.
+      const { allergies } = await getBlockedMuscles(clientId);
+      const recipes = filterRecipes(allRecipes, allergies);
+
+      if (!recipes.length) {
+        console.log(`Клиент ${clientId}: подходящих рецептов нет из-за аллергий, пропускаю`);
+        continue;
+      }
+
       let currentDate = new Date();
       currentDate.setHours(0, 0, 0, 0);
 
@@ -101,13 +114,13 @@ const generateNutritionSchedule = async () => {
         for (const meal of MEALS) {
           const mealCalories = Math.round(totalCalories * meal.ratio);
 
-          const suitableRecipes = allRecipes.filter(r =>
+          // recipes уже отфильтрованы по аллергиям этого клиента
+          const suitableRecipes = recipes.filter(r =>
             r.calories >= mealCalories - 100 && r.calories <= mealCalories + 100
           );
 
-          const selectedRecipe = (suitableRecipes.length
-            ? suitableRecipes
-            : allRecipes)[Math.floor(Math.random() * (suitableRecipes.length || allRecipes.length))];
+          const pool = suitableRecipes.length ? suitableRecipes : recipes;
+          const selectedRecipe = pool[Math.floor(Math.random() * pool.length)];
 
           const actualCalories = selectedRecipe.calories || mealCalories;
 

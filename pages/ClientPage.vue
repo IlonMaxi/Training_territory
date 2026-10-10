@@ -24,14 +24,14 @@ export default {
     },
     data() {
         return {
-            user: null, // РҐСЂР°РЅРёРј РґР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
-            accountType: null // РўРёРї Р°РєРєР°СѓРЅС‚Р°
+            user: null, // Храним данные пользователя
+            accountType: null // Тип аккаунта
         };
     },
     methods: {
-        // Р¤СѓРЅРєС†РёСЏ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РєСѓРєРё
+        // Функция для получения куки
         getCookie(name) {
-            if (process.client) { // РЈР±РµРґРёРјСЃСЏ, С‡С‚Рѕ РєРѕРґ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РЅР° РєР»РёРµРЅС‚Рµ
+            if (process.client) { // Убедимся, что код выполняется на клиенте
                 const value = `; ${document.cookie}`;
                 const parts = value.split(`; ${name}=`);
                 if (parts.length === 2) {
@@ -41,31 +41,38 @@ export default {
             return null;
         },
 
-        // Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РґР°РЅРЅС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР· РєСѓРєРё
+        // Восстановление данных пользователя из куки
         restoreUserData() {
             const userCookie = this.getCookie('user');
             const accountTypeCookie = this.getCookie('accountType');
 
             if (userCookie && accountTypeCookie) {
-                this.user = JSON.parse(userCookie); // РџСЂРµРѕР±СЂР°Р·СѓРµРј СЃС‚СЂРѕРєСѓ JSON РІ РѕР±СЉРµРєС‚
+                this.user = JSON.parse(userCookie); // Преобразуем строку JSON в объект
                 this.accountType = accountTypeCookie;
             } else {
-                // Р•СЃР»Рё РґР°РЅРЅС‹С… РЅРµС‚, РїРµСЂРµРЅР°РїСЂР°РІР»СЏРµРј РЅР° СЃС‚СЂР°РЅРёС†Сѓ РІС…РѕРґР°
-                this.$router.push({ name: 'LoginPage' });
+                // Если данных нет, перенаправляем на страницу входа
+                this.$router.push('/');
             }
         },
 
-        // РЈРґР°Р»РµРЅРёРµ РєСѓРєРё Рё РІС‹С…РѕРґ
-        logout() {
-            if (process.client) { // РЈР±РµРґРёРјСЃСЏ, С‡С‚Рѕ РєРѕРґ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РЅР° РєР»РёРµРЅС‚Рµ
+        // Удаление куки и выход
+        async logout() {
+            if (process.client) {
+                try {
+                    await fetch('/api/logout', { method: 'POST' });
+                } catch (err) {
+                    console.error('Ошибка при выходе:', err);
+                }
                 document.cookie = 'user=; path=/; max-age=0;';
                 document.cookie = 'accountType=; path=/; max-age=0;';
-                this.$router.push({ name: 'LoginPage' });
+                this.$router.push('/');
             }
         }
     },
-    created() {
-        this.restoreUserData(); // Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµРј РґР°РЅРЅС‹Рµ РїСЂРё Р·Р°РіСЂСѓР·РєРµ СЃС‚СЂР°РЅРёС†С‹
+    // Данные берём из cookie только на клиенте: created() выполняется и на
+    // сервере, где cookie нет, и разные деревья ломали гидрацию Vue
+    mounted() {
+        this.restoreUserData(); // Восстанавливаем данные при загрузке страницы
     }
 };
 </script>

@@ -4,9 +4,11 @@ const sequelize = require('../../config/database');
 
 const Schedule = require('../../models/Schedule');
 
+const { requireAuth, requireCoachOrAdmin, requireClientAccess, requireCoachAccess } = require('../middlewares/auth');
+
 const router = express.Router();
 
-router.get('/schedule', async (req, res) => {
+router.get('/schedule', requireCoachOrAdmin, async (req, res) => {
   try {
     const schedule = await Schedule.findAll();
     res.json(schedule);
@@ -15,7 +17,7 @@ router.get('/schedule', async (req, res) => {
   }
 });
 
-router.post('/schedule', async (req, res) => {
+router.post('/schedule', requireCoachOrAdmin, async (req, res) => {
   try {
     const scheduleItem = await Schedule.create(req.body);
     res.status(201).json(scheduleItem);
@@ -24,7 +26,7 @@ router.post('/schedule', async (req, res) => {
   }
 });
 
-router.get('/schedule/:coachId', async (req, res) => {
+router.get('/schedule/:coachId', requireCoachAccess('coachId'), async (req, res) => {
   const { coachId } = req.params;
 
   try {
@@ -66,7 +68,7 @@ router.get('/schedule/:coachId', async (req, res) => {
   }
 });
 
-router.get('/schedule/client/:clientId', async (req, res) => {
+router.get('/schedule/client/:clientId', requireClientAccess('clientId'), async (req, res) => {
   const { clientId } = req.params;
 
   try {
@@ -115,7 +117,7 @@ router.get('/schedule/client/:clientId', async (req, res) => {
   }
 });
 
-router.delete('/schedule/:scheduleId', async (req, res) => {
+router.delete('/schedule/:scheduleId', requireCoachOrAdmin, async (req, res) => {
   const { scheduleId } = req.params;
   try {
     const deleted = await Schedule.destroy({ where: { scheduleid: scheduleId } });

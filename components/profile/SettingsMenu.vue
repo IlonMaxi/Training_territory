@@ -91,6 +91,44 @@
         </div>
 
         <button class="save-btn" @click="updateUser">СОХРАНИТЬ</button>
+
+        <!-- Профиль здоровья: помощник учитывает это при подборе тренировок и питания -->
+        <div v-if="!isCoach" class="health-block">
+            <h3>Здоровье</h3>
+            <p class="health-hint">
+                Травмы убирают опасные упражнения из рекомендаций,
+                аллергии — блюда с этим продуктом из плана питания.
+            </p>
+
+            <div class="health-add">
+                <select v-model="newLimitation.kind">
+                    <option value="injury">Травма</option>
+                    <option value="allergy">Аллергия</option>
+                </select>
+                <input type="text" v-model="newLimitation.value"
+                    :placeholder="newLimitation.kind === 'injury' ? 'колено, поясница, плечо…' : 'орехи, молоко, рыба…'"
+                    @keyup.enter="addLimitation" />
+                <button class="health-btn" @click="addLimitation" :disabled="!newLimitation.value.trim()">
+                    Добавить
+                </button>
+            </div>
+
+            <p v-if="limitationError" class="health-error">{{ limitationError }}</p>
+
+            <ul class="health-list">
+                <li v-for="item in limitations" :key="item.limitationid">
+                    <span class="health-tag" :class="item.kind">
+                        {{ item.kind === 'injury' ? 'травма' : 'аллергия' }}
+                    </span>
+                    <span class="health-value">{{ item.value }}</span>
+                    <button class="health-remove" @click="removeLimitation(item.limitationid)"
+                        aria-label="Убрать">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </li>
+                <li v-if="!limitations.length" class="health-empty">Ограничений не указано</li>
+            </ul>
+        </div>
     </div>
 </template>
 
@@ -112,7 +150,10 @@ export default {
                 experience: "",
                 gender: ""
             },
-            selectedImage: null
+            selectedImage: null,
+            limitations: [],
+            newLimitation: { kind: 'injury', value: '' },
+            limitationError: null
         };
     },
     computed: {
@@ -122,8 +163,58 @@ export default {
     },
     mounted() {
         this.loadUserFromCookies();
+        if (!this.isCoach) this.loadLimitations();
     },
     methods: {
+        async loadLimitations() {
+            if (!this.user.id) return;
+            try {
+                const res = await fetch(`/api/clients/${this.user.id}/limitations`);
+                if (!res.ok) return;
+                const data = await res.json();
+                this.limitations = Array.isArray(data) ? data : [];
+            } catch (err) {
+                console.error('Не удалось загрузить ограничения:', err);
+            }
+        },
+
+        async addLimitation() {
+            const value = this.newLimitation.value.trim();
+            if (!value) return;
+            this.limitationError = null;
+
+            try {
+                const res = await fetch(`/api/clients/${this.user.id}/limitations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ kind: this.newLimitation.kind, value })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    this.limitationError = data.error || 'Не удалось сохранить';
+                    return;
+                }
+
+                this.limitations.push(data);
+                this.newLimitation.value = '';
+            } catch (err) {
+                console.error('Не удалось добавить ограничение:', err);
+                this.limitationError = 'Нет связи с сервером';
+            }
+        },
+
+        async removeLimitation(id) {
+            try {
+                const res = await fetch(`/api/clients/${this.user.id}/limitations/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    this.limitations = this.limitations.filter(item => item.limitationid !== id);
+                }
+            } catch (err) {
+                console.error('Не удалось удалить ограничение:', err);
+            }
+        },
+
         loadUserFromCookies() {
             const cookies = document.cookie.split("; ").reduce((acc, c) => {
                 const [key, val] = c.split("=");
@@ -216,18 +307,18 @@ export default {
 }
 
 h2 {
-    font-size: 22px;
+    font-size: var(--text-h5);
     font-weight: bold;
     color: var(--text-color);
 }
 
 .subtitle {
-    font-size: 14px;
+    font-size: var(--text-h8);
     color: gray;
 }
 
 .description {
-    font-size: 12px;
+    font-size: var(--text-caption);
     color: gray;
 }
 
@@ -238,7 +329,7 @@ h2 {
 }
 
 label {
-    font-size: 14px;
+    font-size: var(--text-h8);
     font-weight: bold;
     color: var(--text-color);
 }
@@ -258,7 +349,7 @@ label {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: var(--text-h8);
     background-color: var(--background-color);
     color: var(--text-color);
     transition: background-color 0.5s, color 0.5s, border-color 0.3s;
@@ -278,7 +369,7 @@ label {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: var(--text-h8);
     background-color: var(--background-color);
     color: var(--text-color);
     transition: background-color 0.5s, color 0.5s, border-color 0.3s;
@@ -311,6 +402,113 @@ label {
 .save-btn:hover {
     background: var(--button-hover-color);
     color: var(--button-hover-color-white);
+}
+
+.health-block {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--button-border-color);
+}
+
+.health-block h3 {
+    margin: 0 0 6px;
+    color: var(--text-color);
+}
+
+.health-hint {
+    margin: 0 0 14px;
+    font-size: var(--text-h8);
+    color: var(--text-color);
+    opacity: 0.75;
+}
+
+.health-add {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.health-add select,
+.health-add input {
+    padding: 10px 12px;
+    font-size: var(--text-h8);
+    color: var(--text-color);
+    background-color: var(--background-color);
+    border: 1px solid var(--button-border-color);
+    border-radius: 10px;
+}
+
+.health-add input {
+    flex: 1 1 220px;
+    min-width: 0;
+}
+
+.health-btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--button-hover-color);
+    color: var(--button-hover-color-white);
+    cursor: pointer;
+}
+
+.health-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.health-error {
+    margin: 0 0 10px;
+    font-size: var(--text-caption);
+    color: var(--button-hover-color);
+}
+
+.health-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.health-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.health-tag {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: var(--text-caption);
+    border: 1px solid var(--button-border-color);
+    color: var(--text-color);
+}
+
+.health-tag.injury {
+    background-color: var(--button-border-color);
+    color: var(--button-hover-color-white);
+}
+
+.health-value {
+    flex: 1 1 auto;
+    color: var(--text-color);
+}
+
+.health-remove {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.health-empty {
+    font-size: var(--text-h8);
+    color: var(--text-color);
+    opacity: 0.6;
 }
 </style>
 

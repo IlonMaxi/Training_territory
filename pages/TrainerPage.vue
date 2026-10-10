@@ -51,7 +51,7 @@ export default {
         this.accountType = accountTypeCookie;
         this.$root.user = this.user;
       } else {
-        this.$router.push({ name: 'LoginPage' });
+        this.$router.push('/');
       }
     },
     scrollToSection(section) {
@@ -63,7 +63,8 @@ export default {
       });
     }
   },
-  created() {
+  // См. ClientPage: чтение cookie только после монтирования
+  mounted() {
     this.restoreUserData();
   },
   mounted() {

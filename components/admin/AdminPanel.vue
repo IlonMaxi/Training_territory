@@ -34,6 +34,7 @@ export default {
                 { id: "Recipes", label: "Рецепты" },
                 { id: "Coaches", label: "Тренеры" },
                 { id: "Workouts", label: "Тренировки" },
+                { id: "Workout_exercises", label: "Состав тренировок" },
                 { id: "Exercises", label: "Упражнения" },
                 { id: "Client_schedule", label: "Расписание клиентов" }
             ]
@@ -62,7 +63,7 @@ export default {
 .admin-info {
     display: flex;
     align-items: center;
-    font-size: 16px;
+    font-size: var(--text-h7);
     color: var(--text-color);
     margin-bottom: 10px;
     transition: color 0.5s ease;
@@ -82,7 +83,7 @@ export default {
     text-align: left;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 14px;
+    font-size: var(--text-h8);
     border-radius: 10px;
     font-weight: bold;
 }

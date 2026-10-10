@@ -73,6 +73,12 @@
             <div v-if="predictions[param] !== undefined" class="forecast-result">
               Прогноз: {{ Number(predictions[param]).toFixed(2) }}
             </div>
+            <div v-if="predictionMeta[param]" class="forecast-meta">
+              {{ getForecastModelLabel(predictionMeta[param].model) }}
+              <span v-if="predictionMeta[param].confidence !== null">
+                · доверие {{ Math.round(predictionMeta[param].confidence * 100) }}%
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -94,6 +100,7 @@ export default {
                 predictions: {},
                 predicting: {},
                 predictionSeries: {},
+                predictionMeta: {},
                 charts: {},
                 paramLabels: {
                 // Measurements_in_units
@@ -181,6 +188,15 @@ export default {
             const first = this.currentHistory[0][param];
             const last = this.currentHistory.at(-1)[param];
             return Math.round(((last - first) / first) * 100);
+        },
+        getForecastModelLabel(model) {
+            const labels = {
+                ridge_regression: 'Ridge-регрессия',
+                random_forest_regressor: 'Random Forest',
+                gradient_boosting_regressor: 'Gradient Boosting',
+                linear_fallback: 'Линейный fallback'
+            };
+            return labels[model] || 'ML-прогноз';
         },
         loadAndSet(type) {
             this.currentType = type;
@@ -323,6 +339,12 @@ export default {
                     const value = data?.predicted?.value;
                     this.$set(this.predictions, param, value);
                     this.$set(this.predictionSeries, param, data?.series || []);
+                    this.$set(this.predictionMeta, param, {
+                        model: data?.model,
+                        confidence: data && data.quality && data.quality.confidence !== undefined
+                            ? data.quality.confidence
+                            : null
+                    });
                     this.$nextTick(() => this.renderCharts());
                 }
             } catch (error) {
@@ -452,7 +474,7 @@ export default {
 }
 
 .progress-details {
-    font-size: 14px;
+    font-size: var(--text-h8);
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -483,7 +505,7 @@ export default {
 .progress-analysis h4 {
   margin-bottom: 10px;
   color: var(--button-hover-color);
-  font-size: 20px;
+  font-size: var(--text-h5);
     font-weight: bold;
 }
 
@@ -530,7 +552,7 @@ export default {
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
     padding: 16px;
-    font-size: 15px;
+    font-size: var(--text-h7);
 }
 
 .forecast-btn {
@@ -541,7 +563,7 @@ export default {
     color: var(--button-hover-color-white);
     border: none;
     border-radius: 6px;
-    font-size: 12px;
+    font-size: var(--text-caption);
     cursor: pointer;
 }
 
@@ -552,9 +574,16 @@ export default {
 
 .forecast-result {
     margin-top: 6px;
-    font-size: 12px;
+    font-size: var(--text-caption);
     color: var(--text-color);
     font-weight: 600;
+}
+
+.forecast-meta {
+    margin-top: 4px;
+    font-size: var(--text-caption);
+    color: var(--text-color);
+    opacity: 0.75;
 }
 
 .unit-header {
@@ -566,7 +595,7 @@ export default {
 }
 
 .unit-value span {
-    font-size: 12px;
+    font-size: var(--text-caption);
     margin-left: 4px;
 }
 

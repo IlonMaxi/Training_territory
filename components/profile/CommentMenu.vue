@@ -112,7 +112,7 @@ export default {
     border: 1px solid var(--button-border-color);
     border-radius: 5px;
     resize: none;
-    font-size: 14px;
+    font-size: var(--text-h8);
     background: var(--background-color);
     color: var(--text-color);
 }

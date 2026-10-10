@@ -9,6 +9,13 @@ const UnitMeasurement = require('./UnitMeasurement');
 const PercentageMeasurement = require('./PercentageMeasurement');
 const KgMeasurement = require('./KgMeasurement');
 const SmMeasurement = require('./SmMeasurement');
+const Exercise = require('./Exercise');
+const WorkoutExercise = require('./WorkoutExercise');
+
+// === Workout ↔ Exercise (состав программы)
+Workout.hasMany(WorkoutExercise, { foreignKey: 'workout_id', as: 'items' });
+WorkoutExercise.belongsTo(Workout, { foreignKey: 'workout_id', as: 'workout' });
+WorkoutExercise.belongsTo(Exercise, { foreignKey: 'exercise_id', as: 'exercise' });
 
 // === ClientSchedule ↔ Clients
 Clients.hasMany(ClientSchedule, { foreignKey: 'client_id', as: 'clientSchedules' });
