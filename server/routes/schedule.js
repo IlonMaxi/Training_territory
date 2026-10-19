@@ -43,14 +43,21 @@ router.get('/schedule/:coachId', requireCoachAccess('coachId'), async (req, res)
         e.exerciseid AS exerciseId,
         e.name AS exercise_name,
         e.description AS exercise_description,
-        e.machine AS equipment
-      FROM 
+        e.machine AS equipment,
+        -- С кем занятие: подзапросом, чтобы несколько клиентов не размножали строки
+        (
+          SELECT string_agg(concat_ws(' ', c.first_name, c.last_name), ', ')
+          FROM client_schedule AS cs
+          JOIN clients AS c ON cs.client_id = c.clientid
+          WHERE cs.schedule_id = s.scheduleid
+        ) AS client_names
+      FROM
         schedule AS s
-      JOIN 
+      JOIN
         workouts AS w ON s.workout_id = w.workoutid
-      JOIN 
+      JOIN
         exercises AS e ON w.exercise_id = e.exerciseid
-      WHERE 
+      WHERE
         s.coach_id = :coachId
     `, {
       replacements: { coachId },

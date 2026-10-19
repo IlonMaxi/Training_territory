@@ -1,462 +1,274 @@
-﻿<template>
-    <main>
-        <p>Здесь вы найдете все, чтобы добиться прогресса в спорте</p>
+<template>
+    <main class="tt-main">
+        <HomeHero eyebrow="Для клиентов"
+            lead="Здесь вы найдёте всё, чтобы добиться прогресса в спорте: тренировки от вашего тренера, рацион на каждый день и замеры тела — в одном личном кабинете."
+            :bullets="bullets" cta-label="Начать тренироваться" anchor="schedule-section" anchor-label="Как это устроено"
+            @register="$emit('open-register-modal')">
+            <template #title>
+                Добивайтесь <span class="accent-word">прогресса</span> в спорте
+            </template>
+        </HomeHero>
 
-        <div class="btn-container">
-            <button class="coach-btn"><a href="#trainer-section">ТРЕНЕРСТВО</a></button>
-            <button class="schedule-btn"><a href="#schedule-section">РАСПИСАНИЕ</a></button>
-        </div>
+        <HomeStats :stats="stats" />
 
-        <div id="schedule-section" class="schedule-section">
-            <h2>Расписание</h2>
-            <p>Насколько оно важно для клиента?</p>
+        <!-- Расписание -->
+        <section id="schedule-section" class="tt-container" aria-labelledby="schedule-title">
+            <SectionHead eyebrow="Расписание" title-id="schedule-title"
+                lead="Распорядок дня, питание и базовые упражнения — из этого складывается ваш результат.">
+                Насколько оно <span class="tt-accent">важно для клиента?</span>
+            </SectionHead>
+            <ScheduleCards :routine="routine" />
+        </section>
 
-            <div class="schedule-images">
-                <div class="background-rectangle"></div>
+        <!-- Поддержка -->
+        <section class="tt-container" aria-labelledby="support-title">
+            <SectionHead eyebrow="Поддержка" title-id="support-title">
+                Тренер рядом <span class="tt-accent">на каждом этапе</span>
+            </SectionHead>
+            <FeatureCards :items="support" :columns="3" beat />
+        </section>
 
-                <div class="image-container">
-                    <FlipCard
-                        image="https://i.pinimg.com/originals/bb/13/ac/bb13ac3dd63fd93fe3b16b8d0fb635c9.jpg"
-                        alt="Распорядок дня">
-                        <p>
-                            10:00-12:00 – Тренировка в фитнес-центре<br> <br>
-                            12:30-13:00 – Полдник (орехи и ягоды)<br> <br>
-                            13:00-14:00 – Обед (курица гриль с овощами)<br><br>
-                            19:00-20:00 – Ужин (рыба с овощами и гречкой)<br><br>
-                        </p>
-                    </FlipCard>
-                </div>
-                <div class="image-container">
-                    <FlipCard
-                        image="https://i.pinimg.com/originals/5e/95/37/5e953797561655e176b16ba054548400.png"
-                        alt="Примеры блюд">
-                        <p>Завтрак:<br>
-                            1. Белковый смузи<br>
-                            2. Омлет с овощами<br>
-                            3. Тост с авокадо и лососем<br>
-                            <br>
-                            Обед:<br>
-                            1. Куриные грудки с картофельным пюре<br>
-                            2. Греческий йогурт с орехами и медом<br>
-                            <br>
-                            Ужин:<br>
-                            1. Тунец на гриле с овощами<br>
-                            2. Зеленый салат с крабовыми палочками<br>
-                        </p>
-                    </FlipCard>
-                </div>
-                <div class="image-container">
-                    <FlipCard
-                        image="https://sun9-44.userapi.com/impg/rvI4M_XCHB9H3TlKQ6RA6r2c6-fLUY5YiZwviQ/KcstCwpM87Y.jpg?size=453x604&quality=95&sign=f6db54fc6c5152f645891bd5d556517f&c_uniq_tag=rhl55Pcp69zwtPywQYPY5m4qFPzqRWoGxgAp868jfic&type=album"
-                        alt="Базовые упражнения">
-                        <p>Жим штанги - базовое упражнение для грудных, плеч и трицепса<br>
-                            <br>
-                            Становая тяга - базовое упражнение для спины и ног<br>
-                            <br>
-                            Присяд со штангой - базовое упражнение для низа тела<br>
-                        </p>
-                    </FlipCard>
-                </div>
+        <!-- Тренерство -->
+        <section id="trainer-section" class="tt-container" aria-labelledby="coaching-title">
+            <SectionHead eyebrow="Тренерство" title-id="coaching-title"
+                lead="Тренер подберёт направление под вашу цель и уровень подготовки — и проведёт по нему шаг за шагом.">
+                Тренируйтесь с <span class="tt-accent">профессионалами</span>
+            </SectionHead>
 
-            </div>
-        </div>
+            <!-- Направления с линейными иллюстрациями: при наведении плитка
+                 заливается оранжевым, линии становятся белыми -->
+            <ul class="directions">
+                <Reveal v-for="(item, index) in directions" :key="item.art" as="li" class="direction-cell"
+                    variant="bubbleSoft" :amount="0.2" :delay="(index % 3) * 90">
+                    <article class="tt-card tt-card--lift direction">
+                        <div class="direction-art">
+                            <SportArt :name="item.art" />
+                        </div>
+                        <div class="direction-body">
+                            <h3 class="direction-title">{{ item.title }}</h3>
+                            <p class="direction-text">{{ item.text }}</p>
+                        </div>
+                    </article>
+                </Reveal>
+            </ul>
+        </section>
 
-        <div class="advantage-container">
-            <h2 class="advantage-heading">ПОДДЕРЖКА</h2>
-            <div class="advantage-content">
-                <div class="advantage-block">
-                    <div class="icon">
-                        <i class="fa-solid fa-stethoscope"></i>
-                    </div>
-                    <p>Тренер играет важную роль в помощи своим подопечным в достижении здоровья и физической формы. Он
-                        может разработать индивидуальную программу тренировок и питания, определить цели и помочь
-                        создать план действий</p>
-                </div>
-                <div class="advantage-block">
-                    <div class="icon">
-                        <i class="fa-solid fa-head-side-virus"></i>
-                    </div>
-                    <p>Тренер имеет ключевое значение в помощи подопечному отработать правильную технику в упражнениях.
-                        Он может дать детальные инструкции и наглядно продемонстрировать, как выполнять упражнения
-                        правильно и безопасно</p>
-                </div>
-                <div class="advantage-block">
-                    <div class="icon">
-                        <i class="fa-solid fa-people-arrows"></i>
-                    </div>
-                    <p>Ментальная поддержка тренера является неотъемлемой частью его роли в помощи подопечному. Он может
-                        привносить в тренировки элементы позитивной атмосферы и поддержки, создавая мотивационную среду
-                        для достижения целей</p>
-                </div>
-            </div>
-        </div>
+        <CtaSection title="Начните путь к результату"
+            text="Создайте аккаунт клиента — тренировки, питание и прогресс будут в одном личном кабинете."
+            @register="$emit('open-register-modal')"
+            @login="$emit('open-login-modal')" />
 
-        <div id="trainer-section" class="coaching-section">
-            <h2>ТРЕНЕРСТВО</h2>
-            <div class="coaching-images-container">
-                <div class="coaching-images">
-                    <div class="coaching-image">
-                        <img src="https://www.uaepersonaltrainers.com/wp-content/uploads/2020/04/female-personal-trainers-sharjah-bg.jpg"
-                            alt="Image 1" width="500" height="500">
-                    </div>
-                    <div class="coaching-image">
-                        <img src="https://p1.zoon.ru/b/1/605f993ca14209033536eb56_605f996107392.jpg" alt="Image 1"
-                            width="500" height="500">
-                    </div>
-                    <div class="coaching-image">
-                        <img src="https://sport.znanie-nn.ru/images/files/1/upload_5e03b152029525.14591656.jpg"
-                            alt="Image 1" width="500" height="500">
-                    </div>
-                    <div class="coaching-image">
-                        <img src="https://static.tildacdn.com/tild3038-6530-4163-b530-626665633664/ZOZ06665_11.jpg"
-                            alt="Image 1" width="500" height="500">
-                    </div>
-                    <div class="coaching-image">
-                        <img src="https://yt3.googleusercontent.com/ytc/APkrFKatcVZ7GGPmyVCZIfp_4YjiEDhL8NrtdTvVrUPE=s900-c-k-c0x00ffffff-no-rj"
-                            alt="Image 1" width="500" height="500">
-                    </div>
-                    <div class="coaching-image">
-                        <img src="https://i.pinimg.com/736x/4b/e6/be/4be6be8e7ee11ea76968c9b78ae1093e.jpg" alt="Image 1"
-                            width="500" height="500">
-                    </div>
-                    <div class="coaching-image">
-                        <img src="https://adlonlinecourses.com/wp-content/uploads/2021/10/personal-trainer-online-course-5-1.jpg"
-                            alt="Image 1" width="500" height="500">
-                    </div>
-                    <div class="coaching-image">
-                        <img src="https://p1.zoon.ru/0/9/5fc771c77ad12d70fc04b6dc_5fc771d9c2f26.jpg" alt="Image 1"
-                            width="500" height="500">
-                    </div>
-                    <div class="coaching-image">
-                        <img src="https://evolution-fitness.ru/media/team_img/mahonin-1.jpg" alt="Image 1" width="500"
-                            height="500">
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        <BadgeConnectors />
     </main>
 </template>
 
 <script>
-import FlipCard from '@/components/flip/FlipCard.vue';
+import Reveal from '@/components/ui/Reveal.vue';
+import SportArt from '@/components/ui/SportArt.vue';
+import HomeHero from '@/components/home/HomeHero.vue';
+import HomeStats from '@/components/home/HomeStats.vue';
+import SectionHead from '@/components/ui/SectionHead.vue';
+import FeatureCards from '@/components/home/FeatureCards.vue';
+import ScheduleCards from '@/components/home/ScheduleCards.vue';
+import CtaSection from '@/components/home/CtaSection.vue';
+import BadgeConnectors from '@/components/home/BadgeConnectors.vue';
 
 export default {
     name: 'ClientFlip',
-    components: { FlipCard }
+    components: {
+        Reveal,
+        SportArt,
+        HomeHero,
+        HomeStats,
+        SectionHead,
+        FeatureCards,
+        ScheduleCards,
+        CtaSection,
+        BadgeConnectors
+    },
+    data() {
+        return {
+            bullets: [
+                { icon: 'fa-solid fa-calendar-days', lead: 'Расписание тренировок ', accent: 'от вашего тренера' },
+                { icon: 'fa-solid fa-utensils', lead: 'Рацион на каждый день — ', accent: 'с учётом тренировок' },
+                { icon: 'fa-solid fa-chart-line', lead: 'Замеры и графики — ', accent: 'прогресс в процентах' }
+            ],
+            // Цифры — из устройства платформы: справочник упражнений
+            // и генератор рациона (3 приёма пищи на 7 дней вперёд)
+            stats: [
+                { icon: 'fa-solid fa-dumbbell', value: 900, suffix: '+', label: 'упражнений в справочнике, из которых тренер собирает ваши тренировки' },
+                { icon: 'fa-solid fa-calendar-week', value: 7, label: 'дней вперёд — на столько рацион составляется автоматически' },
+                { icon: 'fa-solid fa-utensils', value: 3, label: 'приёма пищи в день с учётом тренировок, пола и аллергий' }
+            ],
+            support: [
+                {
+                    icon: 'fa-solid fa-stethoscope',
+                    title: 'Здоровье и форма',
+                    text: 'Тренер играет важную роль в помощи своим подопечным в достижении здоровья и физической формы. Он может разработать индивидуальную программу тренировок и питания, определить цели и помочь создать план действий.'
+                },
+                {
+                    icon: 'fa-solid fa-head-side-virus',
+                    title: 'Правильная техника',
+                    text: 'Тренер имеет ключевое значение в помощи подопечному отработать правильную технику в упражнениях. Он может дать детальные инструкции и наглядно продемонстрировать, как выполнять упражнения правильно и безопасно.'
+                },
+                {
+                    icon: 'fa-solid fa-people-arrows',
+                    title: 'Ментальная поддержка',
+                    text: 'Ментальная поддержка тренера является неотъемлемой частью его роли в помощи подопечному. Он может привносить в тренировки элементы позитивной атмосферы и поддержки, создавая мотивационную среду для достижения целей.'
+                }
+            ],
+            routine: [
+                { time: '10:00–12:00', text: 'Тренировка в фитнес-центре' },
+                { time: '12:30–13:00', text: 'Полдник (орехи и ягоды)' },
+                { time: '13:00–14:00', text: 'Обед (курица гриль с овощами)' },
+                { time: '19:00–20:00', text: 'Ужин (рыба с овощами и гречкой)' }
+            ],
+            directions: [
+                { art: 'dumbbell', title: 'Силовые', text: 'Сила и мышечная масса — с правильной техникой в каждом подходе.' },
+                { art: 'kettlebell', title: 'Функциональные', text: 'Баланс, координация и выносливость для повседневной жизни.' },
+                { art: 'jumprope', title: 'Кардио', text: 'Пульс в нужной зоне и сжигание калорий без скуки.' },
+                { art: 'sneaker', title: 'Бег', text: 'Темп, дистанция и восстановление — по плану тренера.' },
+                { art: 'mat', title: 'Растяжка', text: 'Гибкость и подвижность суставов, меньше зажимов и травм.' },
+                { art: 'heart', title: 'Здоровье', text: 'Нагрузка по самочувствию и пульсу — без перегрузок.' }
+            ]
+        };
+    }
 };
 </script>
 
 <style scoped>
-main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: var(--text-color);
-    padding: 0 15px;
-}
+/* ---------- направления тренировок ---------- */
 
-a {
-    text-decoration: none;
-    color: var(--text-color);
-}
-
-a:hover {
-    color: var(--button-hover-color);
-}
-
-.btn-container {
-    margin-bottom: 20px;
-}
-
-.btn-container button {
-    padding: 15px 30px;
-    margin: 10px;
-    font-size: var(--text-h6);
-}
-
-.schedule-btn {
-    background-color: var(--button-border-color);
-    box-shadow: 0px 5px 0px var(--button-hover-color);
-    border: none;
-    color: var(--text-color);
-    padding: 15px 30px;
-    margin: 10px;
-    font-size: var(--text-h6);
-    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease-out;
-}
-
-.schedule-btn:hover {
-    transform: translateY(-5px);
-}
-
-.schedule-btn:hover a {
-    color: var(--button-hover-color);
-}
-
-.coach-btn {
-    background-color: transparent;
-    border: none;
-    color: var(--text-color);
-    padding: 15px 30px;
-    margin: 10px;
-    font-size: var(--text-h6);
-    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease-out;
-}
-
-.coach-btn:hover {
-    background-color: var(--button-border-color);
-    transform: translateY(-5px);
-}
-
-.background-rectangle {
-    position: absolute;
-    background-color: var(--button-border-color);
-    height: 250px;
-    width: 90%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-50%);
-    border-radius: 10px;
-    z-index: -1;
-    margin-top: 25vh;
-}
-
-.schedule-images img {
-    border-radius: 20px;
-    margin-right: 10px;
-}
-
-.schedule-section {
-    text-align: center;
-    margin-top: 10px;
-    width: 90%;
-    max-width: 1000px;
-    color: var(--text-color);
-}
-
-.schedule-section h2 {
-    font-size: var(--text-h3);
-    margin-bottom: 10px;
-}
-
-.schedule-section p {
-    font-size: var(--text-h5);
-    margin-bottom: 30px;
-}
-
-.schedule-images {
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-}
-
-.schedule-images .image-container {
-    position: relative;
-    width: 300px;
-    height: 500px;
-    margin-right: 10px;
-    justify-content: center;
-    align-items: center;
-}
-
-/* Карточки-перевёртыши: components/flip/FlipCard.vue */
-
-.fa-solid,
-.fas {
-    font-weight: 900;
-}
-
-.fa-classic,
-.fa-regular,
-.fa-solid,
-.far,
-.fas {
-    font-family: "Font Awesome 6 Free";
-}
-
-.fa,
-.fa-brands,
-.fa-classic,
-.fa-regular,
-.fa-sharp,
-.fa-solid,
-.fab,
-.far,
-.fas {
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-font-smoothing: antialiased;
-    display: var(--fa-display, inline-block);
-    font-style: normal;
-    font-variant: normal;
-    line-height: 1;
-    text-rendering: auto;
-}
-
-.icon .fa-stethoscope,
-.fa-head-side-virus,
-.fa-people-arrows {
-    font-size: 70px;
-    color: var(--button-hover-color);
-}
-
-.icon i:hover {
-    animation: rotateIcon 0.6s ease-in-out forwards;
-}
-
-@keyframes rotateIcon {
-    0% {
-        transform: rotate(0);
-    }
-
-    33% {
-        transform: rotate(-15deg);
-    }
-
-    66% {
-        transform: rotate(12deg);
-    }
-
-    100% {
-        transform: rotate(0);
-    }
-}
-
-.advantage-container {
-    text-align: center;
-    margin-top: 60px;
-    width: 90%;
-    max-width: 1000px;
-}
-
-.advantage-content {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 30px;
-}
-
-.advantage-block {
-    width: 48%;
-}
-
-.advantage-heading {
-    color: var(--text-color);
-    font-size: var(--text-h3);
-}
-
-.coaching-section {
-    text-align: center;
-    margin-top: 60px;
-    width: 90%;
-    max-width: 1000px;
-    color: var(--text-color);
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.coaching-section h2 {
-    font-size: var(--text-h3);
-    margin-bottom: 20px;
-}
-
-.coaching-images-container {
-    width: 100%;
-    max-width: 100%;
-    padding: 0 15px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.coaching-image {
-    width: 100%;
-    max-width: 500px;
-    height: auto;
-    overflow: hidden;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.coaching-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.coaching-images {
+.directions {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-gap: 20px;
-    max-width: 1500px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
-@media screen and (max-width: 1200px) {
-    .advantage-content {
-        flex-direction: column;
-        align-items: center;
-    }
+/* Ячейка — <Reveal>: сама анимирует появление, поэтому подъём при
+   наведении живёт на вложенной карточке */
+.direction-cell {
+    display: flex;
+}
 
-    .advantage-block {
-        width: 100%;
-        margin-bottom: 20px;
-    }
+.direction {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: 100%;
+    padding: 12px 12px 22px;
+}
 
-    .schedule-images {
-        flex-direction: column;
-        align-items: center;
-    }
+.direction-art {
+    --art-detail: rgba(248, 80, 10, 0.42);
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--tt-radius-md);
+    background:
+        radial-gradient(circle at 50% 56%, rgba(248, 80, 10, 0.12) 0%, rgba(248, 80, 10, 0) 58%),
+        var(--tt-brand-50);
+}
 
-    .schedule-images .image-container {
-        margin-bottom: 20px;
+/* Оранжевая заливка проявляется поверх светлой подложки */
+.direction-art::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 55%),
+        var(--tt-gradient-brand);
+    opacity: 0;
+    transition: opacity 0.45s ease;
+}
+
+.direction-art .sport-art {
+    position: relative;
+}
+
+/* В тёмной теме синий акцент светлее, штрихи ярче */
+body.dark-theme .direction-art {
+    --art-detail: rgba(255, 138, 76, 0.5);
+    --art-accent: #8fa8ff;
+}
+
+.direction:hover .direction-art {
+    --art-line: #ffffff;
+    --art-detail: rgba(255, 255, 255, 0.6);
+    --art-accent: #16203a;
+}
+
+.direction:hover .direction-art::before {
+    opacity: 1;
+}
+
+.direction-body {
+    display: grid;
+    gap: 6px;
+    padding: 0 10px;
+}
+
+.direction-title {
+    margin: 0;
+    color: var(--tt-ink);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.direction-text {
+    margin: 0;
+    color: var(--tt-soft);
+    font-size: 14.5px;
+    line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+    .directions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
     }
 }
 
-@media screen and (max-width: 768px) {
-    .background-rectangle {
-        display: none;
+/* На телефоне — строка: картинка слева, текст справа */
+@media (max-width: 560px) {
+    .directions {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
     }
 
-    .icon i {
-        font-size: 50px;
+    .direction {
+        flex-direction: row;
+        align-items: center;
+        gap: 14px;
+        padding: 10px 16px 10px 10px;
+    }
+
+    .direction-art {
+        flex: none;
+        width: 104px;
+        aspect-ratio: 1;
+    }
+
+    .direction-body {
+        padding: 0;
+    }
+
+    .direction-title {
+        font-size: 17px;
+    }
+
+    .direction-text {
+        font-size: 14px;
     }
 }
 
-@media screen and (max-width: 480px) {
-    .advantage-content {
-        flex-direction: column;
-    }
-
-    .advantage-block {
-        width: 100%;
-    }
-
-    .schedule-images {
-        flex-direction: column;
-    }
-
-    .icon {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .icon i {
-        width: 40px;
-        height: 40px;
-        font-size: 40px !important;
-    }
-}
-
-@media screen and (max-width: 455px) {
-    .btn-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+@media (prefers-reduced-motion: reduce) {
+    .direction-art::before {
+        transition: none;
     }
 }
 </style>
-

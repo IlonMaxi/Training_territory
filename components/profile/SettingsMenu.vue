@@ -1,156 +1,204 @@
-﻿<template>
-    <div class="settings-container">
-        <h2>НАСТРОЙКИ</h2>
-        <p class="subtitle">персональная информация</p>
-        <p class="description">Обновите фотографию и персональные данные здесь</p>
+<template>
+    <div class="settings">
+        <!-- Личные данные -->
+        <form class="tt-board card" novalidate @submit.prevent="updateUser">
+            <h3 class="tt-col-title">
+                <span class="tt-col-icon"><i class="fa-solid fa-id-card"></i></span>
+                Личные данные
+            </h3>
 
-        <!-- ФИО -->
-        <div class="form-group">
-            <label>Имя Фамилия Отчество</label>
-            <div class="input-row">
-                <div class="input-box">
-                    <input type="text" v-model="user.firstName" placeholder="Имя" />
-                    <i class="fa-solid fa-pen"></i>
+            <div class="photo-row">
+                <label class="photo-pick" title="Выбрать фото">
+                    <span class="tt-avatar photo-preview">
+                        <img v-if="preview" :src="preview" alt="" @error="preview = null" />
+                        <template v-else>{{ initials }}</template>
+                    </span>
+                    <span class="photo-badge" aria-hidden="true"><i class="fa-solid fa-camera"></i></span>
+                    <input type="file" accept="image/*" aria-label="Фото профиля" @change="handleImageUpload" />
+                </label>
+                <div class="photo-text">
+                    <b>Фото профиля</b>
+                    <span>Нажмите на фото, чтобы выбрать новое. Его увидят {{ isCoach ? 'ваши клиенты' : 'тренер' }}.</span>
+                    <span v-if="selectedImage" class="tt-chip">
+                        <i class="fa-solid fa-paperclip"></i> {{ selectedImage.name }}
+                    </span>
                 </div>
-                <div class="input-box">
-                    <input type="text" v-model="user.lastName" placeholder="Фамилия" />
-                    <i class="fa-solid fa-pen"></i>
+            </div>
+
+            <div class="grid grid--3">
+                <label class="tt-field">
+                    <span class="tt-field-label">Имя</span>
+                    <input v-model.trim="user.firstName" class="tt-input" type="text" placeholder="Имя"
+                        autocomplete="given-name" />
+                </label>
+                <label class="tt-field">
+                    <span class="tt-field-label">Фамилия</span>
+                    <input v-model.trim="user.lastName" class="tt-input" type="text" placeholder="Фамилия"
+                        autocomplete="family-name" />
+                </label>
+                <label class="tt-field">
+                    <span class="tt-field-label">Отчество</span>
+                    <input v-model.trim="user.middleName" class="tt-input" type="text" placeholder="Отчество"
+                        autocomplete="additional-name" />
+                </label>
+            </div>
+
+            <div class="grid grid--2">
+                <label class="tt-field">
+                    <span class="tt-field-label">Почта</span>
+                    <input v-model.trim="user.email" class="tt-input" type="email" placeholder="primer@mail.com"
+                        autocomplete="email" />
+                </label>
+                <label class="tt-field">
+                    <span class="tt-field-label">Телефон</span>
+                    <input v-model.trim="user.phone" class="tt-input" type="tel" placeholder="+7-900-900-90-90"
+                        autocomplete="tel" />
+                </label>
+            </div>
+
+            <div class="grid grid--2">
+                <label class="tt-field">
+                    <span class="tt-field-label">Логин</span>
+                    <input v-model.trim="user.login" class="tt-input" type="text" placeholder="Логин"
+                        autocomplete="username" />
+                </label>
+                <div class="tt-field">
+                    <span class="tt-field-label">Пол</span>
+                    <div class="tt-choice-group" role="radiogroup" aria-label="Пол">
+                        <label :class="['tt-choice', { checked: user.gender === 'male' }]">
+                            <input v-model="user.gender" type="radio" value="male" />
+                            <i class="fa-solid fa-mars"></i> Мужчина
+                        </label>
+                        <label :class="['tt-choice', { checked: user.gender === 'female' }]">
+                            <input v-model="user.gender" type="radio" value="female" />
+                            <i class="fa-solid fa-venus"></i> Женщина
+                        </label>
+                    </div>
                 </div>
-                <div class="input-box">
-                    <input type="text" v-model="user.middleName" placeholder="Отчество" />
-                    <i class="fa-solid fa-pen"></i>
-                </div>
             </div>
-        </div>
 
-        <!-- Email -->
-        <div class="form-group">
-            <label>Email</label>
-            <div class="input-box">
-                <input type="email" v-model="user.email" placeholder="primer@mail.com" />
-                <i class="fa-solid fa-pen"></i>
+            <div v-if="isCoach" class="grid grid--2">
+                <label class="tt-field">
+                    <span class="tt-field-label">Специализация</span>
+                    <input v-model.trim="user.specialization" class="tt-input" type="text"
+                        placeholder="Фитнес, пилатес и т.д." />
+                </label>
+                <label class="tt-field">
+                    <span class="tt-field-label">Опыт</span>
+                    <input v-model.trim="user.experience" class="tt-input" type="text"
+                        placeholder="5 лет, 10 лет и т.д." />
+                </label>
             </div>
-        </div>
 
-        <!-- Телефон -->
-        <div class="form-group">
-            <label>Номер телефона</label>
-            <div class="input-box">
-                <input type="tel" v-model="user.phone" placeholder="+7-900-900-90-90" />
-                <i class="fa-solid fa-pen"></i>
+            <div class="actions">
+                <button type="submit" class="tt-btn tt-btn--primary" :disabled="saving">
+                    <i v-if="saving" class="fa-solid fa-spinner fa-spin"></i>
+                    {{ saving ? 'Сохраняю…' : 'Сохранить изменения' }}
+                </button>
+                <transition name="tt-swap">
+                    <p v-if="saved" class="tt-note tt-note--ok" role="status">
+                        <i class="fa-solid fa-circle-check"></i> Данные сохранены
+                    </p>
+                </transition>
+                <p v-if="saveError" class="tt-note tt-note--error" role="alert">
+                    <i class="fa-solid fa-circle-exclamation"></i> {{ saveError }}
+                </p>
             </div>
-        </div>
+        </form>
 
-        <!-- Логин -->
-        <div class="form-group">
-            <label>Логин</label>
-            <div class="input-box">
-                <input type="text" v-model="user.login" placeholder="Логин" />
-                <i class="fa-solid fa-info-circle"></i>
-                <i class="fa-solid fa-pen"></i>
-            </div>
-        </div>
-
-        <!-- Только для тренера -->
-        <div v-if="isCoach" class="form-group">
-            <label>Специализация</label>
-            <div class="input-box">
-                <input type="text" v-model="user.specialization" placeholder="Фитнес, пилатес и т.д." />
-                <i class="fa-solid fa-pen"></i>
-            </div>
-        </div>
-
-        <div v-if="isCoach" class="form-group">
-            <label>Опыт</label>
-            <div class="input-box">
-                <input type="text" v-model="user.experience" placeholder="5 лет, 10 лет и т.д." />
-                <i class="fa-solid fa-pen"></i>
-            </div>
-        </div>
-
-        <!-- Пол -->
-        <div class="form-group">
-            <label>Пол</label>
-            <div class="input-box">
-                <select v-model="user.gender">
-                    <option disabled value="">Выберите пол</option>
-                    <option value="male">Мужчина</option>
-                    <option value="female">Женщина</option>
-                </select>
-                <i class="fa-solid fa-pen"></i>
-            </div>
-        </div>
-
-        <!-- Фото -->
-        <div class="form-group">
-            <label>Фото</label>
-            <div class="input-box">
-                <input type="file" @change="handleImageUpload" />
-                <i class="fa-solid fa-pen"></i>
-            </div>
-        </div>
-
-        <button class="save-btn" @click="updateUser">СОХРАНИТЬ</button>
-
-        <!-- Профиль здоровья: помощник учитывает это при подборе тренировок и питания -->
-        <div v-if="!isCoach" class="health-block">
-            <h3>Здоровье</h3>
+        <!-- Профиль здоровья: помощник учитывает его при подборе тренировок и питания -->
+        <section v-if="!isCoach" class="tt-board card" aria-labelledby="health-title">
+            <h3 id="health-title" class="tt-col-title">
+                <span class="tt-col-icon tt-col-icon--blue"><i class="fa-solid fa-heart-pulse"></i></span>
+                Здоровье
+            </h3>
             <p class="health-hint">
-                Травмы убирают опасные упражнения из рекомендаций,
-                аллергии — блюда с этим продуктом из плана питания.
+                Травмы убирают опасные упражнения из рекомендаций помощника, аллергии — блюда с этим продуктом
+                из плана питания.
             </p>
 
-            <div class="health-add">
-                <select v-model="newLimitation.kind">
-                    <option value="injury">Травма</option>
-                    <option value="allergy">Аллергия</option>
-                </select>
-                <input type="text" v-model="newLimitation.value"
-                    :placeholder="newLimitation.kind === 'injury' ? 'колено, поясница, плечо…' : 'орехи, молоко, рыба…'"
-                    @keyup.enter="addLimitation" />
-                <button class="health-btn" @click="addLimitation" :disabled="!newLimitation.value.trim()">
-                    Добавить
+            <form class="health-add" @submit.prevent="addLimitation">
+                <div class="tt-segment" role="group" aria-label="Тип ограничения">
+                    <button type="button" :class="{ 'is-active': newLimitation.kind === 'injury' }"
+                        @click="newLimitation.kind = 'injury'">
+                        <i class="fa-solid fa-bandage"></i> Травма
+                    </button>
+                    <button type="button" :class="{ 'is-active': newLimitation.kind === 'allergy' }"
+                        @click="newLimitation.kind = 'allergy'">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Аллергия
+                    </button>
+                </div>
+                <input v-model="newLimitation.value" class="tt-input" type="text" aria-label="Что именно"
+                    :placeholder="newLimitation.kind === 'injury' ? 'колено, поясница, плечо…' : 'орехи, молоко, рыба…'" />
+                <button type="submit" class="tt-btn tt-btn--primary tt-btn--sm" :disabled="!newLimitation.value.trim()">
+                    <i class="fa-solid fa-plus"></i> Добавить
                 </button>
-            </div>
+            </form>
 
-            <p v-if="limitationError" class="health-error">{{ limitationError }}</p>
+            <p v-if="limitationError" class="tt-note tt-note--error" role="alert">
+                <i class="fa-solid fa-circle-exclamation"></i> {{ limitationError }}
+            </p>
 
-            <ul class="health-list">
-                <li v-for="item in limitations" :key="item.limitationid">
-                    <span class="health-tag" :class="item.kind">
-                        {{ item.kind === 'injury' ? 'травма' : 'аллергия' }}
-                    </span>
-                    <span class="health-value">{{ item.value }}</span>
-                    <button class="health-remove" @click="removeLimitation(item.limitationid)"
-                        aria-label="Убрать">
+            <ul v-if="limitations.length" class="limits">
+                <li v-for="item in limitations" :key="item.limitationid" :class="['limit', `limit--${item.kind}`]">
+                    <i :class="item.kind === 'injury' ? 'fa-solid fa-bandage' : 'fa-solid fa-triangle-exclamation'"></i>
+                    <span class="limit-kind">{{ item.kind === 'injury' ? 'Травма' : 'Аллергия' }}</span>
+                    <span class="limit-value">{{ item.value }}</span>
+                    <button type="button" class="limit-remove" :aria-label="`Убрать: ${item.value}`"
+                        @click="removeLimitation(item.limitationid)">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </li>
-                <li v-if="!limitations.length" class="health-empty">Ограничений не указано</li>
             </ul>
-        </div>
+            <p v-else class="limits-empty">
+                <i class="fa-solid fa-shield-heart"></i> Ограничений не указано — рекомендации подбираются без
+                исключений.
+            </p>
+        </section>
     </div>
 </template>
 
 <script>
+import { readCookie, readUser } from '@/components/utils/cabinet.js';
+import { initialsOf } from '@/components/utils/format.js';
+
+// Поля формы → поля cookie user: после сохранения обновляем cookie,
+// чтобы шапка и меню сразу показали новое имя
+const COOKIE_FIELDS = {
+    firstName: 'first_name',
+    lastName: 'last_name',
+    middleName: 'patronymic',
+    email: 'email',
+    phone: 'phone_number',
+    login: 'username',
+    gender: 'gender',
+    specialization: 'specialization',
+    experience: 'experience'
+};
+
 export default {
+    name: 'SettingsMenu',
     data() {
         return {
             user: {
                 id: null,
-                role: "",
-                firstName: "",
-                lastName: "",
-                middleName: "",
-                email: "",
-                phone: "",
-                login: "",
-                image: "",
-                specialization: "",
-                experience: "",
-                gender: ""
+                role: '',
+                firstName: '',
+                lastName: '',
+                middleName: '',
+                email: '',
+                phone: '',
+                login: '',
+                image: '',
+                specialization: '',
+                experience: '',
+                gender: ''
             },
             selectedImage: null,
+            preview: null,
+            saving: false,
+            saved: false,
+            saveError: null,
             limitations: [],
             newLimitation: { kind: 'injury', value: '' },
             limitationError: null
@@ -158,137 +206,160 @@ export default {
     },
     computed: {
         isCoach() {
-            return this.user.role === "coach";
+            return this.user.role === 'coach';
+        },
+        initials() {
+            return initialsOf(this.user.firstName, this.user.lastName) || 'TT';
         }
     },
     mounted() {
         this.loadUserFromCookies();
         if (!this.isCoach) this.loadLimitations();
     },
+    beforeDestroy() {
+        clearTimeout(this.savedTimer);
+        this.revokePreview();
+    },
     methods: {
-        async loadLimitations() {
-            if (!this.user.id) return;
-            try {
-                const res = await fetch(`/api/clients/${this.user.id}/limitations`);
-                if (!res.ok) return;
-                const data = await res.json();
-                this.limitations = Array.isArray(data) ? data : [];
-            } catch (err) {
-                console.error('Не удалось загрузить ограничения:', err);
-            }
-        },
-
-        async addLimitation() {
-            const value = this.newLimitation.value.trim();
-            if (!value) return;
-            this.limitationError = null;
-
-            try {
-                const res = await fetch(`/api/clients/${this.user.id}/limitations`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ kind: this.newLimitation.kind, value })
-                });
-                const data = await res.json();
-
-                if (!res.ok) {
-                    this.limitationError = data.error || 'Не удалось сохранить';
-                    return;
-                }
-
-                this.limitations.push(data);
-                this.newLimitation.value = '';
-            } catch (err) {
-                console.error('Не удалось добавить ограничение:', err);
-                this.limitationError = 'Нет связи с сервером';
-            }
-        },
-
-        async removeLimitation(id) {
-            try {
-                const res = await fetch(`/api/clients/${this.user.id}/limitations/${id}`, { method: 'DELETE' });
-                if (res.ok) {
-                    this.limitations = this.limitations.filter(item => item.limitationid !== id);
-                }
-            } catch (err) {
-                console.error('Не удалось удалить ограничение:', err);
-            }
-        },
-
         loadUserFromCookies() {
-            const cookies = document.cookie.split("; ").reduce((acc, c) => {
-                const [key, val] = c.split("=");
-                acc[key] = decodeURIComponent(val);
-                return acc;
-            }, {});
+            const userData = readUser();
+            if (!userData) return;
 
-            if (!cookies.user) {
-                console.error("Кука 'user' не найдена");
-                return;
-            }
-
-            try {
-                const userData = JSON.parse(cookies.user);
-                const role = cookies.accountType === "trainer" ? "coach" : "client";
-
-                this.user = {
-                    id: userData.clientid || userData.coachid,
-                    role,
-                    firstName: userData.first_name || "",
-                    lastName: userData.last_name || "",
-                    middleName: userData.patronymic || "",
-                    email: userData.email || "",
-                    phone: userData.phone_number || "",
-                    login: userData.username || "",
-                    gender: (userData.gender || "").toLowerCase(),
-                    image: userData.image || "",
-                    specialization: userData.specialization || "",
-                    experience: userData.experience || ""
-                };
-            } catch (e) {
-                console.error("Ошибка парсинга куки user:", e);
-            }
+            const role = readCookie('accountType') === 'trainer' ? 'coach' : 'client';
+            this.user = {
+                id: userData.clientid || userData.coachid,
+                role,
+                firstName: userData.first_name || '',
+                lastName: userData.last_name || '',
+                middleName: userData.patronymic || '',
+                email: userData.email || '',
+                phone: userData.phone_number || '',
+                login: userData.username || '',
+                gender: (userData.gender || '').toLowerCase(),
+                image: userData.image || '',
+                specialization: userData.specialization || '',
+                experience: userData.experience || ''
+            };
+            this.preview = this.user.image && this.user.image !== 'default.jpg'
+                ? `/api/uploads/${this.user.image}`
+                : null;
+        },
+        revokePreview() {
+            if (this.preview && this.preview.startsWith('blob:')) URL.revokeObjectURL(this.preview);
         },
         handleImageUpload(event) {
-            this.selectedImage = event.target.files[0];
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            this.revokePreview();
+            this.selectedImage = file;
+            this.preview = URL.createObjectURL(file);
+        },
+        // Сохранённые поля переносим в cookie user — оттуда имя берут шапка и меню
+        syncCookie(image) {
+            const cookieUser = readUser();
+            if (!cookieUser) return;
+            Object.entries(COOKIE_FIELDS).forEach(([field, key]) => {
+                if (field === 'specialization' || field === 'experience') {
+                    if (this.isCoach) cookieUser[key] = this.user[field];
+                    return;
+                }
+                cookieUser[key] = this.user[field];
+            });
+            if (image) cookieUser.image = image;
+            document.cookie = `user=${encodeURIComponent(JSON.stringify(cookieUser))}; path=/; max-age=86400;`;
         },
         async updateUser() {
-            if (!this.user.id) return;
+            if (!this.user.id || this.saving) return;
+            this.saving = true;
+            this.saved = false;
+            this.saveError = null;
 
             const formData = new FormData();
-            formData.append("first_name", this.user.firstName);
-            formData.append("last_name", this.user.lastName);
-            formData.append("patronymic", this.user.middleName);
-            formData.append("username", this.user.login);
-            formData.append("phone_number", this.user.phone);
-            formData.append("email", this.user.email);
-            formData.append("gender", this.user.gender);
+            formData.append('first_name', this.user.firstName);
+            formData.append('last_name', this.user.lastName);
+            formData.append('patronymic', this.user.middleName);
+            formData.append('username', this.user.login);
+            formData.append('phone_number', this.user.phone);
+            formData.append('email', this.user.email);
+            formData.append('gender', this.user.gender);
 
             if (this.isCoach) {
-                formData.append("specialization", this.user.specialization);
-                formData.append("experience", this.user.experience);
+                formData.append('specialization', this.user.specialization);
+                formData.append('experience', this.user.experience);
             }
 
-            formData.append("image", this.selectedImage || this.user.image);
+            formData.append('image', this.selectedImage || this.user.image);
 
             const endpoint = this.isCoach
                 ? `/api/coaches/${this.user.id}`
                 : `/api/clients/${this.user.id}`;
 
             try {
-                const res = await fetch(endpoint, {
-                    method: "PUT",
-                    body: formData
-                });
+                const response = await fetch(endpoint, { method: 'PUT', body: formData });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(result.error || 'Не удалось сохранить данные');
 
-                const result = await res.json();
-                if (res.ok) {
-                    alert("Данные успешно обновлены!");
-                } else {
-                    console.error("Ошибка:", result.error);
-                }
+                const image = result.user && result.user.image;
+                if (image) this.user.image = image;
+                this.selectedImage = null;
+                this.syncCookie(image);
+                this.saved = true;
+                clearTimeout(this.savedTimer);
+                this.savedTimer = setTimeout(() => { this.saved = false; }, 4000);
             } catch (error) {
-                console.error("Ошибка запроса:", error);
+                console.error('Ошибка сохранения профиля:', error);
+                this.saveError = error.message === 'Failed to fetch'
+                    ? 'Нет связи с сервером. Проверьте соединение.'
+                    : error.message;
+            } finally {
+                this.saving = false;
+            }
+        },
+        async loadLimitations() {
+            if (!this.user.id) return;
+            try {
+                const response = await fetch(`/api/clients/${this.user.id}/limitations`);
+                if (!response.ok) return;
+                const data = await response.json();
+                this.limitations = Array.isArray(data) ? data : [];
+            } catch (error) {
+                console.error('Не удалось загрузить ограничения:', error);
+            }
+        },
+        async addLimitation() {
+            const value = this.newLimitation.value.trim();
+            if (!value) return;
+            this.limitationError = null;
+
+            try {
+                const response = await fetch(`/api/clients/${this.user.id}/limitations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ kind: this.newLimitation.kind, value })
+                });
+                const data = await response.json();
+
+                if (!response.ok) {
+                    this.limitationError = data.error || 'Не удалось сохранить';
+                    return;
+                }
+
+                this.limitations.push(data);
+                this.newLimitation.value = '';
+            } catch (error) {
+                console.error('Не удалось добавить ограничение:', error);
+                this.limitationError = 'Нет связи с сервером';
+            }
+        },
+        async removeLimitation(id) {
+            this.limitationError = null;
+            try {
+                const response = await fetch(`/api/clients/${this.user.id}/limitations/${id}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Не удалось убрать ограничение');
+                this.limitations = this.limitations.filter(item => item.limitationid !== id);
+            } catch (error) {
+                console.error('Не удалось удалить ограничение:', error);
+                this.limitationError = error.message === 'Failed to fetch' ? 'Нет связи с сервером' : error.message;
             }
         }
     }
@@ -296,219 +367,270 @@ export default {
 </script>
 
 <style scoped>
-.settings-container {
-    background: var(--background-color-white);
-    padding: 20px;
-    border-radius: 12px;
-    max-width: 600px;
-    margin: auto;
-    color: var(--text-color);
-    transition: background-color 0.5s, color 0.5s;
+.settings {
+    display: grid;
+    gap: 24px;
 }
 
-h2 {
-    font-size: var(--text-h5);
-    font-weight: bold;
-    color: var(--text-color);
+.card {
+    display: grid;
+    gap: 20px;
 }
 
-.subtitle {
-    font-size: var(--text-h8);
-    color: gray;
-}
+/* ---------- фото ---------- */
 
-.description {
-    font-size: var(--text-caption);
-    color: gray;
-}
-
-.form-group {
-    margin-top: 20px;
-    border-bottom: 2px solid var(--button-hover-color);
-    padding-bottom: 10px;
-}
-
-label {
-    font-size: var(--text-h8);
-    font-weight: bold;
-    color: var(--text-color);
-}
-
-.input-row {
+.photo-row {
     display: flex;
-    gap: 10px;
+    align-items: center;
+    gap: 18px;
 }
 
-.input-box {
+.photo-pick {
     position: relative;
-    flex: 1;
+    flex: none;
+    margin: 0;
+    cursor: pointer;
 }
 
-.input-box input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: var(--text-h8);
-    background-color: var(--background-color);
-    color: var(--text-color);
-    transition: background-color 0.5s, color 0.5s, border-color 0.3s;
-}
-
-.input-box i {
+.photo-pick input {
     position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: gray;
-    cursor: pointer;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
 }
 
-.input-box select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: var(--text-h8);
-    background-color: var(--background-color);
-    color: var(--text-color);
-    transition: background-color 0.5s, color 0.5s, border-color 0.3s;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
+/* Аватар — круглый .tt-avatar, здесь крупнее */
+.photo-preview {
+    width: 88px;
+    height: 88px;
+    font-size: 28px;
+    transition: transform 0.35s var(--tt-ease), box-shadow 0.35s ease;
 }
 
-.input-box select:focus {
-    outline: none;
-    border-color: var(--button-hover-color);
+.photo-pick:hover .photo-preview {
+    box-shadow: var(--tt-shadow-hover);
+    transform: translateY(-2px);
 }
 
-.fa-info-circle {
-    margin-right: 20px;
+.photo-pick:focus-within .photo-preview {
+    box-shadow: 0 0 0 4px rgba(248, 80, 10, 0.25);
 }
 
-.save-btn {
-    margin-top: 20px;
-    background: var(--button-hover-color-white);
-    border: 2px solid var(--button-hover-color);
-    color: var(--text-color);
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+.photo-badge {
+    position: absolute;
+    right: -6px;
+    bottom: -6px;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 3px solid var(--tt-surface);
+    border-radius: 50%;
+    background-color: var(--tt-ink);
+    color: var(--tt-surface);
+    font-size: 13px;
+    transition: transform 0.35s cubic-bezier(0.2, 1.3, 0.3, 1);
 }
 
-.save-btn:hover {
-    background: var(--button-hover-color);
-    color: var(--button-hover-color-white);
+.photo-pick:hover .photo-badge {
+    transform: rotate(-12deg) scale(1.08);
 }
 
-.health-block {
-    margin-top: 32px;
-    padding-top: 24px;
-    border-top: 1px solid var(--button-border-color);
+.photo-text {
+    display: grid;
+    justify-items: start;
+    gap: 4px;
+    min-width: 0;
+    color: var(--tt-muted);
+    font-size: 14px;
+    line-height: 1.5;
 }
 
-.health-block h3 {
-    margin: 0 0 6px;
-    color: var(--text-color);
+.photo-text b {
+    color: var(--tt-ink);
+    font-size: 16px;
 }
+
+/* ---------- поля ---------- */
+
+.grid {
+    display: grid;
+    gap: 0 14px;
+}
+
+.grid--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid .tt-field {
+    margin-bottom: 4px;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+    padding-top: 18px;
+    border-top: 1px solid var(--tt-line);
+}
+
+/* ---------- здоровье ---------- */
 
 .health-hint {
-    margin: 0 0 14px;
-    font-size: var(--text-h8);
-    color: var(--text-color);
-    opacity: 0.75;
+    max-width: 640px;
+    margin: -6px 0 0;
+    color: var(--tt-soft);
+    font-size: 15px;
+    line-height: 1.6;
 }
 
 .health-add {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-
-.health-add select,
-.health-add input {
-    padding: 10px 12px;
-    font-size: var(--text-h8);
-    color: var(--text-color);
-    background-color: var(--background-color);
-    border: 1px solid var(--button-border-color);
-    border-radius: 10px;
-}
-
-.health-add input {
-    flex: 1 1 220px;
-    min-width: 0;
-}
-
-.health-btn {
-    padding: 10px 18px;
-    border: none;
-    border-radius: 10px;
-    background-color: var(--button-hover-color);
-    color: var(--button-hover-color-white);
-    cursor: pointer;
-}
-
-.health-btn:disabled {
-    opacity: 0.5;
-    cursor: default;
-}
-
-.health-error {
-    margin: 0 0 10px;
-    font-size: var(--text-caption);
-    color: var(--button-hover-color);
-}
-
-.health-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.health-list li {
-    display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.health-tag {
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-size: var(--text-caption);
-    border: 1px solid var(--button-border-color);
-    color: var(--text-color);
+.health-add .tt-input {
+    flex: 1 1 220px;
+    width: auto;
+    height: 46px;
 }
 
-.health-tag.injury {
-    background-color: var(--button-border-color);
-    color: var(--button-hover-color-white);
+.limits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
-.health-value {
-    flex: 1 1 auto;
-    color: var(--text-color);
+.limit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 6px 6px 14px;
+    border-radius: var(--tt-radius-pill);
+    font-size: 14px;
+    animation: limit-in 0.35s var(--tt-ease) both;
 }
 
-.health-remove {
-    background: transparent;
-    border: none;
-    color: var(--text-color);
+@keyframes limit-in {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+.limit--injury {
+    background-color: var(--tt-brand-tint);
+    color: var(--tt-brand-deep);
+}
+
+.limit--allergy {
+    background-color: var(--tt-blue-tint);
+    color: var(--tt-blue-deep);
+}
+
+.limit-kind {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.limit-value {
+    color: var(--tt-ink);
+    font-weight: 600;
+}
+
+.limit-remove {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background-color: var(--tt-surface);
+    color: currentColor;
+    font-size: 12px;
     cursor: pointer;
-    padding: 4px 8px;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.3s var(--tt-ease);
 }
 
-.health-empty {
-    font-size: var(--text-h8);
-    color: var(--text-color);
-    opacity: 0.6;
+.limit-remove:hover {
+    background-color: #dc2626;
+    color: #ffffff;
+    transform: rotate(90deg);
+}
+
+.limits-empty {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    color: var(--tt-muted);
+    font-size: 14px;
+}
+
+.limits-empty i {
+    color: var(--tt-blue);
+}
+
+@media (max-width: 760px) {
+    .grid--3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid--3 .tt-field:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 560px) {
+
+    .grid--2,
+    .grid--3 {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .photo-preview {
+        width: 72px;
+        height: 72px;
+        font-size: 24px;
+    }
+
+    .actions .tt-btn {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .photo-preview,
+    .photo-badge,
+    .limit-remove {
+        transition: none;
+    }
+
+    .photo-pick:hover .photo-preview,
+    .photo-pick:hover .photo-badge,
+    .limit-remove:hover {
+        transform: none;
+    }
+
+    .limit {
+        animation: none;
+    }
 }
 </style>
-

@@ -1,5 +1,7 @@
-﻿<template>
-    <div>
+<template>
+    <div class="tt-page">
+        <div class="tt-backdrop" aria-hidden="true"></div>
+
         <HeaderLast @open-login-modal="showLoginModal = true" @open-register-modal="showRegisterModal = true"
             @activate-train-flip="activateTrainFlip" @activate-client-flip="activateClientFlip"
             :isTrainFlipActive="isTrainFlipActive" />
@@ -8,8 +10,12 @@
         <RegisterModal :isVisible="showRegisterModal" @close="showRegisterModal = false"
             @go-to-login="showLoginModal = true; showRegisterModal = false" />
 
-        <TrainFlip v-if="isTrainFlipActive" />
-        <ClientFlip v-if="!isTrainFlipActive" />
+        <transition name="role-swap" mode="out-in">
+            <TrainFlip v-if="isTrainFlipActive" key="trainer" @open-login-modal="showLoginModal = true"
+                @open-register-modal="showRegisterModal = true" />
+            <ClientFlip v-else key="client" @open-login-modal="showLoginModal = true"
+                @open-register-modal="showRegisterModal = true" />
+        </transition>
 
         <FooterComponent @open-login-modal="showLoginModal = true" @open-register-modal="showRegisterModal = true"
             @activate-train-flip="activateTrainFlip" @activate-client-flip="activateClientFlip"
@@ -43,36 +49,44 @@ export default {
     },
     methods: {
         activateTrainFlip() {
-            this.isTrainFlipActive = true;
+            this.switchRole(true);
         },
         activateClientFlip() {
-            this.isTrainFlipActive = false;
+            this.switchRole(false);
+        },
+        // Содержимое вкладок разное по высоте: показываем новую с первого экрана
+        switchRole(isTrainer) {
+            if (this.isTrainFlipActive === isTrainer) return;
+            this.isTrainFlipActive = isTrainer;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }
 };
 </script>
 
-<style>
-body {
-    margin: 0px;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    transition: background-color 0.5s ease, color 0.5s ease;
+<style scoped>
+.role-swap-enter-active {
+    transition: opacity 0.35s ease;
 }
 
-button {
-    padding: 10px 20px;
-    background-color: var(--button-border-color);
-    color: var(--text-color);
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 5px 0;
-    transition: background-color 0.5s ease, color 0.5s ease;
+.role-swap-leave-active {
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-button:hover {
-    background-color: var(--button-hover-color);
+.role-swap-enter,
+.role-swap-leave-to {
+    opacity: 0;
+}
+
+.role-swap-leave-to {
+    transform: translateY(-8px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .role-swap-enter-active,
+    .role-swap-leave-active {
+        transition: none;
+    }
 }
 </style>
-

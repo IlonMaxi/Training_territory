@@ -1,99 +1,135 @@
-﻿<template>
-    <header>
-        <nav>
-            <div class="logo">
-                <h1>TRAINING TERRITORY</h1>
-            </div>
-            <div class="navbar">
-                <ul class="desktop-menu">
-                    <li><a href="#" class="nav-button" @click="navigateToSection('schedule')">Расписание</a></li>
+<template>
+    <SiteHeader collapse="lg" menu-label="Меню кабинета">
+        <template #brand>
+            <nuxt-link :to="homePath" class="brand-link" aria-label="Training Territory — в кабинет">
+                <BrandLogo />
+            </nuxt-link>
+        </template>
 
-                    <!-- Только для клиента -->
-                    <li v-if="accountType === 'client'"><a href="#" class="nav-button"
-                            @click="navigateToSection('nutrition')">Питание</a></li>
-                    <li v-if="accountType === 'client'"><a href="#" class="nav-button"
-                            @click="navigateToSection('progress')">Прогресс</a></li>
+        <template #nav>
+            <nav class="cabinet-nav" aria-label="Разделы кабинета">
+                <button v-for="item in navItems" :key="item.key" type="button" class="tt-nav-flip" @click="go(item)">
+                    <i :class="item.icon"></i>
+                    <span class="tt-nav-flip-inner">
+                        <span class="tt-nav-flip-front">{{ item.label }}</span>
+                        <span class="tt-nav-flip-top" aria-hidden="true">{{ item.label }}</span>
+                    </span>
+                </button>
+            </nav>
+        </template>
 
-                    <!-- Только для тренера -->
-                    <li v-if="accountType === 'trainer'">
-                        <a href="#" class="nav-button" @click="navigateToSection('schedule')">Тренировки</a>
-                    </li>
+        <template #actions>
+            <button type="button" :class="['assistant', { 'is-active': aiChat.isOpen }]"
+                :aria-pressed="aiChat.isOpen ? 'true' : 'false'" @click="aiChat.toggle()">
+                <i class="fa-solid fa-compass"></i> Помощник
+            </button>
+            <button type="button" class="tt-icon-btn" :aria-label="isDark ? 'Светлая тема' : 'Тёмная тема'"
+                :title="isDark ? 'Светлая тема' : 'Тёмная тема'" @click="toggleTheme">
+                <i :class="themeIcon"></i>
+            </button>
+            <nuxt-link to="/Profile" class="avatar" title="Профиль" aria-label="Профиль">{{ initials }}</nuxt-link>
+            <button type="button" class="tt-icon-btn" title="Выйти" aria-label="Выйти" @click="logout">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </template>
 
-                    <li v-if="isAdmin">
-                        <router-link to="/AdminPage" class="nav-button">Админ-панель</router-link>
-                    </li>
-                    <li><button class="nav-button assistant-button" :class="{ active: aiChat.isOpen }"
-                            @click.prevent="aiChat.toggle()" aria-label="Помощник по навигации"><i
-                                class="fa-solid fa-compass"></i> Помощник</button></li>
-                    <li><router-link to="/profile" class="profile-icon"><i class="fa-solid fa-user"></i></router-link>
-                    </li>
-                    <li><button class="nav-button theme-button" @click.prevent="toggleTheme"><i :class="themeIcon"></i>
-                            Тема</button></li>
-                    <li><button class="nav-button logout-button" @click="logout"><i
-                                class="fa-solid fa-right-from-bracket"></i>Выход</button></li>
-                </ul>
+        <template #compact>
+            <button type="button" :class="['tt-icon-btn', { 'is-active': aiChat.isOpen }]" aria-label="Помощник"
+                @click="aiChat.toggle()">
+                <i class="fa-solid fa-compass"></i>
+            </button>
+        </template>
 
-                <div class="burger-icon" @click="toggleMobileMenu" role="button" aria-label="Открыть мобильное меню"
-                    tabindex="0">
-                    <i class="fa-solid fa-bars"></i>
-                </div>
-                <div class="mobile-menu-overlay" v-if="isMobileMenuOpen" @click="closeMobileMenu"></div>
-                <!-- Мобильное меню -->
-                <ul class="mobile-menu" :class="{ 'active': isMobileMenuOpen }">
-                    <li><a href="#" class="nav-button" @click="navigateToSection('schedule')">Расписание</a></li>
-                    <li v-if="accountType === 'client'"><a href="#" class="nav-button"
-                            @click="navigateToSection('nutrition')">Питание</a></li>
-                    <li v-if="accountType === 'client'"><a href="#" class="nav-button"
-                            @click="navigateToSection('progress')">Прогресс</a></li>
-                    <li v-if="accountType === 'trainer'"><a href="#" class="nav-button"
-                            @click="navigateToSection('trainings')">Тренировки</a></li>
-
-                    <li v-if="isAdmin"><router-link to="/admin" class="nav-button"
-                            @click="closeMobileMenu">Админ-панель</router-link></li>
-                    <li><button class="nav-button assistant-button"
-                            @click="aiChat.open(); closeMobileMenu()"><i class="fa-solid fa-compass"></i>
-                            Помощник</button></li>
-                    <li><button class="nav-button theme-button" @click="toggleTheme"><i :class="themeIcon"></i>
-                            Тема</button></li>
-                    <li><button class="nav-button logout-button" @click="logout"><i
-                                class="fa-solid fa-right-from-bracket"></i>Выход</button></li>
-                    <li><router-link to="/profile" class="profile-icon" @click="closeMobileMenu"><i
-                                class="fa-solid fa-user"></i>Профиль</router-link></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+        <template #menu="{ close }">
+            <p class="tt-menu-label">Разделы</p>
+            <button v-for="item in navItems" :key="item.key" type="button" class="tt-menu-item"
+                @click="go(item); close()">
+                <i :class="item.icon"></i> {{ item.label }}
+            </button>
+            <nuxt-link to="/Profile" class="tt-menu-item" @click.native="close()">
+                <i class="fa-solid fa-user"></i> Профиль
+            </nuxt-link>
+            <button type="button" class="tt-menu-item" @click="aiChat.open(); close()">
+                <i class="fa-solid fa-compass"></i> Помощник
+            </button>
+            <button type="button" class="tt-menu-item" @click="toggleTheme">
+                <i :class="themeIcon"></i> {{ isDark ? 'Светлая тема' : 'Тёмная тема' }}
+            </button>
+            <button type="button" class="tt-btn tt-btn--ghost" @click="logout">
+                <i class="fa-solid fa-right-from-bracket"></i> Выйти
+            </button>
+        </template>
+    </SiteHeader>
 </template>
 
 <script>
+import SiteHeader from '@/components/common/SiteHeader.vue';
+import BrandLogo from '@/components/common/BrandLogo.vue';
 import aiChat from '@/components/utils/AiChatState.js';
+import { readCookie, readUser, homeRoute, safePush, goToSection, logout } from '@/components/utils/cabinet.js';
+import { initialsOf } from '@/components/utils/format.js';
 
 export default {
-    name: 'HeaderLast',
+    name: 'CabinetHeader',
+    components: { SiteHeader, BrandLogo },
     data() {
         return {
             aiChat,
-            isMobileMenuOpen: false,
             isAdmin: false,
             isDark: false,
-            accountType: null
+            accountType: null,
+            user: null
         };
     },
     mounted() {
-        const savedTheme = this.getCookie('theme');
-        if (savedTheme === 'dark') {
+        if (readCookie('theme') === 'dark') {
             document.body.classList.add('dark-theme');
             this.isDark = true;
         }
-        this.accountType = this.getCookie('accountType');
-        this.checkIfAdmin();
+        this.accountType = readCookie('accountType');
+        this.user = readUser();
+        this.isAdmin = !!this.user && this.user.clientid === 1;
     },
     computed: {
         themeIcon() {
             return this.isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        },
+        homePath() {
+            const name = homeRoute(this.accountType);
+            return name ? { name } : '/';
+        },
+        initials() {
+            if (!this.user) return '';
+            return initialsOf(this.user.first_name, this.user.last_name) || 'TT';
+        },
+        // Разделы зависят от роли: у тренера — назначение тренировок и клиенты
+        navItems() {
+            const items = this.accountType === 'trainer'
+                ? [
+                    { key: 'schedule', label: 'Расписание', icon: 'fa-solid fa-calendar-days', section: 'schedule' },
+                    { key: 'assign', label: 'Назначить', icon: 'fa-solid fa-calendar-plus', section: 'assign' },
+                    { key: 'clients', label: 'Клиенты', icon: 'fa-solid fa-users', route: { path: '/Profile', query: { menu: 'clients' } } }
+                ]
+                : [
+                    { key: 'schedule', label: 'Расписание', icon: 'fa-solid fa-calendar-days', section: 'schedule' },
+                    { key: 'nutrition', label: 'Питание', icon: 'fa-solid fa-utensils', section: 'nutrition' },
+                    { key: 'progress', label: 'Прогресс', icon: 'fa-solid fa-chart-line', section: 'progress' }
+                ];
+
+            if (this.isAdmin) {
+                items.push({ key: 'admin', label: 'Админ-панель', icon: 'fa-solid fa-shield-halved', route: '/AdminPage' });
+            }
+            return items;
         }
     },
     methods: {
+        go(item) {
+            if (item.route) safePush(this.$router, item.route);
+            else goToSection(this, item.section);
+        },
+        logout() {
+            logout(this.$router);
+        },
         toggleTheme() {
             this.isDark = !this.isDark;
             if (this.isDark) {
@@ -104,306 +140,102 @@ export default {
                 this.setCookie('theme', 'light', 365);
             }
         },
-        async logout() {
-            try {
-                await fetch('/api/logout', { method: 'POST' });
-            } catch (err) {
-                console.error('Ошибка при выходе:', err);
-            }
-            ['user', 'accountType', 'theme'].forEach(name => {
-                document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-            });
-            this.$router.push('/');
-        },
-        toggleMobileMenu() {
-            this.isMobileMenuOpen = !this.isMobileMenuOpen;
-        },
-        closeMobileMenu(event) {
-            if (!event || !event.target.closest('.mobile-menu')) {
-                this.isMobileMenuOpen = false;
-            }
-        },
-        async navigateToSection(section) {
-            let routeName = this.accountType === 'trainer' ? 'TrainerPage' :
-                this.accountType === 'client' ? 'ClientPage' : null;
-
-            if (routeName) {
-                try {
-                    if (this.$route.name !== routeName) {
-                        await this.$router.push({ name: routeName, query: { section } });
-                    }
-                    this.scrollToSection(section);
-                } catch (error) {
-                    console.error('Ошибка при навигации:', error);
-                }
-            } else {
-                console.warn('Неизвестный тип аккаунта.');
-            }
-        },
-        scrollToSection(section) {
-            this.$nextTick(() => {
-                const element = document.getElementById(section);
-                if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        },
-        getCookie(name) {
-            const cookies = document.cookie.split('; ').reduce((acc, cookie) => {
-                const [key, value] = cookie.split('=');
-                acc[key] = decodeURIComponent(value);
-                return acc;
-            }, {});
-            return cookies[name] || null;
-        },
         setCookie(name, value, days) {
             const d = new Date();
             d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
             const expires = "expires=" + d.toUTCString();
             document.cookie = `${name}=${value};${expires};path=/`;
-        },
-        checkIfAdmin() {
-            const userCookie = this.getCookie('user');
-            if (userCookie) {
-                try {
-                    const user = JSON.parse(userCookie);
-                    this.isAdmin = user.clientid === 1;
-                } catch (err) {
-                    console.error('Ошибка парсинга user cookie:', err);
-                }
-            }
         }
     }
 };
 </script>
 
 <style scoped>
-/* Основные стили */
-header {
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-nav {
-    width: 80%;
-    background-color: var(--background-color-white);
-    padding: 10px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 10px;
-    transition: background-color 0.5s ease;
-}
-
-.logo h1 {
-    margin: 0;
-    color: var(--text-color);
-    font-size: var(--text-h4);
-}
-
-/* Меню для ПК */
-.desktop-menu {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: center;
-}
-
-.desktop-menu li {
-    margin-left: 20px;
-    font-size: var(--text-h6);
-}
-
-.desktop-menu li:first-child {
-    margin-left: 0;
-}
-
-/* Кнопки меню */
-.nav-button {
+.brand-link {
+    display: inline-flex;
     text-decoration: none;
-    color: var(--text-color);
-    background-color: transparent;
-    padding: 10px 20px;
-    border: 2px solid var(--button-border-color);
-    border-radius: 20px;
-    transition: all 0.3s ease;
-    display: inline-block;
-    text-align: center;
 }
 
-.nav-button:hover {
-    background-color: var(--button-hover-color);
-    color: var(--button-hover-color-white);
+.cabinet-nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
 }
 
-/* Кнопка помощника подсвечена, пока панель открыта */
-.assistant-button.active {
-    background-color: var(--button-hover-color);
-    color: var(--button-hover-color-white);
-}
-
-/* Иконка профиля */
-.profile-icon {
-    border: 2px solid var(--button-border-color);
-    border-radius: 50%;
-    padding: 5px;
-    color: var(--text-color);
-    display: inline-block;
-    text-align: center;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    width: 40px;
-}
-
-.profile-icon:hover {
-    background-color: var(--button-hover-color);
-    color: var(--button-hover-color-white);
-}
-
-/* Иконка бургера */
-.burger-icon {
-    display: none;
-    color: var(--text-color);
-    font-size: 24px;
+/* Кнопка помощника: в открытом состоянии залита оранжевым */
+.assistant {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    margin: 0;
+    padding: 0 16px;
+    border: 1px solid var(--tt-line-brand);
+    border-radius: var(--tt-radius-pill);
+    background-color: var(--tt-surface);
+    color: var(--tt-ink);
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
     cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-/* Оверлей для затемнения экрана */
-.mobile-menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 9;
+.assistant i {
+    color: var(--tt-brand);
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), color 0.3s ease;
 }
 
-/* Мобильное меню */
-.mobile-menu {
-    position: fixed;
-    top: 80px;
-    right: -100%;
-    width: 300px;
-    background: var(--background-color-white);
-    border-radius: 15px 0 0 15px;
-    padding: 15px;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
-    transition: right 0.3s ease-in-out, background-color 0.5s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    z-index: 1000;
+.assistant:hover {
+    border-color: var(--tt-brand);
+    background-color: var(--tt-brand-50);
 }
 
-.mobile-menu.active {
-    right: 0;
+.assistant:hover i {
+    transform: rotate(180deg);
 }
 
-.mobile-menu .nav-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px;
-    font-size: var(--text-h7);
-    font-weight: bold;
-    text-decoration: none;
-    color: var(--text-color);
-    border: 2px solid var(--button-border-color);
-    border-radius: 8px;
-    background: var(--background-color-white);
-    transition: all 0.3s ease-in-out;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+.assistant.is-active {
+    border-color: transparent;
+    background: var(--tt-gradient-brand);
+    color: #ffffff;
 }
 
-.mobile-menu li {
-    width: 100%;
+.assistant.is-active i {
+    color: #ffffff;
 }
 
-.mobile-menu li i {
-    margin-right: 20px;
-    color: var(--button-hover-color);
-    font-size: var(--text-h5);
-    border: 2px solid var(--button-border-color);
+/* Аватар с инициалами — ссылка в профиль */
+.avatar {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
-    width: 51px;
-    height: 51px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.5s ease, color 0.5s ease;
-}
-
-.mobile-menu a:hover {
-    background: var(--button-hover-color);
-    color: var(--button-hover-color-white);
-}
-
-/* Иконка профиля в мобильном меню */
-.mobile-menu .profile-icon {
-    width: 75%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px;
-    font-size: 16px;
-    font-weight: bold;
+    background: var(--tt-gradient-brand);
+    box-shadow: 0 0 0 3px var(--tt-surface), 0 8px 18px -8px rgba(248, 80, 10, 0.8);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
     text-decoration: none;
-    color: var(--text-color);
-    border: 2px solid var(--button-border-color);
-    border-radius: 8px;
-    background: var(--background-color-white);
-    transition: all 0.3s ease-in-out;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.35s cubic-bezier(0.2, 1.3, 0.3, 1);
 }
 
-.mobile-menu .profile-icon:hover {
-    background: var(--button-hover-color);
-    color: var(--button-hover-color-white);
+.avatar:hover {
+    transform: scale(1.06);
 }
 
-.mobile-menu .profile-icon i {
-    color: var(--button-hover-color);
-    font-size: 22px;
-    margin-right: 10px;
-}
+@media (prefers-reduced-motion: reduce) {
 
-/* Затемняющий фон при открытии меню */
-.mobile-menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 999;
-}
-
-/* Медиа-запросы */
-@media (max-width: 768px) {
-    .desktop-menu {
-        display: none;
+    .assistant i,
+    .avatar {
+        transition: none;
     }
 
-    .burger-icon {
-        display: block;
+    .assistant:hover i,
+    .avatar:hover {
+        transform: none;
     }
-}
-
-/* Плавные переходы */
-header,
-nav,
-.logo h1,
-.desktop-menu li,
-.mobile-menu,
-.mobile-menu .nav-button,
-.mobile-menu li i,
-.profile-icon {
-    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
 }
 </style>

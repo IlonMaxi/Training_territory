@@ -26,12 +26,16 @@
                    U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/*
+  Старые переменные цветов оставлены для совместимости, но смотрят на новую
+  палитру (assets/design.css): белый и оранжевый вместо бежевого и лососевого.
+*/
 :root {
-    --background-color:  #f5f0e9;
+    --background-color: #fff8f4;
     --background-color-white: #ffffff;
-    --text-color: #272827;
-    --button-border-color: #dd7548c4;
-    --button-hover-color: #DD7548;
+    --text-color: #0f1427;
+    --button-border-color: rgba(248, 80, 10, 0.35);
+    --button-hover-color: #f8500a;
     --button-hover-color-white: #ffffff;
 
     --font-sans: 'Montserrat', 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -62,11 +66,11 @@
 }
 
 body.dark-theme {
-    --background-color: #272827;
-    --background-color-white: #1c1e1c;
-    --text-color: #ffffff;
-    --button-border-color: #dd7548c4;
-    --button-hover-color: #DD7548;
+    --background-color: #0e1014;
+    --background-color-white: #171a21;
+    --text-color: #f4f5f7;
+    --button-border-color: rgba(255, 122, 61, 0.35);
+    --button-hover-color: #f8500a;
     --button-hover-color-white: #ffffff;
 }
 

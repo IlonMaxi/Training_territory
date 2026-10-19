@@ -12,6 +12,9 @@ export default {
       { name: 'format-detection', content: 'telephone=no' }
     ],
     link: [
+      // Знак из BrandLogo; .ico — запасной вариант для старых браузеров
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico', sizes: '32x32' },
+      { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
       { rel: 'stylesheet', href: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css', integrity: 'sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==', crossorigin: 'anonymous', referrerpolicy: 'no-referrer' }
     ]
   },
@@ -19,6 +22,13 @@ export default {
   serverMiddleware: [
     { path: '/api', handler: '~/server/index.js' },
   ],
+
+  // Полоска загрузки при переходах — в фирменном оранжевом
+  loading: {
+    color: '#f8500a',
+    failedColor: '#dc2626',
+    height: '3px'
+  },
 
   // Плавный переход между страницами
   pageTransition: {
@@ -37,11 +47,14 @@ export default {
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
-    '@/assets/global.css'
+    '@/assets/global.css',
+    // Дизайн-система в стиле лендинга: токены, появление при прокрутке, свечение
+    '@/assets/design.css'
   ],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    '~/plugins/pointer-glow.js'
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

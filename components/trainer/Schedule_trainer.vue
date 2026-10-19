@@ -1,570 +1,673 @@
-﻿<template>
-  <div class="schedule">
-    <h1 id="schedule" class="title">РАСПИСАНИЕ</h1>
+<template>
+  <section id="schedule" class="tt-container" aria-labelledby="schedule-title">
+    <SectionHead eyebrow="Расписание" icon="fa-solid fa-calendar-days" title-id="schedule-title"
+      lead="Выберите день — увидите занятия, окна между ними и загрузку недели. Отменить тренировку можно прямо из карточки.">
+      Занятия на <span class="tt-accent">неделю</span>
+    </SectionHead>
 
-    <div class="view-toggle">
-      <button class="toggle-button" @click="showWeekView = !showWeekView">
-        {{ showWeekView ? 'Режим дня' : 'Режим недели' }}
-      </button>
-    </div>
-
-    <div class="date-picker">
-      <button class="arrow-button" @click="prevWeek">
-        <i class="fa-solid fa-chevron-left"></i>
-      </button>
-      <div class="dates">
-        <div v-for="(day, index) in currentWeek" :key="index"
-          :class="['date', { active: isSelected(day.date), today: isToday(day.date) }]" @click="selectDay(day)">
-          <p class="day-number">{{ day.date.getDate() }}</p>
-          <p class="day-name">{{ getDayName(day.date) }}</p>
-        </div>
-      </div>
-      <button class="arrow-button" @click="nextWeek">
-        <i class="fa-solid fa-chevron-right"></i>
-      </button>
-    </div>
-
-    <!-- Режим недели -->
-    <div v-if="showWeekView" class="week-view">
-      <div v-for="(day, index) in currentWeek" :key="index" class="day-column">
-        <h3 class="day-header">
-          {{ day.date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' }) }}
-        </h3>
-
-        <div v-for="(session, i) in getSessionsByDateSorted(day.date)" :key="'s' + i" class="session-box"
-          @click="openDetails(session)">
-          <strong>{{ session.workout_name }}</strong>
-          <div class="session-time">{{ formatTime(session.starttime) }} - {{ formatTime(session.endtime) }}</div>
-          <div class="session-footer">
-            <button class="cancel-button" @click.stop="cancelSession(session.scheduleid)">Отменить</button>
+    <Reveal class="tt-board board" :y="16" :amount="0.1">
+      <WeekStrip :week-start="weekStart" :selected="selectedDay" :count-for="countFor" @select="selectDay"
+        @prev="shiftWeek(-1)" @next="shiftWeek(1)" @today="goToday">
+        <template #controls>
+          <div class="tt-segment" role="group" aria-label="Режим просмотра">
+            <button type="button" :class="{ 'is-active': view === 'day' }" @click="view = 'day'">
+              <i class="fa-solid fa-calendar-day"></i> День
+            </button>
+            <button type="button" :class="{ 'is-active': view === 'week' }" @click="view = 'week'">
+              <i class="fa-solid fa-calendar-week"></i> Неделя
+            </button>
           </div>
-        </div>
+        </template>
+      </WeekStrip>
 
-        <div v-if="getSessionsByDate(day.date).length === 0" class="no-sessions">
-          Нет данных
-        </div>
-      </div>
-    </div>
+      <p v-if="error" class="tt-note tt-note--error"><i class="fa-solid fa-circle-exclamation"></i> {{ error }}</p>
+      <transition name="tt-swap">
+        <p v-if="notice" class="tt-note tt-note--ok" role="status">
+          <i class="fa-solid fa-circle-check"></i> {{ notice }}
+        </p>
+      </transition>
 
-    <!-- Режим дня -->
-    <div v-else class="training-list">
-      <div v-for="(session, index) in filteredTrainingSessionsSorted" :key="index" class="session-wrapper">
-        <div class="bullet-line-wrapper">
-          <div class="bullet"></div>
-          <div class="line" v-if="index < filteredTrainingSessions.length - 1"></div>
-        </div>
-        <div class="session">
-          <div class="session-header">
-            <h2 class="session-title">{{ session.workout_name }}</h2>
-            <p class="session-time">{{ formatTime(session.starttime) }} - {{ formatTime(session.endtime) }}</p>
-          </div>
+      <transition name="tt-swap" mode="out-in">
+        <!-- Режим дня: лента занятий и сводка -->
+        <div v-if="view === 'day'" :key="`day-${selectedKey}`" class="day-view">
+          <div class="column">
+            <h3 class="tt-col-title">
+              <span class="tt-col-icon"><i class="fa-solid fa-dumbbell"></i></span>
+              {{ dayTitle }}
+              <span v-if="!loading" class="tt-chip">{{ daySessions.length }}</span>
+            </h3>
 
-          <div class="session-info">
-            <div class="session-details">
-              <ul class="session-description">
-                <li>Место: {{ session.location }}</li>
-                <li>Описание: {{ session.workout_description }}</li>
-              </ul>
-              <h3>Упражнения:</h3>
-              <ul class="exercises-list">
-                <li>
-                  <strong>{{ session.exercise_name }}</strong>: {{ session.exercise_description }}
-                  (Оборудование: {{ session.equipment }})
+            <div v-if="loading" class="timeline">
+              <div class="tt-skeleton skeleton"></div>
+              <div class="tt-skeleton skeleton"></div>
+            </div>
+
+            <ol v-else-if="daySessions.length" class="timeline">
+              <template v-for="entry in timeline">
+                <li v-if="entry.type === 'gap'" :key="entry.key" :class="['gap', { 'gap--warn': entry.warn }]">
+                  <span class="gap-pill">
+                    <i :class="entry.warn ? 'fa-solid fa-triangle-exclamation' : 'fa-regular fa-hourglass-half'"></i>
+                    {{ entry.label }}
+                  </span>
                 </li>
-              </ul>
+                <li v-else :key="entry.key" class="slot tt-stagger" :style="{ '--i': entry.index }">
+                  <SessionCard :session="entry.session" @open="openDetails(entry.session)">
+                    <template #actions>
+                      <button type="button" class="cancel-link" @click="askCancel(entry.session)">
+                        <i class="fa-solid fa-xmark"></i> Отменить
+                      </button>
+                    </template>
+                  </SessionCard>
+                </li>
+              </template>
+            </ol>
+
+            <div v-else class="tt-empty">
+              <i class="fa-solid fa-mug-hot"></i>
+              Занятий нет — свободный день
+              <button type="button" class="tt-btn tt-btn--ghost tt-btn--sm" @click="$emit('plan', selectedDay)">
+                <i class="fa-solid fa-calendar-plus"></i> Назначить тренировку
+              </button>
             </div>
           </div>
 
-          <div class="session-footer">
-            <button class="cancel-button" @click="cancelSession(session.scheduleid)">Отменить</button>
-          </div>
-        </div>
-      </div>
-      <div v-if="filteredTrainingSessions.length === 0 && !error" class="no-sessions">
-        Нет запланированных тренировок на этот день.
-      </div>
-      <div v-if="error" class="error-message">{{ error }}</div>
-    </div>
+          <aside class="tt-tile summary" aria-label="Сводка дня">
+            <h3 class="tt-col-title">
+              <span class="tt-col-icon tt-col-icon--blue"><i class="fa-solid fa-chart-simple"></i></span>
+              Сводка дня
+            </h3>
 
-    <!-- Модальное окно -->
-    <div v-if="showModal" class="modal-overlay" @click.self="closeDetails">
-      <div class="modal-content">
-        <button class="close-button" @click="closeDetails">✖</button>
-        <div>
-          <h2>Тренировка: {{ selectedItem.workout_name }}</h2>
-          <p><strong>Описание:</strong> {{ selectedItem.workout_description }}</p>
-          <p><strong>Место:</strong> {{ selectedItem.location }}</p>
-          <p><strong>Упражнение:</strong> {{ selectedItem.exercise_name }} — {{ selectedItem.exercise_description }}</p>
-          <p><strong>Оборудование:</strong> {{ selectedItem.equipment }}</p>
-          <p><strong>Время:</strong> {{ formatTime(selectedItem.starttime) }} - {{ formatTime(selectedItem.endtime) }}
-          </p>
+            <div class="stats">
+              <div class="tt-tile stat">
+                <b>{{ daySessions.length }}</b>
+                <span>{{ sessionsWord(daySessions.length) }}</span>
+              </div>
+              <div class="tt-tile stat">
+                <b>{{ dayHours.value }}</b>
+                <span>{{ dayHours.word }} в зале</span>
+              </div>
+              <div class="tt-tile stat">
+                <b>{{ dayClients }}</b>
+                <span>{{ clientsWord(dayClients) }}</span>
+              </div>
+            </div>
+
+            <p v-if="daySpan" class="span-line">
+              <i class="fa-regular fa-clock"></i> С {{ daySpan.from }} до {{ daySpan.to }}
+            </p>
+
+            <div class="load">
+              <span class="load-label">Загрузка недели</span>
+              <div class="bars">
+                <button v-for="day in weekLoad" :key="day.key" type="button"
+                  :class="['bar', { 'is-selected': day.selected, 'is-today': day.today }]"
+                  :aria-label="`${day.name}: ${day.count} ${sessionsWord(day.count)}`" @click="selectDay(day.date)">
+                  <span class="bar-count">{{ day.count || '' }}</span>
+                  <span class="bar-track"><span class="bar-fill" :style="{ '--h': day.share }"></span></span>
+                  <span class="bar-name">{{ day.name }}</span>
+                </button>
+              </div>
+            </div>
+
+            <button type="button" class="tt-btn tt-btn--primary tt-btn--sm plan-btn" @click="$emit('plan', selectedDay)">
+              <i class="fa-solid fa-calendar-plus"></i> Назначить на {{ shortDay }}
+            </button>
+          </aside>
         </div>
-      </div>
-    </div>
-  </div>
+
+        <!-- Режим недели: семь колонок, клик по дню открывает его -->
+        <WeekGrid v-else key="week" :week-start="weekStart" :selected="selectedDay" :count-for="countFor"
+          empty-text="Свободно" @open="openDay">
+          <template #default="{ date }">
+            <SessionCard v-for="(session, index) in sessionsOn(date)" :key="`s-${session.scheduleid || index}`"
+              :session="session" compact @open="openDetails(session)" />
+          </template>
+        </WeekGrid>
+      </transition>
+    </Reveal>
+
+    <ScheduleDetails :item="details" type="session" @close="details = null">
+      <template #actions>
+        <button type="button" class="tt-btn tt-btn--danger tt-btn--sm" @click="askCancel(details)">
+          <i class="fa-solid fa-xmark"></i> Отменить тренировку
+        </button>
+      </template>
+    </ScheduleDetails>
+
+    <ConfirmDialog :open="Boolean(pending)" danger icon="fa-solid fa-calendar-xmark" title="Отменить тренировку?"
+      confirm-label="Отменить" cancel-label="Оставить" :busy="cancelling" @confirm="confirmCancel"
+      @cancel="closeConfirm">
+      <template v-if="pending">
+        <div class="tt-tile confirm-card">
+          <b>{{ pending.workout_name }}</b>
+          <span v-if="pending.client_names"><i class="fa-solid fa-user"></i> {{ pending.client_names }}</span>
+          <span><i class="fa-regular fa-clock"></i> {{ pendingWhen }}</span>
+        </div>
+        <p class="confirm-line">Занятие пропадёт из расписания у вас и у клиента.</p>
+        <p v-if="cancelError" class="tt-note tt-note--error confirm-error">
+          <i class="fa-solid fa-circle-exclamation"></i> {{ cancelError }}
+        </p>
+      </template>
+    </ConfirmDialog>
+  </section>
 </template>
 
 <script>
+import Reveal from '@/components/ui/Reveal.vue';
+import SectionHead from '@/components/ui/SectionHead.vue';
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue';
+import WeekStrip from '@/components/schedule/WeekStrip.vue';
+import WeekGrid from '@/components/schedule/WeekGrid.vue';
+import SessionCard from '@/components/schedule/SessionCard.vue';
+import ScheduleDetails from '@/components/schedule/ScheduleDetails.vue';
+import {
+  toDate, addDays, startOfWeek, weekDays, isSameDay, byStartTime,
+  formatTime, timeToMinutes, formatDuration
+} from '@/components/utils/week.js';
+import { plural, capitalize } from '@/components/utils/format.js';
+
+// Короче этого перерыв между занятиями не показываем
+const MIN_GAP = 15;
+
+// Расписание тренера: данные загружает страница (TrainerPage), здесь — показ и отмена
 export default {
+  name: 'TrainerSchedule',
+  components: { Reveal, SectionHead, ConfirmDialog, WeekStrip, WeekGrid, SessionCard, ScheduleDetails },
   props: {
-    user: { type: Object, default: () => null }
+    sessions: { type: Array, default: () => [] },
+    loading: { type: Boolean, default: false },
+    error: { type: String, default: null }
   },
   data() {
+    const today = new Date();
     return {
-      selectedDay: null,
-      currentWeekIndex: 0,
-      year: [],
-      trainingSessions: [],
-      showWeekView: false,
-      error: null,
-      showModal: false,
-      selectedItem: null
-    }
+      view: 'day',
+      selectedDay: today,
+      weekStart: startOfWeek(today),
+      details: null,
+      // Тренировка, которую собираются отменить (открыт диалог)
+      pending: null,
+      cancelling: false,
+      cancelError: null,
+      notice: null
+    };
   },
   computed: {
-    currentWeek() {
-      const start = this.currentWeekIndex * 7;
-      return this.year.slice(start, start + 7);
+    selectedKey() {
+      return this.selectedDay.toDateString();
     },
-    filteredTrainingSessions() {
-      if (!this.selectedDay) return [];
-      return this.trainingSessions.filter(session => {
-        const sessionDate = new Date(session.date);
-        return sessionDate.toDateString() === this.selectedDay.toDateString();
+    dayTitle() {
+      return capitalize(this.selectedDay.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' }));
+    },
+    shortDay() {
+      return this.selectedDay.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+    },
+    daySessions() {
+      return this.sessionsOn(this.selectedDay);
+    },
+    // Занятия дня вперемешку с «окнами» между ними
+    timeline() {
+      const entries = [];
+      this.daySessions.forEach((session, index) => {
+        const previous = this.daySessions[index - 1];
+        if (previous) {
+          const gap = timeToMinutes(session.starttime) - timeToMinutes(previous.endtime);
+          if (gap >= MIN_GAP) {
+            entries.push({ type: 'gap', key: `gap-${index}`, label: `Окно ${formatDuration(gap)}` });
+          } else if (gap < 0) {
+            entries.push({ type: 'gap', key: `gap-${index}`, label: `Пересечение ${formatDuration(-gap)}`, warn: true });
+          }
+        }
+        entries.push({ type: 'session', key: `s-${session.scheduleid || index}`, session, index });
       });
+      return entries;
     },
-    filteredTrainingSessionsSorted() {
-      return this.filteredTrainingSessions.slice().sort((a, b) => a.starttime.localeCompare(b.starttime));
+    // Часы в зале: «1,5 часа», «2 часа», «5 часов»
+    dayHours() {
+      const minutes = this.daySessions.reduce((sum, session) => {
+        const length = timeToMinutes(session.endtime) - timeToMinutes(session.starttime);
+        return sum + (length > 0 ? length : 0);
+      }, 0);
+      const hours = Math.round((minutes / 60) * 2) / 2;
+      const word = Number.isInteger(hours) ? plural(hours, ['час', 'часа', 'часов']) : 'часа';
+      return { value: String(hours).replace('.', ','), word };
+    },
+    dayClients() {
+      const names = new Set();
+      this.daySessions.forEach((session) => {
+        (session.client_names || '').split(', ').filter(Boolean).forEach(name => names.add(name));
+      });
+      return names.size;
+    },
+    daySpan() {
+      if (!this.daySessions.length) return null;
+      const ends = this.daySessions.map(session => formatTime(session.endtime)).sort();
+      return { from: formatTime(this.daySessions[0].starttime), to: ends[ends.length - 1] };
+    },
+    weekLoad() {
+      const today = new Date();
+      const days = weekDays(this.weekStart).map(date => ({
+        key: date.toDateString(),
+        date,
+        name: capitalize(date.toLocaleDateString('ru-RU', { weekday: 'short' })),
+        count: this.sessionsOn(date).length,
+        today: isSameDay(date, today),
+        selected: isSameDay(date, this.selectedDay)
+      }));
+      const max = Math.max(1, ...days.map(day => day.count));
+      return days.map(day => ({ ...day, share: day.count / max }));
+    },
+    pendingWhen() {
+      if (!this.pending) return '';
+      const date = toDate(this.pending.date);
+      const day = isNaN(date) ? '' : capitalize(date.toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' }));
+      return `${day}, ${formatTime(this.pending.starttime)}–${formatTime(this.pending.endtime)}`;
     }
+  },
+  beforeDestroy() {
+    clearTimeout(this.noticeTimer);
   },
   methods: {
-    getSessionsByDate(date) {
-      return this.trainingSessions.filter(s => {
-        const sessionDate = new Date(s.date);
-        return sessionDate.toDateString() === date.toDateString();
-      });
+    sessionsOn(date) {
+      return this.sessions.filter(s => isSameDay(s.date, date)).sort(byStartTime);
     },
-    getSessionsByDateSorted(date) {
-      return this.getSessionsByDate(date).sort((a, b) => a.starttime.localeCompare(b.starttime));
+    countFor(date) {
+      return { sessions: this.sessionsOn(date).length, meals: 0 };
     },
-    async fetchSchedule() {
-      try {
-        const coachId = this.user.coachid;
-        const response = await fetch(`/api/schedule/${coachId}`);
-        const data = await response.json();
-        this.trainingSessions = Array.isArray(data) ? data : [];
-      } catch (e) {
-        this.error = 'Ошибка загрузки данных.';
-        this.trainingSessions = [];
-      }
+    sessionsWord(n) {
+      return plural(n, ['тренировка', 'тренировки', 'тренировок']);
     },
-    async cancelSession(scheduleId) {
-      if (!confirm('Вы уверены, что хотите отменить тренировку?')) return;
-      try {
-        await fetch(`/api/schedule/${scheduleId}`, { method: 'DELETE' });
-        this.trainingSessions = this.trainingSessions.filter(s => s.scheduleid !== scheduleId);
-      } catch (e) {
-        alert('Ошибка при удалении тренировки.');
-      }
+    clientsWord(n) {
+      return plural(n, ['клиент', 'клиента', 'клиентов']);
     },
-    generateYear(startDate) {
-      const year = [];
-
-      // Определяем 1 января текущего года
-      let current = new Date(startDate.getFullYear(), 0, 1);
-
-      // Смещаем current назад до понедельника
-      const dayOfWeek = current.getDay(); // 0 — воскресенье, 1 — понедельник, ..., 6 — суббота
-      const shift = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // если воскресенье, откат на -6, иначе до понедельника
-      current.setDate(current.getDate() + shift);
-
-      // Генерируем даты на год + запас на неполные недели
-      while (year.length < 370) {
-        year.push({ date: new Date(current) });
-        current.setDate(current.getDate() + 1);
-      }
-
-      return year;
+    selectDay(date) {
+      this.selectedDay = date;
     },
-    selectDay(day) {
-      this.selectedDay = day.date;
+    // Листаем неделю, сохраняя выбранный день недели
+    shiftWeek(direction) {
+      this.weekStart = addDays(this.weekStart, direction * 7);
+      this.selectedDay = addDays(this.selectedDay, direction * 7);
     },
-    isToday(date) {
+    goToday() {
       const today = new Date();
-      return date.toDateString() === today.toDateString();
+      this.weekStart = startOfWeek(today);
+      this.selectedDay = today;
     },
-    isSelected(date) {
-      return this.selectedDay && date.toDateString() === this.selectedDay.toDateString();
+    openDay(date) {
+      this.selectedDay = date;
+      this.view = 'day';
     },
-    formatTime(time) {
-      return time?.slice?.(0, 5) || '';
+    openDetails(session) {
+      this.details = session;
     },
-    prevWeek() {
-      if (this.currentWeekIndex > 0) {
-        this.currentWeekIndex--;
-        this.selectDay(this.currentWeek[0]);
+    askCancel(session) {
+      this.details = null;
+      this.cancelError = null;
+      this.pending = session;
+    },
+    closeConfirm() {
+      this.pending = null;
+      this.cancelError = null;
+    },
+    async confirmCancel() {
+      const session = this.pending;
+      if (!session) return;
+      this.cancelling = true;
+      this.cancelError = null;
+      try {
+        const response = await fetch(`/api/schedule/${session.scheduleid}`, { method: 'DELETE' });
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.error || 'Не удалось отменить тренировку');
+        }
+        this.$emit('cancelled', session.scheduleid);
+        this.pending = null;
+        this.showNotice(`Тренировка «${session.workout_name}» отменена`);
+      } catch (error) {
+        this.cancelError = error.message === 'Failed to fetch'
+          ? 'Нет связи с сервером. Проверьте соединение.'
+          : error.message;
+      } finally {
+        this.cancelling = false;
       }
     },
-    nextWeek() {
-      if (this.currentWeekIndex < Math.floor(this.year.length / 7)) {
-        this.currentWeekIndex++;
-        this.selectDay(this.currentWeek[0]);
-      }
-    },
-    getDayName(date) {
-      return date.toLocaleDateString('ru-RU', { weekday: 'short' });
-    },
-    openDetails(item) {
-      this.selectedItem = item;
-      this.showModal = true;
-    },
-    closeDetails() {
-      this.selectedItem = null;
-      this.showModal = false;
+    showNotice(text) {
+      this.notice = text;
+      clearTimeout(this.noticeTimer);
+      this.noticeTimer = setTimeout(() => { this.notice = null; }, 4000);
     }
-  },
-  created() {
-    const today = new Date();
-    this.selectedDay = today;
-    this.year = this.generateYear(today);
-
-    // Пересчёт индекса недели с учётом начала с понедельника
-    const firstDay = this.year[0].date;
-    const diffDays = Math.floor((today - firstDay) / (24 * 60 * 60 * 1000));
-    this.currentWeekIndex = Math.floor(diffDays / 7);
-
-    if (this.user && this.user.coachid) this.fetchSchedule();
   }
-}
+};
 </script>
 
 <style scoped>
-.schedule {
-  background-color: var(--background-color);
-  padding: 20px;
-  border-radius: 8px;
-  color: var(--text-color);
-  font-family: var(--font-sans);
-  width: 90%;
-  margin: 0 auto;
-  transition: background-color 0.5s, color 0.5s;
+.board {
+  display: grid;
+  gap: 24px;
 }
 
-.title {
-  text-align: center;
-  margin-bottom: 20px;
-  color: var(--text-color);
-  transition: color 0.5s;
+/* ---------- режим дня ---------- */
+
+.day-view {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 1fr);
+  align-items: start;
+  gap: 24px;
 }
 
-.date-picker {
+.column {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+
+.timeline {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skeleton {
+  height: 104px;
+}
+
+.slot {
+  min-width: 0;
+}
+
+/* Перерыв между занятиями: тонкая пунктирная «перемычка» с подписью */
+.gap {
+  position: relative;
   display: flex;
   justify-content: center;
-  align-items: center;
-  margin-bottom: 20px;
+  margin: -2px 0;
 }
 
-.arrow-button {
-  background: none;
-  border: none;
-  color: var(--text-color);
-  font-size: var(--text-h4);
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.dates {
-  display: flex;
-  justify-content: space-between;
-  width: 70%;
-  margin: 0 10px;
-  cursor: pointer;
-}
-
-.date {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px;
-  color: var(--text-color);
-  border: 2px solid transparent;
-  border-radius: 20px;
-  transition: border-color 0.3s, color 0.3s;
-}
-
-.date.active {
-  border-color: var(--button-hover-color);
-}
-
-.day-number {
-  font-size: var(--text-h4);
-  margin-bottom: 5px;
-}
-
-.day-name {
-  font-size: var(--text-h7);
-}
-
-.toggle-button {
-  background-color: var(--button-hover-color);
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: var(--text-h7);
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.training-list {
-  margin-top: 20px;
-}
-
-.session-wrapper {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 10px;
-  position: relative;
-}
-
-.bullet-line-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-right: 20px;
-  position: relative;
-  min-height: 100px;
-  margin-top: 30px;
-}
-
-.bullet {
-  width: 10px;
-  height: 10px;
-  background-color: var(--button-hover-color);
-  border-radius: 50%;
-  z-index: 1;
-}
-
-.line {
-  width: 4px;
-  background-color: var(--text-color);
+.gap::before {
+  content: "";
   position: absolute;
-  top: 25%;
-  bottom: -90%;
-  border-radius: 50px;
-  height: 70px;
-}
-
-.nutrition-list {
-  margin-top: 20px;
-}
-
-.meal-wrapper {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 10px;
-  position: relative;
-  max-height: 100px;
-}
-
-.meal {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--background-color-white);
-  padding: 15px;
-  border-radius: 10px;
-  color: var(--text-color);
-  transition: background-color 0.5s, color 0.5s;
-}
-
-.meal-title {
-  font-size: var(--text-h5);
-  margin-bottom: 5px;
-}
-
-.meal-wrapper .bullet-line-wrapper {
-  margin-right: 20px;
-  position: relative;
-  min-height: 100px;
-  margin-top: 30px;
-}
-
-.meal-wrapper .bullet {
-  background-color: var(--button-hover-color);
-}
-
-.session {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--background-color-white);
-  padding: 15px;
-  border-radius: 10px;
-  transition: background-color 0.5s, color 0.5s;
-  gap: 10px;
-}
-
-.session-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.session-details {
-  margin-left: 10px;
-}
-
-.session-title {
-  font-size: var(--text-h4);
-  margin-bottom: 10px;
-}
-
-.session-description {
-  list-style-type: none;
-  padding-left: 0;
-  margin: 0;
-  font-size: var(--text-h6);
-  margin-bottom: 10px;
-}
-
-.exercises-list {
-  list-style-type: none;
-  padding-left: 0;
-  margin: 0;
-  font-size: var(--text-h8);
-  margin-bottom: 10px;
-}
-
-.session-time {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  font-size: var(--text-h5);
-  margin-top: 4px;
-}
-
-input[type="checkbox"] {
-  margin-top: 10px;
-}
-
-.week-view {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.day-column {
-  flex: 1;
-  background-color: var(--background-color-white);
-  border-radius: 10px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 140px;
-}
-
-.day-header {
-  font-weight: bold;
-  margin-bottom: 6px;
-  color: var(--text-color);
-  font-size: var(--text-h8);
-  text-align: center;
-}
-
-.session,
-.meal {
-  background-color: #f5f5f5;
-  padding: 8px;
-  border-radius: 6px;
-  font-size: var(--text-h8);
-  color: #333;
-}
-
-.no-sessions {
-  font-style: italic;
-  font-size: var(--text-caption);
-  color: gray;
-  text-align: center;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
+  top: 50%;
+  right: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
+  border-top: 1.5px dashed var(--tt-line-brand);
+}
+
+.gap-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border: 1px solid var(--tt-line-brand);
+  border-radius: var(--tt-radius-pill);
+  background-color: var(--tt-surface);
+  color: var(--tt-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.gap-pill i {
+  color: var(--tt-blue);
+}
+
+.gap--warn::before {
+  border-top-color: rgba(220, 38, 38, 0.4);
+}
+
+.gap--warn .gap-pill {
+  border-color: rgba(220, 38, 38, 0.35);
+  color: #b91c1c;
+}
+
+.gap--warn .gap-pill i {
+  color: #dc2626;
+}
+
+.cancel-link {
+  --tt-focus-ring: rgba(220, 38, 38, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  margin: 0;
+  padding: 0 12px;
+  border: 1px solid rgba(220, 38, 38, 0.24);
+  border-radius: var(--tt-radius-pill);
+  background-color: transparent;
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.cancel-link:hover {
+  border-color: #dc2626;
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+body.dark-theme .cancel-link {
+  color: #fca5a5;
+}
+
+body.dark-theme .cancel-link:hover {
+  color: #ffffff;
+}
+
+.tt-empty .tt-btn {
+  margin-top: 6px;
+}
+
+/* ---------- сводка дня ---------- */
+
+.summary {
+  position: sticky;
+  top: 96px;
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+  border-radius: var(--tt-radius-lg);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+/* Плитки внутри сводки — на белом, сама сводка на мягком фоне */
+.stat {
+  display: grid;
+  gap: 2px;
+  padding: 12px;
+  background-color: var(--tt-surface);
+  text-align: center;
+}
+
+.stat b {
+  color: var(--tt-ink);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat span {
+  color: var(--tt-muted);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.stat:first-child b {
+  color: var(--tt-brand);
+}
+
+.span-line {
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 1000;
+  gap: 8px;
+  margin: -6px 0 0;
+  color: var(--tt-soft);
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.modal-content {
-  background-color: #676161;
-  padding: 20px 30px;
-  border-radius: 12px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
+.span-line i {
+  color: var(--tt-blue);
 }
 
-.close-button {
-  position: absolute;
-  top: 8px;
-  right: 12px;
-  background: none;
-  border: none;
-  font-size: var(--text-h5);
-  cursor: pointer;
-}
-
-.modal-close {
-  position: absolute;
-  top: 8px;
-  right: 12px;
-  background: transparent;
-  border: none;
-  font-size: var(--text-h6);
-  cursor: pointer;
-}
-
-.cancel-button {
-  align-self: flex-start;
-  background-color: #e53935;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: var(--text-h8);
-}
-
-.session-box {
-  background-color: #e0f0ff;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 6px;
-  font-size: var(--text-h8);
-  cursor: pointer;
-  color: black;
-}
-
-.session-block {
-  background-color: #e0f0ff;
-  padding: 15px;
-  border-radius: 12px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+.load {
+  display: grid;
   gap: 10px;
-  transition: background-color 0.3s;
+}
+
+.load-label {
+  color: var(--tt-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.bars {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.bar {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--tt-radius-sm);
+  background: transparent;
+  color: var(--tt-muted);
+  cursor: pointer;
+}
+
+.bar-count {
+  min-height: 16px;
+  color: var(--tt-ink);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.bar-track {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 26px;
+  height: 72px;
+  overflow: hidden;
+  border-radius: var(--tt-radius-xs);
+  background-color: var(--tt-brand-tint);
+}
+
+/* Столбик растёт снизу; при смене недели высота плавно перетекает */
+.bar-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--tt-radius-xs);
+  background: linear-gradient(180deg, #ffb48a 0%, #f8500a 100%);
+  transform: scaleY(var(--h, 0));
+  transform-origin: 50% 100%;
+  transition: transform 0.6s var(--tt-ease);
+}
+
+.bar-name {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bar.is-today .bar-name {
+  color: var(--tt-blue-deep);
+}
+
+.bar.is-selected .bar-track {
+  box-shadow: 0 0 0 2px var(--tt-brand);
+}
+
+.bar.is-selected .bar-name {
+  color: var(--tt-brand-deep);
+}
+
+.bar:hover .bar-track {
+  box-shadow: 0 0 0 2px var(--tt-line-brand);
+}
+
+.bar.is-selected:hover .bar-track {
+  box-shadow: 0 0 0 2px var(--tt-brand);
+}
+
+.plan-btn {
+  width: 100%;
+}
+
+/* ---------- диалог отмены ---------- */
+
+.confirm-card {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.confirm-card b {
+  color: var(--tt-ink);
+  font-size: 16px;
+}
+
+.confirm-card span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--tt-soft);
+  font-size: 14px;
+}
+
+.confirm-card i {
+  width: 14px;
+  color: var(--tt-brand);
+  font-size: 12px;
+  text-align: center;
+}
+
+.confirm-line {
+  margin: 0;
+}
+
+.confirm-error {
+  margin: 14px 0 0;
+  text-align: left;
+}
+
+@media (max-width: 900px) {
+  .day-view {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .summary {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .summary {
+    padding: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-fill {
+    transition: none;
+  }
 }
 </style>
-

@@ -1,46 +1,73 @@
-﻿<template>
-    <header>
-        <nav>
-            <div class="logo">
-                <h1>TRAINING TERRITORY</h1>
+<template>
+    <SiteHeader collapse="md">
+        <template #brand>
+            <a href="/" class="brand-link" aria-label="Training Territory — наверх" @click.prevent="scrollToTop">
+                <BrandLogo />
+            </a>
+        </template>
+
+        <template #nav>
+            <div class="role-switch" role="group" aria-label="Для кого показывать главную">
+                <span :class="['role-thumb', { 'role-thumb--right': !isTrainFlipActive }]" aria-hidden="true"></span>
+                <button type="button" :class="['role-option', { active: isTrainFlipActive }]"
+                    :aria-pressed="isTrainFlipActive ? 'true' : 'false'" @click="activateTrainFlip">
+                    <i class="fa-solid fa-dumbbell"></i> Тренеру
+                </button>
+                <button type="button" :class="['role-option', { active: !isTrainFlipActive }]"
+                    :aria-pressed="!isTrainFlipActive ? 'true' : 'false'" @click="activateClientFlip">
+                    <i class="fa-solid fa-user-check"></i> Клиенту
+                </button>
             </div>
-            <div class="navbar">
-                <ul>
-                    <li><a href="#" @click.prevent="activateTrainFlip" :class="{ active: isTrainFlipActive }">
-                            <i class="fa-solid fa-dumbbell"></i>
-                            <p>Тренеру</p>
-                        </a>
-                    </li>
-                    <li><a href="#" @click.prevent="activateClientFlip" :class="{ active: !isTrainFlipActive }">
-                            <i class="fa-solid fa-user-check"></i>
-                            <p>Клиенту</p>
-                        </a>
-                    </li>
-                    <li><a href="#" @click.prevent="openLoginModal">
-                            <i class="fa-solid fa-user"></i>
-                            <p>Вход</p>
-                        </a>
-                    </li>
-                    <li><a href="#" @click.prevent="openRegisterModal">
-                            <i class="fa-solid fa-user-plus"></i>
-                            <p>Регистрация</p>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" @click.prevent="toggleTheme">
-                            <i :class="themeIcon"></i>
-                            <p>Тема</p>
-                        </a>
-                    </li>
-                </ul>
+        </template>
+
+        <template #actions>
+            <button type="button" class="tt-icon-btn" :aria-label="isDark ? 'Светлая тема' : 'Тёмная тема'"
+                :title="isDark ? 'Светлая тема' : 'Тёмная тема'" @click="toggleTheme">
+                <i :class="themeIcon"></i>
+            </button>
+            <button type="button" class="tt-nav-flip" @click="openLoginModal">
+                <span class="tt-nav-flip-inner">
+                    <span class="tt-nav-flip-front">Вход</span>
+                    <span class="tt-nav-flip-top" aria-hidden="true">Вход</span>
+                </span>
+            </button>
+            <button type="button" class="tt-btn tt-btn--primary tt-btn--sm" @click="openRegisterModal">
+                Регистрация
+            </button>
+        </template>
+
+        <template #menu="{ close }">
+            <p class="tt-menu-label">Главная для</p>
+            <div class="menu-roles">
+                <button type="button" :class="['menu-role', { active: isTrainFlipActive }]"
+                    @click="activateTrainFlip(); close()">
+                    <i class="fa-solid fa-dumbbell"></i> Тренеру
+                </button>
+                <button type="button" :class="['menu-role', { active: !isTrainFlipActive }]"
+                    @click="activateClientFlip(); close()">
+                    <i class="fa-solid fa-user-check"></i> Клиенту
+                </button>
             </div>
-        </nav>
-    </header>
+            <button type="button" class="tt-btn tt-btn--primary" @click="openRegisterModal(); close()">
+                Регистрация <span class="tt-arrow" aria-hidden="true">→</span>
+            </button>
+            <button type="button" class="tt-btn tt-btn--ghost" @click="openLoginModal(); close()">
+                Вход
+            </button>
+            <button type="button" class="menu-theme" @click="toggleTheme">
+                <i :class="themeIcon"></i> {{ isDark ? 'Светлая тема' : 'Тёмная тема' }}
+            </button>
+        </template>
+    </SiteHeader>
 </template>
 
 <script>
+import SiteHeader from '@/components/common/SiteHeader.vue';
+import BrandLogo from '@/components/common/BrandLogo.vue';
+
 export default {
     name: 'HeaderLast',
+    components: { SiteHeader, BrandLogo },
     props: ['isTrainFlipActive'],
     data() {
         return {
@@ -75,6 +102,9 @@ export default {
         activateClientFlip() {
             this.$emit('activate-client-flip');
         },
+        scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
         toggleTheme() {
             this.isDark = !this.isDark;
             if (this.isDark) {
@@ -104,130 +134,119 @@ export default {
 </script>
 
 <style scoped>
-header {
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-nav {
-    width: 80%;
-    background-color: var(--background-color-white);
-    padding: 20px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 10px;
-}
-
-.logo h1 {
-    margin: 0;
-    color: var(--text-color);
-    font-size: var(--text-h4);
-}
-
-.navbar ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-}
-
-.navbar ul li {
-    margin-left: 5vw;
-    font-size: var(--text-h6);
-}
-
-.navbar ul li:first-child {
-    margin-left: 0;
-}
-
-.navbar ul li a {
+.brand-link {
+    display: inline-flex;
     text-decoration: none;
-    color: var(--text-color);
-    display: flex;
-    align-items: center;
+}
+
+/* ---------- переключатель «Тренеру / Клиенту» ---------- */
+
+.role-switch {
     position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 4px;
+    border: 1px solid var(--tt-line-brand);
+    border-radius: var(--tt-radius-pill);
+    background-color: var(--tt-surface);
+}
+
+/* Ползунок уезжает под выбранный вариант */
+.role-thumb {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+    border-radius: var(--tt-radius-pill);
+    background: var(--tt-gradient-brand);
+    box-shadow: 0 10px 22px -10px rgba(248, 80, 10, 0.85);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.role-thumb--right {
+    transform: translateX(100%);
+}
+
+.role-option {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    margin: 0;
+    padding: 0 20px;
+    border: 0;
+    border-radius: var(--tt-radius-pill);
+    background: transparent;
+    color: var(--tt-soft);
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
     transition: color 0.3s ease;
 }
 
-.navbar ul li a::after {
-    content: '';
-    position: absolute;
-    bottom: 0px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 2px;
-    background-color: var(--text-color);
-    transition: width 0.3s ease;
+.role-option:hover {
+    color: var(--tt-brand-deep);
 }
 
-.navbar ul li a:hover::after {
-    width: 100%;
+.role-option.active {
+    color: #ffffff;
 }
 
-.navbar ul li a.active {
-    font-weight: bold;
-    color: var(--button-hover-color);
+/* ---------- мобильное меню ---------- */
+
+.menu-roles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 4px;
 }
 
-.navbar ul li a.active::after {
-    background-color: var(--button-hover-color);
+.menu-role {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 48px;
+    margin: 0;
+    border: 1px solid var(--tt-line-brand);
+    border-radius: var(--tt-radius-md);
+    background-color: var(--tt-surface);
+    color: var(--tt-ink);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
 }
 
-@media screen and (max-width: 940px) {
-    .logo h1 {
-        margin: 0;
-        color: var(--text-color);
-        font-size: var(--text-h5);
-    }
+.menu-role.active {
+    border-color: transparent;
+    background: var(--tt-gradient-brand);
+    color: #ffffff;
 }
 
-@media screen and (max-width: 820px) {
-    nav {
-        width: 90%;
-        padding: 15px;
-    }
-
-    .logo h1 {
-        font-size: var(--text-h5);
-    }
-
-    .navbar ul {
-        align-items: center;
-    }
-
-    .navbar ul li {
-        margin-left: 20px;
-        font-size: var(--text-h7);
-    }
-
-    .navbar ul li:first-child {
-        margin-left: 0;
-    }
-
-    .navbar ul li a {
-        justify-content: center;
-    }
-
-    .navbar p {
-        display: none;
-    }
-
-    .navbar ul li a::after {
-        bottom: -8px;
-    }
+.menu-theme {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 46px;
+    margin: 0;
+    border: 0;
+    border-radius: var(--tt-radius-md);
+    background: transparent;
+    color: var(--tt-soft);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
 }
 
-/* Плавный переход между темами */
-header,
-nav,
-.navbar ul li a,
-.logo h1 {
-    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+@media (prefers-reduced-motion: reduce) {
+    .role-thumb {
+        transition: none;
+    }
 }
 </style>

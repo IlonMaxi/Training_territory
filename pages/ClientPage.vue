@@ -1,23 +1,30 @@
-﻿<template>
-  <div>
+<template>
+  <div class="tt-page">
+    <div class="tt-backdrop" aria-hidden="true"></div>
     <HeaderAfterLogin />
-    <ScheduleComponent :user="user" />
-    <section id="progress">
+
+    <main class="tt-main">
+      <CabinetHero role="client" :user="user" :sessions="sessions" :meals="meals" :loading="loading" />
+      <ScheduleComponent :sessions="sessions" :meals="meals" :loading="loading" :error="error" />
       <AddMeasurements v-if="accountType === 'client'" :client="user" />
-    </section>
+    </main>
+
     <FooterLastComponent />
   </div>
 </template>
 
 <script>
 import HeaderAfterLogin from '~/components/common/Header.vue';
+import CabinetHero from '~/components/cabinet/CabinetHero.vue';
 import ScheduleComponent from '~/components/client/Schedule.vue';
 import FooterLastComponent from '~/components/common/FooterLast.vue';
 import AddMeasurements from '~/components/client/AddMeasurements.vue';
+import { readCookie, readUser, scrollToQuerySection } from '~/components/utils/cabinet.js';
 
 export default {
     components: {
         HeaderAfterLogin,
+        CabinetHero,
         ScheduleComponent,
         FooterLastComponent,
         AddMeasurements
@@ -25,62 +32,58 @@ export default {
     data() {
         return {
             user: null, // Храним данные пользователя
-            accountType: null // Тип аккаунта
+            accountType: null, // Тип аккаунта
+            sessions: [],
+            meals: [],
+            loading: true,
+            error: null
         };
-    },
-    methods: {
-        // Функция для получения куки
-        getCookie(name) {
-            if (process.client) { // Убедимся, что код выполняется на клиенте
-                const value = `; ${document.cookie}`;
-                const parts = value.split(`; ${name}=`);
-                if (parts.length === 2) {
-                    return decodeURIComponent(parts.pop().split(';').shift());
-                }
-            }
-            return null;
-        },
-
-        // Восстановление данных пользователя из куки
-        restoreUserData() {
-            const userCookie = this.getCookie('user');
-            const accountTypeCookie = this.getCookie('accountType');
-
-            if (userCookie && accountTypeCookie) {
-                this.user = JSON.parse(userCookie); // Преобразуем строку JSON в объект
-                this.accountType = accountTypeCookie;
-            } else {
-                // Если данных нет, перенаправляем на страницу входа
-                this.$router.push('/');
-            }
-        },
-
-        // Удаление куки и выход
-        async logout() {
-            if (process.client) {
-                try {
-                    await fetch('/api/logout', { method: 'POST' });
-                } catch (err) {
-                    console.error('Ошибка при выходе:', err);
-                }
-                document.cookie = 'user=; path=/; max-age=0;';
-                document.cookie = 'accountType=; path=/; max-age=0;';
-                this.$router.push('/');
-            }
-        }
     },
     // Данные берём из cookie только на клиенте: created() выполняется и на
     // сервере, где cookie нет, и разные деревья ломали гидрацию Vue
     mounted() {
-        this.restoreUserData(); // Восстанавливаем данные при загрузке страницы
+        this.user = readUser();
+        this.accountType = readCookie('accountType');
+
+        if (!this.user || !this.accountType) {
+            // Если данных нет, перенаправляем на страницу входа
+            this.$router.push('/');
+            return;
+        }
+
+        this.loadSchedule();
+        scrollToQuerySection(this);
+    },
+    methods: {
+        // Расписание и рацион грузим здесь, а не в дочерних блоках: пользователь
+        // известен только после mounted, и дети раньше успевали отказаться от загрузки
+        async loadSchedule() {
+            this.loading = true;
+            this.error = null;
+            try {
+                const clientId = this.user.clientid;
+                const [scheduleRes, nutritionRes] = await Promise.all([
+                    fetch(`/api/schedule/client/${clientId}`),
+                    fetch(`/api/nutrition/client/${clientId}`)
+                ]);
+
+                if (scheduleRes.status === 401 || nutritionRes.status === 401) {
+                    this.error = 'Сессия истекла — войдите заново.';
+                }
+
+                const [schedule, nutrition] = await Promise.all([scheduleRes.json(), nutritionRes.json()]);
+                // Пустое расписание сервер отдаёт как 404 с {error} — это не ошибка, а пустой день
+                this.sessions = Array.isArray(schedule) ? schedule : [];
+                this.meals = Array.isArray(nutrition) ? nutrition : [];
+            } catch (err) {
+                console.error('Ошибка загрузки расписания:', err);
+                this.error = 'Не удалось загрузить расписание. Проверьте соединение.';
+                this.sessions = [];
+                this.meals = [];
+            } finally {
+                this.loading = false;
+            }
+        }
     }
 };
 </script>
-
-<style scoped>
-body {
-    background-color: var(--background-color);
-    color: var(--text-color);
-    transition: background-color 0.5s ease, color 0.5s ease;
-}
-</style>

@@ -1,102 +1,132 @@
-﻿<template>
-    <div class="admin-panel">
-        <button v-for="(item, index) in menuItems" :key="index"
-            :class="['menu-btn', { active: selected === item.id }]"
-            @click="selectMenu(item.id)">
-            <i class="fa-solid fa-database"></i>
-            {{ item.label }}
-        </button>
-    </div>
+<template>
+    <nav class="tt-board tt-board--sm admin-panel" aria-label="Таблицы базы данных">
+        <label class="tt-search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input v-model.trim="query" type="search" placeholder="Найти таблицу" aria-label="Найти таблицу" />
+        </label>
+
+        <div class="groups">
+            <div v-for="group in filteredGroups" :key="group.title" class="group">
+                <span class="group-title">{{ group.title }}</span>
+                <button v-for="item in group.items" :key="item.id" type="button"
+                    :class="['tt-nav-item', 'item', { 'is-active': item.id === active }]"
+                    :aria-current="item.id === active ? 'page' : null" @click="$emit('select', item.id)">
+                    <span class="tt-icon-tile tt-icon-tile--xs item-icon"><i :class="item.icon"></i></span>
+                    <span class="item-label">{{ item.label }}</span>
+                </button>
+            </div>
+            <p v-if="!filteredGroups.length" class="nothing">Таблица не найдена</p>
+        </div>
+    </nav>
 </template>
 
 <script>
+// Меню админки: таблицы по группам. Какая открыта, решает страница
 export default {
+    name: 'AdminPanel',
     props: {
-        admin: {
-            type: Object,
-            default: () => ({ fullName: "ИМЯ ФАМИЛИЯ" })
-        }
+        // [{ title, items: [{ id, label, icon }] }]
+        groups: { type: Array, default: () => [] },
+        active: { type: String, default: null }
     },
     data() {
-        return {
-            selected: "Weights_on_machine",
-            menuItems: [
-                { id: "Weights_on_machine", label: "Вес на тренажёре" },
-                { id: "Measurements_in_percentage", label: "Замеры в %" },
-                { id: "Measurements_in_units", label: "Замеры в ед" },
-                { id: "Measurements_in_kilograms", label: "Замеры в кг" },
-                { id: "Measurements_in_centimeters", label: "Замеры в см" },
-                { id: "Clients", label: "Клиенты" },
-                { id: "Payments", label: "Оплата" },
-                { id: "Nutrition", label: "Питание" },
-                { id: "Progress", label: "Прогресс" },
-                { id: "Schedule", label: "Расписание" },
-                { id: "Recipes", label: "Рецепты" },
-                { id: "Coaches", label: "Тренеры" },
-                { id: "Workouts", label: "Тренировки" },
-                { id: "Workout_exercises", label: "Состав тренировок" },
-                { id: "Exercises", label: "Упражнения" },
-                { id: "Client_schedule", label: "Расписание клиентов" }
-            ]
-        };
+        return { query: '' };
     },
-    methods: {
-        selectMenu(id) {
-            this.selected = id;
-            this.$emit("menu-selected", id);
+    computed: {
+        filteredGroups() {
+            const query = this.query.toLowerCase();
+            if (!query) return this.groups;
+            return this.groups
+                .map(group => ({
+                    ...group,
+                    items: group.items.filter(item => item.label.toLowerCase().includes(query))
+                }))
+                .filter(group => group.items.length);
         }
     }
 };
 </script>
 
 <style scoped>
+/* Панель — .tt-board--sm, поиск — .tt-search, пункты — .tt-nav-item */
 .admin-panel {
-    display: flex;
-    flex-direction: column;
-    background: var(--background-color);
-    padding: 15px;
-    border-radius: 8px;
-    width: 250px;
-    transition: background-color 0.5s ease, color 0.5s ease;
+    display: grid;
+    gap: 14px;
 }
 
-.admin-info {
-    display: flex;
-    align-items: center;
-    font-size: var(--text-h7);
-    color: var(--text-color);
-    margin-bottom: 10px;
-    transition: color 0.5s ease;
+.groups {
+    display: grid;
+    gap: 14px;
+    max-height: calc(100vh - 230px);
+    margin: 0 -6px;
+    padding: 0 6px;
+    overflow-y: auto;
+    scrollbar-width: thin;
 }
 
-.icon-admin {
-    margin-right: 10px;
+.group {
+    display: grid;
+    gap: 2px;
 }
 
-.menu-btn {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    background: transparent;
-    border: 2px solid transparent;
-    color: var(--text-color);
-    text-align: left;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: var(--text-h8);
-    border-radius: 10px;
-    font-weight: bold;
+.group-title {
+    margin: 0 0 4px 10px;
+    color: var(--tt-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
-.menu-btn i {
-    margin-right: 10px;
-    font-size: large;
-    transition: color 0.3s ease;
+/* Таблиц много — пункты плотнее, чем в меню профиля */
+.item {
+    gap: 10px;
+    padding: 6px 10px 6px 6px;
+    font-size: 14px;
 }
 
-.menu-btn.active {
-    border: 2px solid var(--button-hover-color);
-    color: var(--text-color);
+.item-label {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.nothing {
+    margin: 4px 10px;
+    color: var(--tt-muted);
+    font-size: 14px;
+}
+
+/* На узком экране — группы лентами, без внутренней прокрутки */
+@media (max-width: 1000px) {
+    .groups {
+        max-height: none;
+        overflow: visible;
+    }
+
+    .group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .group-title {
+        flex-basis: 100%;
+        margin: 0 0 0 4px;
+    }
+
+    .item {
+        width: auto;
+        padding: 4px 12px 4px 4px;
+        border-color: var(--tt-line);
+        border-radius: var(--tt-radius-pill);
+    }
+
+    .item-icon {
+        width: 26px;
+        height: 26px;
+        font-size: 11px;
+    }
 }
 </style>
-

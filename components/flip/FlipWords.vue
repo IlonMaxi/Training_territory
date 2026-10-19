@@ -1,11 +1,11 @@
 <template>
-    <div class="flip-words">
-        <transition name="pixel-fade" mode="out-in">
-            <span class="pixel-text" :key="currentWordIndex">
+    <span class="flip-words">
+        <transition name="word-roll" mode="out-in">
+            <span class="word" :key="currentWordIndex">
                 {{ words[currentWordIndex] }}
             </span>
         </transition>
-    </div>
+    </span>
 </template>
 
 <script>
@@ -55,48 +55,45 @@ export default {
 </script>
 
 <style scoped>
+/* Размер и цвет — от заголовка, в который вставлено слово. Строчный элемент:
+   у inline-block поля «ореола» .accent-word раздували бы высоту строки */
 .flip-words {
-    font-size: var(--text-h3);
-    font-weight: var(--weight-bold);
-    display: inline-block;
-    position: relative;
+    display: inline;
 }
 
-.pixel-text {
+.word {
     display: inline-block;
 }
 
 /*
   Анимация целиком на CSS. Раньше JS-хуки писали инлайновые стили поверх этих
   классов, и обе системы боролись за opacity/transform/filter с разной
-  длительностью — отсюда рывки.
+  длительностью — отсюда рывки. Слово «прокручивается» снизу вверх.
 */
-.pixel-fade-enter-active {
-    transition: opacity 0.45s ease, transform 0.45s ease, filter 0.45s ease;
+.word-roll-enter-active {
+    transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s ease;
 }
 
-.pixel-fade-leave-active {
-    transition: opacity 0.35s ease, transform 0.35s ease, filter 0.35s ease;
+.word-roll-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
 }
 
-.pixel-fade-enter,
-.pixel-fade-leave-to {
+.word-roll-enter {
     opacity: 0;
-    transform: scale(1.15);
-    filter: blur(8px);
+    transform: translateY(45%) rotateX(-40deg);
+    filter: blur(6px);
 }
 
-.pixel-fade-enter-to,
-.pixel-fade-leave {
-    opacity: 1;
-    transform: scale(1);
-    filter: blur(0);
+.word-roll-leave-to {
+    opacity: 0;
+    transform: translateY(-45%) rotateX(40deg);
+    filter: blur(6px);
 }
 
 @media (prefers-reduced-motion: reduce) {
 
-    .pixel-fade-enter-active,
-    .pixel-fade-leave-active {
+    .word-roll-enter-active,
+    .word-roll-leave-active {
         transition: none;
     }
 }

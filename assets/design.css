@@ -1,0 +1,1804 @@
+/*
+  Дизайн-система в духе лендинга (E:\landing): тот же шрифт, радиусы,
+  анимации появления и наведения. Палитра перевёрнута: на лендинге основной
+  синий, а оранжевый — акцент; здесь основной оранжевый, синий — дополнение.
+
+  Токены живут на .tt (его ставит layouts/default.vue), а не на :root:
+  так старые переменные из global.css не пересекаются с новыми.
+*/
+
+.tt {
+    --tt-bg: #ffffff;
+    --tt-bg-soft: #fff8f4;
+    --tt-surface: #ffffff;
+    --tt-ink: #0f1427;
+    --tt-soft: #3c4460;
+    --tt-muted: #5a6180;
+    --tt-line: #f1e5dd;
+    --tt-line-brand: rgba(248, 80, 10, 0.26);
+    --tt-field: #e4d8d0;
+
+    /* Оранжевый. brand — заливки, иконки и крупные заголовки: на белом
+       это 3.4:1, мелкому тексту мало, ему — brand-deep (5.2:1) */
+    --tt-brand: #f8500a;
+    --tt-brand-light: #ff7a3d;
+    --tt-brand-deep: #c2410c;
+    --tt-brand-50: #fff6f1;
+    --tt-brand-tint: rgba(248, 80, 10, 0.08);
+
+    /* Синий — дополнение: «сегодня», вторичные графики, точечные выделения */
+    --tt-blue: #3760e7;
+    --tt-blue-deep: #1b46d4;
+    --tt-blue-tint: rgba(55, 96, 231, 0.08);
+
+    /* Скругления: чем крупнее и «внешнее» блок, тем больше радиус.
+       Панели и окна → карточки → плитки внутри карточек → мелкие детали */
+    --tt-radius-xl: 32px;
+    --tt-radius-lg: 24px;
+    --tt-radius-md: 16px;
+    --tt-radius-sm: 12px;
+    --tt-radius-xs: 8px;
+    /* Квадратные плашки с иконкой: процент — скругление растёт вместе с размером */
+    --tt-radius-tile: 30%;
+    --tt-radius-pill: 999px;
+
+    /* Заливки, которые раньше копировались в каждый компонент */
+    --tt-gradient-brand: linear-gradient(135deg, #ff6a1f 0%, #f8500a 50%, #d9480f 100%);
+    --tt-gradient-navy: linear-gradient(160deg, #16203a 0%, #0b1020 100%);
+    /* Подложка под фото, пока оно грузится или если его нет */
+    --tt-gradient-photo: linear-gradient(160deg, #ffd2b8 0%, #f8500a 100%);
+
+    --tt-shadow-card: 0 6px 18px rgba(15, 20, 39, 0.05);
+    --tt-shadow-hover: 0 18px 44px rgba(248, 80, 10, 0.16);
+    --tt-shadow-board: 0 24px 64px rgba(248, 80, 10, 0.08);
+    /* Под залитыми оранжевым кнопками и плашками */
+    --tt-shadow-brand: 0 10px 22px -12px rgba(248, 80, 10, 0.85);
+    --tt-shadow-dark: 0 30px 60px -30px rgba(11, 16, 32, 0.6);
+
+    /* Рамка фокуса с клавиатуры; компонент может перекрасить её у себя */
+    --tt-focus-ring: rgba(248, 80, 10, 0.45);
+
+    --tt-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+    position: relative;
+    min-height: 100vh;
+    overflow-x: clip;
+    background-color: var(--tt-bg);
+    color: var(--tt-ink);
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+body.dark-theme .tt {
+    --tt-bg: #0e1014;
+    --tt-bg-soft: #13161c;
+    --tt-surface: #171a21;
+    --tt-ink: #f4f5f7;
+    --tt-soft: #c3c8d2;
+    --tt-muted: #9aa1ae;
+    --tt-line: rgba(255, 255, 255, 0.08);
+    --tt-line-brand: rgba(255, 122, 61, 0.28);
+    --tt-field: rgba(255, 255, 255, 0.14);
+    --tt-brand-deep: #ff8a4c;
+    --tt-brand-50: rgba(248, 80, 10, 0.1);
+    --tt-brand-tint: rgba(248, 80, 10, 0.14);
+    --tt-blue: #7c9bff;
+    --tt-blue-deep: #a5b9ff;
+    --tt-blue-tint: rgba(124, 155, 255, 0.14);
+    --tt-shadow-card: 0 6px 18px rgba(0, 0, 0, 0.35);
+    --tt-shadow-hover: 0 18px 44px rgba(248, 80, 10, 0.22);
+}
+
+/* Фон под страницей виден только при «оттяжке» прокрутки — красим его в тон */
+body.tt-body {
+    background-color: #ffffff;
+}
+
+body.tt-body.dark-theme {
+    background-color: #0e1014;
+}
+
+/* ============================================================
+   Раскладка */
+
+.tt-container {
+    width: min(1200px, 100% - 32px);
+    margin-inline: auto;
+}
+
+/* Корень страницы: от него отсчитывается фон-подложка .tt-backdrop */
+.tt-page {
+    position: relative;
+}
+
+.tt-main {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 96px;
+    padding: 40px 0 96px;
+}
+
+@media (max-width: 640px) {
+    .tt {
+        --tt-radius-xl: 24px;
+    }
+
+    .tt-main {
+        gap: 56px;
+        padding: 24px 0 64px;
+    }
+}
+
+/* Единая рамка фокуса для всего кликабельного: компоненты её не переписывают */
+.tt :is(a, button, summary, [role="button"], [role="tab"], [role="radio"], [tabindex]):focus-visible {
+    outline: 3px solid var(--tt-focus-ring);
+    outline-offset: 2px;
+}
+
+/* Текст только для скринридера */
+.tt-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* Точечная сетка и плавающие пятна света в шапке страницы — как в хабе лендинга */
+.tt-backdrop {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 0;
+    height: 760px;
+    pointer-events: none;
+    background-image: radial-gradient(rgba(248, 80, 10, 0.2) 1px, transparent 1.3px);
+    background-size: 24px 24px;
+    -webkit-mask-image: radial-gradient(70% 80% at 50% 0%, #000 20%, transparent 75%);
+    mask-image: radial-gradient(70% 80% at 50% 0%, #000 20%, transparent 75%);
+}
+
+.tt-backdrop::before,
+.tt-backdrop::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: tt-drift 16s ease-in-out infinite alternate;
+}
+
+.tt-backdrop::before {
+    top: -200px;
+    left: 8%;
+    width: 520px;
+    height: 420px;
+    background: rgba(248, 80, 10, 0.2);
+}
+
+.tt-backdrop::after {
+    top: -160px;
+    right: 6%;
+    width: 460px;
+    height: 380px;
+    background: rgba(55, 96, 231, 0.14);
+    animation-delay: -8s;
+}
+
+@keyframes tt-drift {
+    from {
+        transform: translate(0, 0) scale(1);
+    }
+
+    to {
+        transform: translate(30px, 20px) scale(1.08);
+    }
+}
+
+/* ============================================================
+   Типографика секций */
+
+.tt-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border: 1px solid rgba(248, 80, 10, 0.3);
+    border-radius: var(--tt-radius-pill);
+    background: rgba(248, 80, 10, 0.05);
+    color: var(--tt-brand-deep);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+}
+
+.tt-eyebrow i {
+    font-size: 12px;
+}
+
+.tt-h2 {
+    max-width: 960px;
+    margin: 16px 0 0;
+    text-wrap: balance;
+    color: var(--tt-ink);
+    font-size: 42px;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+.tt-lead {
+    max-width: 720px;
+    margin: 16px 0 0;
+    color: var(--tt-soft);
+    font-size: 16px;
+    line-height: 1.65;
+}
+
+.tt-accent {
+    color: var(--tt-brand);
+}
+
+/* Акцентное слово: заливка + мягкий ореол позади (порт .accent-word лендинга).
+   Ореол — фон самого слова, поэтому корректно режется при переносе строки. */
+.accent-word {
+    padding: 0.42em 0.62em;
+    margin-inline: -0.62em;
+    color: var(--tt-brand, #f8500a);
+    background: radial-gradient(50% 50% at 50% 50%,
+            rgba(248, 80, 10, 0.12) 0%,
+            rgba(248, 80, 10, 0.055) 55%,
+            rgba(248, 80, 10, 0) 100%);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+}
+
+@media (max-width: 640px) {
+    .tt-h2 {
+        font-size: 28px;
+    }
+
+    .tt-lead {
+        font-size: 15px;
+    }
+}
+
+/* ============================================================
+   Кнопки */
+
+.tt-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 52px;
+    margin: 0;
+    padding: 0 28px;
+    border: 1px solid transparent;
+    border-radius: var(--tt-radius-pill);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        transform 0.3s var(--tt-ease),
+        box-shadow 0.3s var(--tt-ease),
+        background-color 0.3s ease,
+        border-color 0.3s ease,
+        color 0.3s ease;
+}
+
+.tt-btn--sm {
+    min-height: 42px;
+    padding: 0 20px;
+    font-size: 14px;
+}
+
+.tt-btn--primary {
+    color: #ffffff;
+    background: var(--tt-gradient-brand);
+    box-shadow: 0 14px 30px -12px rgba(248, 80, 10, 0.65);
+    text-shadow: 0 1px 1px rgba(120, 35, 0, 0.25);
+}
+
+.tt-btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 38px -14px rgba(248, 80, 10, 0.75);
+}
+
+.tt-btn--primary:active {
+    transform: translateY(0);
+}
+
+.tt-btn--ghost {
+    color: var(--tt-ink);
+    background-color: var(--tt-surface);
+    border-color: var(--tt-line-brand);
+}
+
+.tt-btn--ghost:hover {
+    color: var(--tt-brand-deep);
+    border-color: var(--tt-brand);
+    background-color: var(--tt-brand-50);
+}
+
+/* Светлая кнопка для оранжевых и тёмных подложек */
+.tt-btn--light {
+    color: #c2410c;
+    background-color: #ffffff;
+    box-shadow: 0 18px 38px rgba(90, 25, 0, 0.22);
+}
+
+.tt-btn--light:hover {
+    color: #9a3412;
+    background-color: #fff4ec;
+    transform: translateY(-2px);
+}
+
+.tt-btn--outline-light {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.45);
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.tt-btn--outline-light:hover {
+    border-color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Необратимое действие: отменить тренировку, удалить запись */
+.tt-btn--danger {
+    color: #b91c1c;
+    background-color: rgba(220, 38, 38, 0.06);
+    border-color: rgba(220, 38, 38, 0.28);
+}
+
+.tt-btn--danger:hover {
+    color: #ffffff;
+    background-color: #dc2626;
+    border-color: #dc2626;
+}
+
+body.dark-theme .tt-btn--danger {
+    color: #fca5a5;
+}
+
+body.dark-theme .tt-btn--danger:hover {
+    color: #ffffff;
+}
+
+.tt-btn:disabled {
+    cursor: default;
+    opacity: 0.6;
+    transform: none;
+}
+
+.tt-btn .tt-arrow {
+    transition: transform 0.3s var(--tt-ease);
+}
+
+.tt-btn:hover .tt-arrow {
+    transform: translateX(4px);
+}
+
+/* ============================================================
+   Карточки */
+
+.tt-card {
+    position: relative;
+    border: 1px solid var(--tt-line-brand);
+    border-radius: var(--tt-radius-lg);
+    background-color: var(--tt-surface);
+    box-shadow: var(--tt-shadow-card);
+    transition:
+        transform 0.35s var(--tt-ease),
+        box-shadow 0.35s var(--tt-ease),
+        border-color 0.35s ease,
+        background-color 0.5s ease;
+}
+
+.tt-card:hover {
+    border-color: rgba(248, 80, 10, 0.5);
+    box-shadow: var(--tt-shadow-hover);
+}
+
+/* Карточка без наклона к курсору просто приподнимается */
+.tt-card--lift:hover {
+    transform: translateY(-3px);
+}
+
+/* Большая панель раздела: расписание, замеры, формы кабинета, боковые меню */
+.tt-board {
+    padding: 28px;
+    border: 1px solid var(--tt-line-brand);
+    border-radius: var(--tt-radius-xl);
+    background-color: var(--tt-surface);
+    box-shadow: var(--tt-shadow-board);
+    transition: background-color 0.5s ease, border-color 0.35s ease;
+}
+
+/* Компактная панель: боковые меню */
+.tt-board--sm {
+    padding: 16px;
+}
+
+/* Содержимое само прижато к краям: окно чата */
+.tt-board--flush {
+    padding: 0;
+    overflow: hidden;
+}
+
+@media (max-width: 640px) {
+    .tt-board {
+        padding: 18px;
+    }
+
+    .tt-board--sm {
+        padding: 14px;
+    }
+
+    .tt-board--flush {
+        padding: 0;
+    }
+}
+
+/* Плитка внутри панели или карточки: мягкий фон и тонкая рамка */
+.tt-tile {
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-md);
+    background-color: var(--tt-bg-soft);
+}
+
+/* Тёмная карточка-сводка: тёмно-синий фон с оранжевым свечением в углу */
+.tt-dark {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: var(--tt-radius-xl);
+    background:
+        radial-gradient(90% 70% at 100% 0%, rgba(248, 80, 10, 0.35) 0%, rgba(248, 80, 10, 0) 60%),
+        var(--tt-gradient-navy);
+    box-shadow: var(--tt-shadow-dark);
+    color: #ffffff;
+}
+
+/* Полупрозрачная плитка на тёмной карточке */
+.tt-dark-tile {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--tt-radius-md);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Квадратная плашка с иконкой. Размеры: xs 28, sm 36, обычная 48, lg 56 */
+.tt-icon-tile {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--tt-radius-tile);
+    background-color: var(--tt-brand-tint);
+    color: var(--tt-brand);
+    font-size: 20px;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tt-icon-tile--xs {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+}
+
+.tt-icon-tile--sm {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+}
+
+.tt-icon-tile--lg {
+    width: 56px;
+    height: 56px;
+    font-size: 22px;
+}
+
+.tt-icon-tile--blue {
+    background-color: var(--tt-blue-tint);
+    color: var(--tt-blue);
+}
+
+/* Залитая: главная иконка блока, аватар помощника */
+.tt-icon-tile--solid {
+    background: var(--tt-gradient-brand);
+    box-shadow: var(--tt-shadow-brand);
+    color: #ffffff;
+}
+
+/* На тёмной карточке */
+.tt-icon-tile--glass {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #ff7a3d;
+}
+
+.tt-card:hover .tt-icon-tile {
+    background-color: var(--tt-brand);
+    color: #ffffff;
+    box-shadow: 0 12px 22px -10px rgba(248, 80, 10, 0.7);
+}
+
+.tt-card:hover .tt-icon-tile--blue {
+    background-color: var(--tt-blue);
+    box-shadow: 0 12px 22px -10px rgba(55, 96, 231, 0.7);
+}
+
+/* Иконка «покачивается» при наведении — привет прежнему дизайну */
+.tt-card:hover .tt-icon-tile i {
+    animation: tt-wiggle 0.6s ease-in-out;
+}
+
+@keyframes tt-wiggle {
+    0% {
+        transform: rotate(0);
+    }
+
+    33% {
+        transform: rotate(-14deg);
+    }
+
+    66% {
+        transform: rotate(10deg);
+    }
+
+    100% {
+        transform: rotate(0);
+    }
+}
+
+/* ============================================================
+   Мелкие элементы интерфейса */
+
+/* Круглая кнопка-иконка: тема, выход, закрыть */
+.tt-icon-btn {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--tt-line-brand);
+    border-radius: 50%;
+    background-color: var(--tt-surface);
+    color: var(--tt-ink);
+    font-size: 15px;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background-color 0.3s ease,
+        border-color 0.3s ease,
+        color 0.3s ease,
+        transform 0.45s cubic-bezier(0.2, 1.3, 0.3, 1);
+}
+
+.tt-icon-btn:hover {
+    background-color: var(--tt-brand-50);
+    color: var(--tt-brand);
+    transform: rotate(-18deg);
+}
+
+.tt-icon-btn.is-active {
+    border-color: transparent;
+    background: var(--tt-gradient-brand);
+    color: #ffffff;
+}
+
+/* Текст «переворачивается» вверх, открывая оранжевую копию */
+.tt-nav-flip {
+    --nav-flip-depth: 0.55em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    margin: 0;
+    padding: 0 14px;
+    border: 0;
+    border-radius: var(--tt-radius-pill);
+    background: transparent;
+    color: var(--tt-ink);
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    perspective: 900px;
+    cursor: pointer;
+}
+
+.tt-nav-flip i {
+    color: var(--tt-brand);
+    font-size: 13px;
+}
+
+.tt-nav-flip-inner {
+    position: relative;
+    display: inline-block;
+    transform-origin: 50% 50% calc(-1 * var(--nav-flip-depth));
+    transform-style: preserve-3d;
+    transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tt-nav-flip:hover .tt-nav-flip-inner,
+.tt-nav-flip:focus-visible .tt-nav-flip-inner {
+    transform: rotateX(90deg);
+}
+
+.tt-nav-flip-front {
+    display: block;
+    backface-visibility: hidden;
+    transform: translateZ(var(--nav-flip-depth));
+}
+
+.tt-nav-flip-top {
+    position: absolute;
+    inset: 0;
+    display: block;
+    color: var(--tt-brand);
+    backface-visibility: hidden;
+    transform-origin: 50% 50%;
+    transform: translateY(-0.04em) rotateX(-90deg) translateZ(var(--nav-flip-depth));
+}
+
+/* Переключатель из нескольких вариантов: день/неделя, вкладки замеров */
+.tt-segment {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--tt-line-brand);
+    border-radius: var(--tt-radius-pill);
+    background-color: var(--tt-surface);
+}
+
+.tt-segment button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 38px;
+    margin: 0;
+    padding: 0 18px;
+    border: 0;
+    border-radius: var(--tt-radius-pill);
+    background: transparent;
+    color: var(--tt-soft);
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.tt-segment button:hover {
+    color: var(--tt-brand-deep);
+}
+
+.tt-segment button.is-active {
+    background: var(--tt-gradient-brand);
+    box-shadow: var(--tt-shadow-brand);
+    color: #ffffff;
+}
+
+/* Небольшая метка: время, тип, статус */
+.tt-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--tt-radius-pill);
+    background-color: var(--tt-brand-tint);
+    color: var(--tt-brand-deep);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.tt-chip--blue {
+    background-color: var(--tt-blue-tint);
+    color: var(--tt-blue-deep);
+}
+
+.tt-chip--muted {
+    background-color: rgba(15, 20, 39, 0.05);
+    color: var(--tt-muted);
+}
+
+body.dark-theme .tt-chip--muted {
+    background-color: rgba(255, 255, 255, 0.07);
+}
+
+/* Пустое состояние: «нет тренировок», «нет клиентов» */
+.tt-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 32px 20px;
+    border: 1.5px dashed var(--tt-line-brand);
+    border-radius: var(--tt-radius-md);
+    color: var(--tt-muted);
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.tt-empty i {
+    color: var(--tt-brand);
+    font-size: 22px;
+}
+
+/* Заголовок колонки внутри панели: «Тренировки», «Питание», «Сводка дня» */
+.tt-col-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    color: var(--tt-ink);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.tt-col-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--tt-radius-tile);
+    background-color: var(--tt-brand-tint);
+    color: var(--tt-brand);
+    font-size: 14px;
+}
+
+.tt-col-icon--blue {
+    background-color: var(--tt-blue-tint);
+    color: var(--tt-blue);
+}
+
+/* Элементы списка выезжают по очереди: style="--i: номер".
+   backwards, а не both: после появления transform свободен, и карточка
+   может подниматься при наведении (fill-mode both держал бы его навсегда) */
+.tt-stagger {
+    animation: tt-rise 0.5s var(--tt-ease) backwards;
+    animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+@keyframes tt-rise {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* <transition name="tt-swap">: смена дня, вкладки — старое гаснет, новое поднимается */
+.tt-swap-enter-active {
+    transition: opacity 0.35s ease, transform 0.45s var(--tt-ease);
+}
+
+.tt-swap-leave-active {
+    transition: opacity 0.15s ease;
+}
+
+.tt-swap-enter {
+    opacity: 0;
+    transform: translateY(12px);
+}
+
+.tt-swap-leave-to {
+    opacity: 0;
+}
+
+/* Заглушка, пока данные грузятся. Радиус — как у карточки, которую она заменяет */
+.tt-skeleton {
+    border-radius: var(--tt-radius-lg);
+    background: linear-gradient(90deg, var(--tt-bg-soft) 25%, var(--tt-brand-50) 50%, var(--tt-bg-soft) 75%);
+    background-size: 200% 100%;
+    animation: tt-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes tt-shimmer {
+    from {
+        background-position: 100% 0;
+    }
+
+    to {
+        background-position: -100% 0;
+    }
+}
+
+/* Кружок с инициалами (или фото) клиента, тренера */
+.tt-avatar {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--tt-gradient-brand);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.tt-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Синий — для второстепенных лиц: клиенты в списках тренера */
+.tt-avatar--blue {
+    background: linear-gradient(135deg, #6f8df5 0%, #3760e7 60%, #1b46d4 100%);
+}
+
+/* Поле поиска: «пилюля» с лупой. Разметка: label.tt-search > i + input */
+.tt-search {
+    position: relative;
+    display: block;
+    margin: 0;
+}
+
+.tt-search i {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    color: var(--tt-muted);
+    font-size: 13px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.tt-search input {
+    width: 100%;
+    height: 44px;
+    margin: 0;
+    padding: 0 16px 0 40px;
+    border: 1.5px solid var(--tt-field);
+    border-radius: var(--tt-radius-pill);
+    background-color: var(--tt-bg-soft);
+    color: var(--tt-ink);
+    font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.tt-search input::placeholder {
+    color: var(--tt-muted);
+    opacity: 0.8;
+}
+
+.tt-search input:focus {
+    outline: none;
+    border-color: var(--tt-brand);
+    background-color: var(--tt-surface);
+    box-shadow: 0 0 0 4px rgba(248, 80, 10, 0.14);
+}
+
+/* Поле сообщения с круглой кнопкой отправки: чат с тренером, помощник */
+.tt-composer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 5px 5px 18px;
+    border: 1.5px solid var(--tt-field);
+    border-radius: var(--tt-radius-pill);
+    background-color: var(--tt-bg-soft);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.tt-composer:focus-within {
+    border-color: var(--tt-brand);
+    background-color: var(--tt-surface);
+    box-shadow: 0 0 0 4px rgba(248, 80, 10, 0.14);
+}
+
+.tt-composer input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 40px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--tt-ink);
+    font-size: 15px;
+}
+
+.tt-composer input::placeholder {
+    color: var(--tt-muted);
+}
+
+.tt-send {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--tt-gradient-brand);
+    box-shadow: 0 10px 20px -10px rgba(248, 80, 10, 0.9);
+    color: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.3s var(--tt-ease), opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tt-send:hover:not(:disabled) {
+    transform: translateY(-1px) rotate(-14deg);
+}
+
+.tt-send:disabled {
+    box-shadow: none;
+    opacity: 0.45;
+    cursor: default;
+}
+
+/* Сообщение: чужое — светлое, своё — оранжевое. Острый нижний угол — «хвостик» */
+.tt-bubble {
+    padding: 10px 14px;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-md);
+    border-bottom-left-radius: var(--tt-radius-xs);
+    background-color: var(--tt-bg-soft);
+    color: var(--tt-ink);
+    font-size: 15px;
+    line-height: 1.5;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.tt-bubble--mine {
+    border-color: transparent;
+    border-radius: var(--tt-radius-md);
+    border-bottom-right-radius: var(--tt-radius-xs);
+    background: var(--tt-gradient-brand);
+    box-shadow: 0 10px 22px -14px rgba(248, 80, 10, 0.9);
+    color: #ffffff;
+}
+
+/* Пункт бокового меню: разделы профиля, таблицы админки, собеседники в чате */
+.tt-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin: 0;
+    padding: 8px 12px 8px 8px;
+    border: 1px solid transparent;
+    border-radius: var(--tt-radius-md);
+    background: transparent;
+    color: var(--tt-soft);
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.tt-nav-item:hover {
+    background-color: var(--tt-brand-50);
+    color: var(--tt-ink);
+}
+
+.tt-nav-item.is-active {
+    border-color: var(--tt-line-brand);
+    background-color: var(--tt-brand-50);
+    color: var(--tt-brand-deep);
+}
+
+.tt-nav-item.is-active .tt-icon-tile,
+.tt-nav-item.is-active .tt-avatar {
+    background: var(--tt-gradient-brand);
+    box-shadow: var(--tt-shadow-brand);
+    color: #ffffff;
+}
+
+/* Три прыгающие точки: «печатает», «загружаю». Разметка: span.tt-dots > span × 3 */
+.tt-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--tt-brand);
+}
+
+.tt-dots span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: currentColor;
+    animation: tt-dots 1.1s ease-in-out infinite;
+}
+
+.tt-dots span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.tt-dots span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+@keyframes tt-dots {
+
+    0%,
+    80%,
+    100% {
+        opacity: 0.35;
+        transform: translateY(0);
+    }
+
+    40% {
+        opacity: 1;
+        transform: translateY(-5px);
+    }
+}
+
+/* Пункты мобильного меню шапки */
+.tt-menu-label {
+    margin: 4px 0 0;
+    color: var(--tt-muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.tt-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    height: 48px;
+    margin: 0;
+    padding: 0 14px;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-md);
+    background-color: var(--tt-surface);
+    color: var(--tt-ink);
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.tt-menu-item i {
+    width: 18px;
+    color: var(--tt-brand);
+    text-align: center;
+}
+
+.tt-menu-item:hover,
+.tt-menu-item.is-active {
+    border-color: var(--tt-line-brand);
+    background-color: var(--tt-brand-50);
+    color: var(--tt-brand-deep);
+}
+
+/* Заголовок внутренней страницы (профиль, админ-панель) */
+.tt-page-head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.tt-page-title {
+    margin: 14px 0 0;
+    color: var(--tt-ink);
+    font-size: 44px;
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+}
+
+.tt-page-lead {
+    max-width: 640px;
+    margin: 12px 0 0;
+    color: var(--tt-soft);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Сообщение под формой: «сохранено», «ошибка» */
+.tt-note {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 12px 14px;
+    border-radius: var(--tt-radius-md);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.tt-note--ok {
+    background-color: rgba(15, 159, 110, 0.1);
+    color: #0b7a55;
+}
+
+.tt-note--error {
+    background-color: rgba(220, 38, 38, 0.08);
+    color: #b91c1c;
+}
+
+body.dark-theme .tt-note--ok {
+    color: #6ee7b7;
+}
+
+body.dark-theme .tt-note--error {
+    color: #fca5a5;
+}
+
+@media (max-width: 640px) {
+    .tt-page-title {
+        font-size: 32px;
+    }
+}
+
+/* ============================================================
+   Модальные окна и поля форм */
+
+/* Подложка прокручивается сама: высокое окно (регистрация) не обрезается,
+   а короткое margin: auto ставит по центру */
+.tt-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    padding: 24px 16px;
+    overflow-y: auto;
+    background-color: rgba(15, 20, 39, 0.45);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+.tt-modal {
+    position: relative;
+    width: min(560px, 100%);
+    margin: auto;
+    padding: 36px;
+    border: 1px solid var(--tt-line-brand);
+    border-radius: var(--tt-radius-xl);
+    background-color: var(--tt-surface);
+    color: var(--tt-ink);
+    box-shadow: 0 40px 120px rgba(15, 20, 39, 0.35);
+}
+
+.tt-modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--tt-line-brand);
+    border-radius: 50%;
+    background-color: var(--tt-surface);
+    color: var(--tt-ink);
+    font-size: 16px;
+    cursor: pointer;
+    transition:
+        background-color 0.3s ease,
+        border-color 0.3s ease,
+        color 0.3s ease,
+        transform 0.45s var(--tt-ease);
+}
+
+.tt-modal-close:hover {
+    border-color: transparent;
+    background-color: var(--tt-brand);
+    color: #ffffff;
+    transform: rotate(90deg);
+}
+
+.tt-modal-title {
+    margin: 14px 0 24px;
+    color: var(--tt-ink);
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+/* Подложка проявляется, окно «всплывает». Длительность у <transition>
+   задана явно: вложенный переход окна дольше перехода подложки */
+.tt-modal-enter-active,
+.tt-modal-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.tt-modal-enter-active .tt-modal {
+    transition: transform 0.45s var(--tt-ease), opacity 0.3s ease;
+}
+
+.tt-modal-leave-active .tt-modal {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.tt-modal-enter,
+.tt-modal-leave-to {
+    opacity: 0;
+}
+
+.tt-modal-enter .tt-modal,
+.tt-modal-leave-to .tt-modal {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+}
+
+.tt-field {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.tt-field-label {
+    color: var(--tt-muted);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.tt-input {
+    width: 100%;
+    height: 50px;
+    margin: 0;
+    padding: 0 16px;
+    border: 1.5px solid var(--tt-field);
+    border-radius: var(--tt-radius-md);
+    background-color: var(--tt-bg-soft);
+    color: var(--tt-ink);
+    font-size: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.tt-input::placeholder {
+    color: var(--tt-muted);
+    opacity: 0.8;
+}
+
+.tt-input:focus {
+    outline: none;
+    border-color: var(--tt-brand);
+    background-color: var(--tt-surface);
+    box-shadow: 0 0 0 4px rgba(248, 80, 10, 0.14);
+}
+
+.tt-input.invalid {
+    border-color: #dc2626;
+}
+
+select.tt-input {
+    padding-right: 40px;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%235a6180' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 12px 8px;
+    cursor: pointer;
+}
+
+textarea.tt-input {
+    height: auto;
+    min-height: 120px;
+    padding: 12px 16px;
+    line-height: 1.55;
+    resize: vertical;
+}
+
+/* Выбор из двух вариантов (тип аккаунта, пол): radio спрятан, кликается плашка */
+.tt-choice-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.tt-choice {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 50px;
+    margin: 0;
+    padding: 0 14px;
+    border: 1.5px solid var(--tt-field);
+    border-radius: var(--tt-radius-md);
+    background-color: var(--tt-bg-soft);
+    color: var(--tt-soft);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tt-choice:hover {
+    border-color: rgba(248, 80, 10, 0.5);
+    color: var(--tt-ink);
+}
+
+.tt-choice input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tt-choice.checked {
+    border-color: var(--tt-brand);
+    background-color: var(--tt-brand-50);
+    color: var(--tt-brand-deep);
+}
+
+.tt-choice:focus-within {
+    box-shadow: 0 0 0 4px rgba(248, 80, 10, 0.16);
+}
+
+.tt-form-error {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 18px;
+    padding: 12px 14px;
+    border-radius: var(--tt-radius-md);
+    background-color: rgba(220, 38, 38, 0.08);
+    color: #b91c1c;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+body.dark-theme .tt-form-error {
+    background-color: rgba(248, 113, 113, 0.12);
+    color: #fca5a5;
+}
+
+/* ============================================================
+   Свечение под курсором и 3D-наклон (порт PointerGlow лендинга).
+   Значения пишет директива v-glow (plugins/pointer-glow.js). Свечение —
+   псевдоэлемент с отрицательным z-index внутри стек-контекста карточки,
+   поэтому лежит над её фоном, но под содержимым. */
+
+.pointer-glow {
+    position: relative;
+    isolation: isolate;
+    transform: var(--tilt, none);
+    transform-style: preserve-3d;
+    transition:
+        transform 0.26s var(--tt-ease),
+        box-shadow 0.26s var(--tt-ease),
+        border-color 0.35s ease;
+    will-change: transform;
+}
+
+.pointer-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: var(--glow-opacity, 0);
+    background: radial-gradient(380px circle at var(--glow-x, 50%) var(--glow-y, 50%),
+            var(--glow-color, rgba(248, 80, 10, 0.16)),
+            transparent 62%);
+    transition: opacity 0.32s ease;
+}
+
+/* ============================================================
+   Пульс, переходящий с карточки на карточку: на каждой по очереди
+   сердце делает «тук-тук» и от него расходится волна.
+   Рассчитан на 3 карточки: цикл 4.2с, шаг 1.4с, задержка = --i × шаг. */
+
+.beat-marker {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #ffffff;
+    background: var(--tt-gradient-brand);
+    box-shadow: 0 8px 20px rgba(248, 80, 10, 0.4);
+    font-size: 13px;
+    opacity: 0;
+    transform: scale(0.6);
+    pointer-events: none;
+    animation: beat-marker 4.2s ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * 1.4s);
+}
+
+.beat-marker::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 2px solid rgba(248, 80, 10, 0.55);
+    border-radius: inherit;
+    opacity: 0;
+    animation: beat-wave 4.2s ease-out infinite;
+    animation-delay: inherit;
+}
+
+@keyframes beat-marker {
+    0% {
+        opacity: 0;
+        transform: scale(0.6);
+    }
+
+    5% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+
+    9% {
+        transform: scale(0.95);
+    }
+
+    13% {
+        transform: scale(1.12);
+    }
+
+    18%,
+    27% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    33%,
+    100% {
+        opacity: 0;
+        transform: scale(0.6);
+    }
+}
+
+@keyframes beat-wave {
+
+    0%,
+    4% {
+        opacity: 0;
+        transform: scale(1);
+    }
+
+    6% {
+        opacity: 0.9;
+    }
+
+    26%,
+    100% {
+        opacity: 0;
+        transform: scale(2.4);
+    }
+}
+
+/* ============================================================
+   Появление при прокрутке (порт ScrollReveal лендинга).
+   Элемент рендерится скрытым (data-sr-revealed="false"), компонент
+   <Reveal> переключает атрибут, когда блок попадает в область видимости. */
+
+.sr-reveal {
+    --sr-duration: 700ms;
+    --sr-delay: 0ms;
+    --sr-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --sr-x-from: 0px;
+    --sr-y-from: 18px;
+    --sr-x-to: 0px;
+    --sr-y-to: 0px;
+    --sr-scale-from: 1;
+    --sr-blur: 0px;
+    --sr-perspective: 0px;
+    --sr-rx-from: 0deg;
+    --sr-ry-from: 0deg;
+    --sr-rz-from: 0deg;
+}
+
+.sr-tilt {
+    --sr-perspective: 900px;
+    --sr-y-from: 10px;
+    --sr-scale-from: 0.985;
+    --sr-rx-from: 10deg;
+    --sr-ry-from: -8deg;
+    --sr-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sr-wipe {
+    --sr-y-from: 10px;
+    --sr-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: clip;
+}
+
+.sr-wipe-x {
+    --sr-x-from: -120px;
+    --sr-y-from: 0px;
+    --sr-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sr-drop-z {
+    --sr-duration: 860ms;
+    --sr-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --sr-y-from: -14px;
+    --sr-scale-from: 0.96;
+    --sr-blur: 2px;
+    --sr-perspective: 1000px;
+    --sr-z-from: 240px;
+}
+
+.sr-bubble {
+    --sr-y-from: 0px;
+    --sr-scale-from: 0.22;
+    --sr-ease: cubic-bezier(0.2, 1.35, 0.3, 1);
+}
+
+.sr-bubble-soft {
+    --sr-y-from: 10px;
+    --sr-scale-from: 0.96;
+}
+
+.sr-slide-in-left {
+    --sr-duration: 650ms;
+    --sr-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --sr-x-from: -180px;
+    --sr-y-from: 0px;
+    --sr-scale-from: 0.99;
+}
+
+.sr-slide-in-right {
+    --sr-duration: 650ms;
+    --sr-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --sr-x-from: 180px;
+    --sr-y-from: 0px;
+    --sr-scale-from: 0.99;
+}
+
+.sr-reveal:not([data-sr-revealed="true"]) {
+    opacity: 0;
+    transform: perspective(var(--sr-perspective)) translate3d(var(--sr-x-from), var(--sr-y-from), 0) rotateX(var(--sr-rx-from)) rotateY(var(--sr-ry-from)) rotateZ(var(--sr-rz-from)) scale(var(--sr-scale-from));
+    filter: blur(var(--sr-blur)) saturate(0.98);
+}
+
+.sr-reveal[data-sr-revealed="true"] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    animation: sr-reveal var(--sr-duration) var(--sr-ease) both;
+    animation-delay: var(--sr-delay);
+}
+
+.sr-wipe.sr-reveal[data-sr-revealed="true"] {
+    animation-name: sr-wipe;
+}
+
+.sr-wipe-x.sr-reveal[data-sr-revealed="true"] {
+    animation-name: sr-wipe-x;
+}
+
+.sr-drop-z.sr-reveal:not([data-sr-revealed="true"]) {
+    transform: perspective(var(--sr-perspective)) translate3d(var(--sr-x-from), var(--sr-y-from), var(--sr-z-from)) rotateX(12deg) scale(var(--sr-scale-from));
+}
+
+.sr-drop-z.sr-reveal[data-sr-revealed="true"] {
+    animation-name: sr-drop-z;
+}
+
+.sr-bubble.sr-reveal[data-sr-revealed="true"] {
+    animation-name: sr-pop;
+}
+
+.sr-bubble-soft.sr-reveal[data-sr-revealed="true"] {
+    animation-name: sr-pop-soft;
+}
+
+@keyframes sr-reveal {
+    from {
+        opacity: 0;
+        transform: perspective(var(--sr-perspective)) translate3d(var(--sr-x-from), var(--sr-y-from), 0) rotateX(var(--sr-rx-from)) rotateY(var(--sr-ry-from)) rotateZ(var(--sr-rz-from)) scale(var(--sr-scale-from));
+        filter: blur(var(--sr-blur)) saturate(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: perspective(var(--sr-perspective)) translate3d(var(--sr-x-to), var(--sr-y-to), 0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1);
+        filter: blur(0);
+    }
+}
+
+@keyframes sr-pop {
+    0% {
+        opacity: 0;
+        transform: translate3d(var(--sr-x-from), var(--sr-y-from), 0) scale(var(--sr-scale-from));
+        filter: blur(var(--sr-blur)) saturate(0.98);
+    }
+
+    60% {
+        opacity: 1;
+        transform: translate3d(var(--sr-x-to), var(--sr-y-to), 0) scale(1.06);
+        filter: blur(0);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate3d(var(--sr-x-to), var(--sr-y-to), 0) scale(1);
+        filter: blur(0);
+    }
+}
+
+@keyframes sr-pop-soft {
+    0% {
+        opacity: 0;
+        transform: translate3d(var(--sr-x-from), var(--sr-y-from), 0) scale(var(--sr-scale-from));
+        filter: blur(var(--sr-blur)) saturate(0.98);
+    }
+
+    62% {
+        opacity: 1;
+        transform: translate3d(var(--sr-x-to), var(--sr-y-to), 0) scale(1.02);
+        filter: blur(0);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translate3d(var(--sr-x-to), var(--sr-y-to), 0) scale(1);
+        filter: blur(0);
+    }
+}
+
+@keyframes sr-drop-z {
+    0% {
+        opacity: 0;
+        transform: perspective(var(--sr-perspective)) translate3d(var(--sr-x-from), var(--sr-y-from), var(--sr-z-from)) rotateX(12deg) scale(var(--sr-scale-from));
+        filter: blur(var(--sr-blur)) saturate(0.98);
+    }
+
+    55% {
+        opacity: 1;
+        transform: perspective(var(--sr-perspective)) translate3d(var(--sr-x-to), calc(var(--sr-y-to) + 10px), 0px) rotateX(0deg) scale(1.03);
+        filter: blur(0) saturate(1);
+    }
+
+    78% {
+        opacity: 1;
+        transform: perspective(var(--sr-perspective)) translate3d(var(--sr-x-to), calc(var(--sr-y-to) - 4px), 0px) rotateX(0deg) scale(0.995);
+    }
+
+    100% {
+        opacity: 1;
+        transform: perspective(var(--sr-perspective)) translate3d(var(--sr-x-to), var(--sr-y-to), 0px) rotateX(0deg) scale(1);
+        filter: none;
+    }
+}
+
+@keyframes sr-wipe {
+    from {
+        opacity: 0;
+        clip-path: inset(0 0 100% 0);
+        transform: translate3d(var(--sr-x-from), var(--sr-y-from), 0) scale(var(--sr-scale-from));
+        filter: blur(var(--sr-blur)) saturate(0.98);
+    }
+
+    to {
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+        transform: translate3d(var(--sr-x-to), var(--sr-y-to), 0) scale(1);
+        filter: blur(0);
+    }
+}
+
+@keyframes sr-wipe-x {
+    from {
+        opacity: 0;
+        clip-path: inset(0 100% 0 0);
+        transform: translate3d(var(--sr-x-from), 0, 0) scale(var(--sr-scale-from));
+        filter: blur(var(--sr-blur)) saturate(0.98);
+    }
+
+    to {
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+        transform: translate3d(var(--sr-x-to), 0, 0) scale(1);
+        filter: blur(0);
+    }
+}
+
+/* ============================================================
+   Доступность */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .sr-reveal,
+    .sr-reveal[data-sr-revealed="true"] {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+        clip-path: none !important;
+    }
+
+    .tt-backdrop::before,
+    .tt-backdrop::after,
+    .tt-card:hover .tt-icon-tile i,
+    .tt-skeleton,
+    .tt-stagger,
+    .tt-dots span {
+        animation: none;
+    }
+
+    .tt-swap-enter-active,
+    .tt-swap-leave-active {
+        transition: none;
+    }
+
+    .beat-marker,
+    .beat-marker::after {
+        animation: none;
+        opacity: 0;
+    }
+
+    .pointer-glow {
+        transform: none !important;
+        transition: none !important;
+    }
+
+    .pointer-glow::before {
+        display: none;
+    }
+
+    .tt-btn,
+    .tt-card,
+    .tt-modal-close,
+    .tt-modal-enter-active,
+    .tt-modal-leave-active,
+    .tt-modal-enter-active .tt-modal,
+    .tt-modal-leave-active .tt-modal {
+        transition: none;
+    }
+
+    .tt-btn:hover,
+    .tt-card--lift:hover,
+    .tt-modal-close:hover,
+    .tt-icon-btn:hover,
+    .tt-send:hover:not(:disabled),
+    .tt-nav-flip:hover .tt-nav-flip-inner,
+    .tt-nav-flip:focus-visible .tt-nav-flip-inner {
+        transform: none;
+    }
+
+    .tt-icon-btn,
+    .tt-nav-flip-inner,
+    .tt-segment button,
+    .tt-nav-item,
+    .tt-send {
+        transition: none;
+    }
+
+    .tt-nav-flip:hover {
+        color: var(--tt-brand);
+    }
+}

@@ -1,194 +1,268 @@
-﻿<template>
-    <div class="user-panel">
-        <div class="user-info">
-            <i class="icon-user"></i>
-            <span>{{ user.first_name }} {{ user.last_name }}</span>
+<template>
+    <nav class="tt-board tt-board--sm panel" aria-label="Разделы профиля">
+        <div class="panel-user">
+            <span class="tt-avatar panel-avatar">
+                <img v-if="photo && !photoFailed" :src="photo" alt="" @error="photoFailed = true" />
+                <template v-else>{{ initials }}</template>
+            </span>
+            <div class="panel-who">
+                <b class="panel-name">{{ fullName }}</b>
+                <span :class="['tt-chip', { 'tt-chip--blue': role === 'client' }]">
+                    <i :class="role === 'trainer' ? 'fa-solid fa-clipboard-user' : 'fa-solid fa-user'"></i>
+                    {{ role === 'trainer' ? 'Тренер' : 'Клиент' }}
+                </span>
+            </div>
         </div>
 
-        <!-- Меню для клиента -->
-        <template v-if="isClient">
-            <button v-for="(item, index) in clientMenu" :key="index"
-                :class="['menu-btn', { active: selected === item.id }]" @click="selectMenu(item.id)">
-                <i :class="item.icon"></i>
-                {{ item.label }}
+        <div ref="menu" class="panel-menu">
+            <button v-for="item in items" :key="item.key" type="button"
+                :class="['tt-nav-item', 'panel-item', { 'is-active': item.key === active }]"
+                :aria-current="item.key === active ? 'page' : null" @click="$emit('select', item.key)">
+                <span class="tt-icon-tile tt-icon-tile--sm panel-icon"><i :class="item.icon"></i></span>
+                <span class="panel-label">{{ item.label }}</span>
+                <i class="fa-solid fa-chevron-right panel-arrow" aria-hidden="true"></i>
             </button>
+        </div>
 
-            <button class="subscribe-btn" @click="$emit('menu-selected', 'subscription')">
-                <i class="fa-brands fa-shopify"></i>
-                ПОДПИСКА
-            </button>
-
-            <button class="chat-btn" @click="$emit('menu-selected', 'chat')">
-                <i class="fa-solid fa-comments"></i>
-                ЧАТ С ТРЕНЕРОМ
-            </button>
-        </template>
-
-        <!-- Меню для тренера -->
-        <template v-else-if="isCoach">
-            <button v-for="(item, index) in coachMenu" :key="index"
-                :class="['menu-btn', { active: selected === item.id }]" @click="selectMenu(item.id)">
-                <i :class="item.icon"></i>
-                {{ item.label }}
-            </button>
-
-            <button class="chat-btn" @click="$emit('menu-selected', 'chat')">
-                <i class="fa-solid fa-comments"></i>
-                ЧАТ С КЛИЕНТАМИ
-            </button>
-        </template>
-
-        <template v-else>
-            <div style="padding: 10px; color: gray;">Пользователь не определён</div>
-        </template>
-    </div>
+        <button type="button" class="panel-help" @click="aiChat.open()">
+            <span class="tt-icon-tile tt-icon-tile--sm panel-help-icon"><i class="fa-solid fa-compass"></i></span>
+            <span class="panel-help-text">
+                <b>Не нашли нужное?</b>
+                <small>Спросите помощника — он откроет раздел</small>
+            </span>
+        </button>
+    </nav>
 </template>
 
 <script>
+import aiChat from '@/components/utils/AiChatState.js';
+import { joinName, initialsOf } from '@/components/utils/format.js';
+
+// Боковое меню профиля: кто вошёл и разделы. Какой раздел открыт, решает страница
 export default {
+    name: 'UserPanel',
     props: {
-        user: {
-            type: Object,
-            required: true
-        }
+        user: { type: Object, required: true },
+        // client | trainer
+        role: { type: String, default: 'client' },
+        // [{ key, label, icon }]
+        items: { type: Array, default: () => [] },
+        active: { type: String, default: null }
     },
     data() {
-        return {
-            selected: null,
-            clientMenu: [
-                { id: "progress", label: "ВАШ ПРОГРЕСС", icon: "fa-solid fa-circle-user" },
-                { id: "trainer", label: "ВАШ ТРЕНЕР", icon: "fa-solid fa-user-tie" },
-                { id: "settings", label: "НАСТРОЙКИ", icon: "fa-solid fa-cogs" },
-                { id: "support", label: "ПОДДЕРЖКА", icon: "fa-solid fa-headset" },
-                { id: "feedback", label: "ОСТАВИТЬ ОТЗЫВ", icon: "fa-solid fa-comment-dots" }
-            ],
-            coachMenu: [
-                { id: "clients", label: "ВАШИ КЛИЕНТЫ", icon: "fa-solid fa-users" },
-                { id: "settings", label: "НАСТРОЙКИ", icon: "fa-solid fa-cogs" },
-                { id: "support", label: "ПОДДЕРЖКА", icon: "fa-solid fa-headset" }
-            ]
-        };
+        return { aiChat, photoFailed: false };
     },
-    computed: {
-        isClient() {
-            return this.user && this.user.clientid;
-        },
-        isCoach() {
-            return this.user && this.user.coachid;
+    watch: {
+        active() {
+            this.$nextTick(this.revealActive);
         }
     },
     mounted() {
-        // Раздел из адреса имеет приоритет: по ссылке /Profile?menu=settings
-        // приходит помощник, и панель не должна перебивать выбор своим
-        // значением по умолчанию — её mounted срабатывает позже страницы.
-        const fromQuery = this.$route && this.$route.query.menu;
-
-        if (fromQuery) {
-            this.selected = fromQuery;
-        } else if (this.isClient) {
-            this.selected = "progress";
-        } else if (this.isCoach) {
-            this.selected = "clients";
+        this.revealActive();
+    },
+    computed: {
+        fullName() {
+            return joinName(this.user.first_name, this.user.last_name) || 'Профиль';
+        },
+        initials() {
+            return initialsOf(this.user.first_name, this.user.last_name) || 'TT';
+        },
+        photo() {
+            const image = this.user.image;
+            return image && image !== 'default.jpg' ? `/api/uploads/${image}` : null;
         }
-
-        this.$emit("menu-selected", this.selected);
     },
     methods: {
-        selectMenu(id) {
-            this.selected = id;
-            this.$emit("menu-selected", id);
+        // На узком экране меню — горизонтальная лента: докручиваем её к открытому разделу
+        revealActive() {
+            const menu = this.$refs.menu;
+            const item = menu && menu.querySelector('.is-active');
+            if (!item || menu.scrollWidth <= menu.clientWidth) return;
+            menu.scrollLeft = item.offsetLeft - (menu.clientWidth - item.offsetWidth) / 2;
         }
     }
 };
 </script>
 
 <style scoped>
-.user-panel {
-    align-self: flex-start;
-    margin-left: auto;
-    /* Это ключевая строка: прижимает к правому краю */
-    display: flex;
-    flex-direction: column;
-    background: var(--background-color);
-    padding: 15px;
-    border-radius: 8px;
-    width: 250px;
-    transition: background-color 0.5s, color 0.5s;
+/* Панель — .tt-board--sm, пункты — .tt-nav-item */
+.panel {
+    display: grid;
+    gap: 18px;
 }
 
-.user-info {
+.panel-user {
     display: flex;
     align-items: center;
-    font-size: var(--text-h7);
-    color: var(--text-color);
-    margin-bottom: 10px;
-    transition: color 0.5s;
+    gap: 14px;
+    padding: 6px 6px 18px;
+    border-bottom: 1px solid var(--tt-line);
 }
 
-.icon-user {
-    margin-right: 10px;
+.panel-avatar {
+    width: 56px;
+    height: 56px;
+    font-size: 19px;
 }
 
-.menu-btn {
+.panel-who {
+    display: grid;
+    justify-items: start;
+    gap: 6px;
+    min-width: 0;
+}
+
+.panel-name {
+    max-width: 100%;
+    overflow: hidden;
+    color: var(--tt-ink);
+    font-size: 17px;
+    line-height: 1.25;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* relative — чтобы offsetLeft пунктов считался от ленты (см. revealActive) */
+.panel-menu {
+    position: relative;
+    display: grid;
+    gap: 4px;
+}
+
+
+.panel-label {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.panel-arrow {
+    color: var(--tt-muted);
+    font-size: 11px;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.25s ease, transform 0.3s var(--tt-ease);
+}
+
+.panel-item:hover .panel-arrow {
+    opacity: 1;
+    transform: none;
+}
+
+.panel-item.is-active .panel-arrow {
+    color: var(--tt-brand);
+    opacity: 1;
+    transform: none;
+}
+
+/* Подсказка про помощника — синяя, это дополнительный цвет */
+.panel-help {
     display: flex;
     align-items: center;
-    padding: 10px;
-    background: transparent;
-    border: 2px solid transparent;
-    color: var(--text-color);
+    gap: 12px;
+    width: 100%;
+    margin: 0;
+    padding: 14px;
+    border: 1px dashed rgba(55, 96, 231, 0.35);
+    border-radius: var(--tt-radius-md);
+    background-color: var(--tt-blue-tint);
+    color: var(--tt-ink);
     text-align: left;
     cursor: pointer;
-    transition: 0.3s;
-    font-size: var(--text-h8);
-    border-radius: 10px;
-    font-weight: bold;
+    transition: border-color 0.25s ease, transform 0.3s var(--tt-ease);
 }
 
-.menu-btn i {
-    margin-right: 10px;
-    font-size: large;
+.panel-help:hover {
+    border-color: var(--tt-blue);
+    transform: translateY(-2px);
 }
 
-.menu-btn.active {
-    border: 2px solid var(--button-hover-color);
-    background: var(--background-color-white);
-    color: var(--text-color);
-    transition: background-color 0.5s, color 0.5s, border-color 0.5s;
+.panel-help-icon {
+    background-color: var(--tt-blue);
+    color: #ffffff;
 }
 
-.subscribe-btn {
-    margin-top: 10px;
-    border: 2px solid var(--button-hover-color);
-    color: var(--button-hover-color);
-    font-weight: bold;
-    text-align: left;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    background: var(--background-color-white);
-    border-radius: 10px;
-    transition: background-color 0.5s, color 0.5s, border-color 0.5s;
+.panel-help:hover .panel-help-icon i {
+    animation: help-seek 0.9s ease-in-out;
 }
 
-.subscribe-btn i {
-    margin-right: 10px;
-    font-size: large;
+@keyframes help-seek {
+    30% {
+        transform: rotate(-30deg);
+    }
+
+    65% {
+        transform: rotate(20deg);
+    }
 }
 
-.chat-btn {
-  background-color: var(--button-hover-color);
-  color: white;
-  padding: 10px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  width: 100%;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.panel-help-text {
+    display: grid;
+    gap: 2px;
+    font-size: 14px;
 }
 
+.panel-help-text small {
+    color: var(--tt-muted);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* На узком экране меню — горизонтальная лента разделов */
+@media (max-width: 1000px) {
+    .panel {
+        gap: 14px;
+    }
+
+    .panel-user {
+        padding: 2px 2px 14px;
+    }
+
+    .panel-menu {
+        display: flex;
+        gap: 6px;
+        margin: 0 -14px;
+        padding: 0 14px 2px;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .panel-menu::-webkit-scrollbar {
+        display: none;
+    }
+
+    .panel-item {
+        flex: none;
+        width: auto;
+        padding: 6px 14px 6px 6px;
+        border-color: var(--tt-line);
+        border-radius: var(--tt-radius-pill);
+    }
+
+    .panel-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+
+    .panel-arrow,
+    .panel-help {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .panel-arrow,
+    .panel-help {
+        transition: none;
+    }
+
+    .panel-help:hover {
+        transform: none;
+    }
+
+    .panel-help:hover .panel-help-icon i {
+        animation: none;
+    }
+}
 </style>

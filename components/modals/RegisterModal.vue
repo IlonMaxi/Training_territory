@@ -1,99 +1,134 @@
-﻿<template>
-    <div v-if="isVisible" class="modal-overlay">
-        <div class="modal">
-            <button class="close" @click="closeModal">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <h2>Регистрация</h2>
-            <form @submit.prevent="register">
-                <label>
-                    <span class="label-text">ФАМИЛИЯ ИМЯ ОТЧЕСТВО</span>
-                    <div class="name-fields">
-                        <input type="text" v-model="last_name" placeholder="Фамилия" required>
-                        <input type="text" v-model="first_name" placeholder="Имя" required>
-                        <input type="text" v-model="patronymic" placeholder="Отчество" required>
+<template>
+    <transition name="tt-modal" :duration="{ enter: 450, leave: 200 }">
+        <div v-if="isVisible" class="tt-modal-overlay">
+            <div class="tt-modal register-modal" role="dialog" aria-modal="true" aria-labelledby="register-title">
+                <button type="button" class="tt-modal-close" aria-label="Закрыть" @click="closeModal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+                <span class="tt-eyebrow"><i class="fa-solid fa-dumbbell"></i> Training Territory</span>
+                <h2 id="register-title" class="tt-modal-title">Создайте <span class="tt-accent">аккаунт</span></h2>
+
+                <form @submit.prevent="register">
+                    <div class="tt-field">
+                        <span class="tt-field-label">Фамилия, имя, отчество</span>
+                        <div class="fields fields--3">
+                            <input class="tt-input" type="text" v-model="last_name" placeholder="Фамилия"
+                                autocomplete="family-name" required>
+                            <input class="tt-input" type="text" v-model="first_name" placeholder="Имя"
+                                autocomplete="given-name" required>
+                            <input class="tt-input" type="text" v-model="patronymic" placeholder="Отчество"
+                                autocomplete="additional-name" required>
+                        </div>
                     </div>
-                </label>
-                <label>
-                    <span class="label-text">ЛОГИН И ПАРОЛЬ</span>
-                    <div class="login-password-fields">
-                        <input type="text" v-model="username" placeholder="Введите ваш логин" required>
-                        <input type="password" v-model="password" placeholder="Введите ваш пароль" required
-                            :class="{ 'invalid': !isPasswordValid }" @input="validatePassword">
-                        <transition name="fade">
-                            <div v-if="!isPasswordValid" class="tooltip">Пароль должен содержать минимум 8 символов,
-                                включая заглавную букву, цифру и спецсимвол.</div>
-                        </transition>
-                    </div>
-                </label>
-                <label>
-                    <span class="label-text">НОМЕР ТЕЛЕФОНА И ЭЛЕКТРОННАЯ ПОЧТА</span>
-                    <div class="phone-email-fields">
-                        <input type="tel" v-model="phone_number" placeholder="+7 (XXX) XXX-XX-XX" required
-                            maxlength="11" :class="{ 'invalid': !isPhoneValid }" @input="validatePhone"
-                            @keypress="onlyNumbers">
-                        <transition name="fade">
-                            <div v-if="!isPhoneValid" class="tooltip">Телефон должен содержать 11 цифр и начинаться с 8.
+
+                    <div class="tt-field">
+                        <span class="tt-field-label">Логин и пароль</span>
+                        <div class="fields fields--2">
+                            <input class="tt-input" type="text" v-model="username" placeholder="Введите ваш логин"
+                                autocomplete="username" required>
+                            <div class="field-with-hint">
+                                <input class="tt-input" type="password" v-model="password"
+                                    placeholder="Введите ваш пароль" autocomplete="new-password" required
+                                    :class="{ 'invalid': !isPasswordValid }" @input="validatePassword">
+                                <transition name="hint">
+                                    <div v-if="!isPasswordValid" class="tooltip">Пароль должен содержать минимум 8
+                                        символов, включая заглавную букву, цифру и спецсимвол.</div>
+                                </transition>
                             </div>
-                        </transition>
-                        <input type="email" v-model="email" placeholder="example@mail.com" required
-                            :class="{ 'invalid': !isEmailValid }" @input="validateEmail">
-                        <transition name="fade">
-                            <div v-if="!isEmailValid" class="tooltip">Введите корректный адрес электронной почты.</div>
-                        </transition>
+                        </div>
                     </div>
-                </label>
-                <label>
-                    <span class="label-text">ТИП АККАУНТА</span>
-                    <div class="account-type">
-                        <label>
-                            <input type="radio" v-model="accountType" value="trainer" required>
-                            Тренер
-                        </label>
-                        <label>
-                            <input type="radio" v-model="accountType" value="client" required>
-                            Клиент
-                        </label>
+
+                    <div class="tt-field">
+                        <span class="tt-field-label">Номер телефона и электронная почта</span>
+                        <div class="fields fields--2">
+                            <div class="field-with-hint">
+                                <input class="tt-input" type="tel" v-model="phone_number"
+                                    placeholder="+7 (XXX) XXX-XX-XX" required maxlength="11" autocomplete="tel"
+                                    :class="{ 'invalid': !isPhoneValid }" @input="validatePhone"
+                                    @keypress="onlyNumbers">
+                                <transition name="hint">
+                                    <div v-if="!isPhoneValid" class="tooltip">Телефон должен содержать 11 цифр и
+                                        начинаться с 8.</div>
+                                </transition>
+                            </div>
+                            <div class="field-with-hint">
+                                <input class="tt-input" type="email" v-model="email" placeholder="example@mail.com"
+                                    required autocomplete="email" :class="{ 'invalid': !isEmailValid }"
+                                    @input="validateEmail">
+                                <transition name="hint">
+                                    <div v-if="!isEmailValid" class="tooltip">Введите корректный адрес электронной
+                                        почты.</div>
+                                </transition>
+                            </div>
+                        </div>
                     </div>
-                </label>
-                <label>
-                    <span class="label-text">ДАТА РОЖДЕНИЯ</span>
-                    <div class="birth-date">
-                        <select v-model="birthDay" required>
-                            <option disabled value="">День</option>
-                            <option v-for="n in availableDays" :key="n" :value="n">{{ n }}</option>
-                        </select>
-                        <select v-model="birthMonth" required @change="updateAvailableDays">
-                            <option disabled value="">Месяц</option>
-                            <option v-for="(month, index) in months" :key="index" :value="index + 1">{{ month }}
-                            </option>
-                        </select>
-                        <select v-model="birthYear" required @change="updateAvailableDays">
-                            <option disabled value="">Год</option>
-                            <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
-                        </select>
+
+                    <div class="fields fields--2 pair">
+                        <div class="tt-field">
+                            <span class="tt-field-label">Тип аккаунта</span>
+                            <div class="tt-choice-group">
+                                <label :class="['tt-choice', { checked: accountType === 'trainer' }]">
+                                    <input type="radio" v-model="accountType" value="trainer" required>
+                                    <i class="fa-solid fa-dumbbell"></i> Тренер
+                                </label>
+                                <label :class="['tt-choice', { checked: accountType === 'client' }]">
+                                    <input type="radio" v-model="accountType" value="client" required>
+                                    <i class="fa-solid fa-user-check"></i> Клиент
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="tt-field">
+                            <span class="tt-field-label">Пол</span>
+                            <div class="tt-choice-group">
+                                <label :class="['tt-choice', { checked: gender === 'male' }]">
+                                    <input type="radio" v-model="gender" value="male" required>
+                                    Мужской
+                                </label>
+                                <label :class="['tt-choice', { checked: gender === 'female' }]">
+                                    <input type="radio" v-model="gender" value="female" required>
+                                    Женский
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                </label>
-                <label>
-                    <span class="label-text">ПОЛ</span>
-                    <div class="gender">
-                        <label>
-                            <input type="radio" v-model="gender" value="male" required>
-                            Мужской
-                        </label>
-                        <label>
-                            <input type="radio" v-model="gender" value="female" required>
-                            Женский
-                        </label>
+
+                    <div class="tt-field">
+                        <span class="tt-field-label">Дата рождения</span>
+                        <div class="fields fields--3">
+                            <select class="tt-input" v-model="birthDay" required aria-label="День рождения">
+                                <option disabled value="">День</option>
+                                <option v-for="n in availableDays" :key="n" :value="n">{{ n }}</option>
+                            </select>
+                            <select class="tt-input" v-model="birthMonth" required aria-label="Месяц рождения"
+                                @change="updateAvailableDays">
+                                <option disabled value="">Месяц</option>
+                                <option v-for="(month, index) in months" :key="index" :value="index + 1">{{ month }}
+                                </option>
+                            </select>
+                            <select class="tt-input" v-model="birthYear" required aria-label="Год рождения"
+                                @change="updateAvailableDays">
+                                <option disabled value="">Год</option>
+                                <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
+                            </select>
+                        </div>
                     </div>
-                </label>
-                <div class="buttons">
-                    <button type="button" class="login-button" @click="goToLogin">ЕСТЬ АККАУНТ</button>
-                    <button type="submit" class="register-button" :disabled="!isFormValid">ДАЛЕЕ</button>
-                </div>
-            </form>
+
+                    <div v-if="errorMessage" class="tt-form-error" role="alert">
+                        <i class="fa-solid fa-circle-exclamation"></i> {{ errorMessage }}
+                    </div>
+
+                    <div class="buttons">
+                        <button type="button" class="tt-btn tt-btn--ghost" @click="goToLogin">Есть аккаунт</button>
+                        <button type="submit" class="tt-btn tt-btn--primary" :disabled="!isFormValid">
+                            Далее <span class="tt-arrow" aria-hidden="true">→</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
+    </transition>
 </template>
 
 <script>
@@ -123,6 +158,7 @@ export default {
             isPhoneValid: true,
             isEmailValid: true,
             availableDays: [],
+            errorMessage: '',
             months: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
             years: Array.from({ length: 100 }, (v, i) => new Date().getFullYear() - i)
         };
@@ -135,14 +171,16 @@ export default {
     methods: {
         closeModal() {
             this.$emit('close');
+            this.errorMessage = '';
         },
         async register() {
+            this.errorMessage = '';
             this.validateEmail();
             this.validatePassword();
             this.validatePhone();
 
             if (!this.isFormValid) {
-                alert("Пожалуйста, заполните все поля правильно.");
+                this.errorMessage = 'Пожалуйста, заполните все поля правильно.';
                 return;
             }
 
@@ -172,7 +210,8 @@ export default {
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.error || 'Ошибка при регистрации');
+                    this.errorMessage = data.error || 'Ошибка при регистрации';
+                    return;
                 }
 
                 // Сохранение в cookie
@@ -188,7 +227,7 @@ export default {
                 }
             } catch (error) {
                 console.error('Ошибка регистрации:', error);
-                alert(`Ошибка при регистрации: ${error.message}`);
+                this.errorMessage = 'Ошибка сети. Пожалуйста, попробуйте позже.';
             }
         },
         goToLogin() {
@@ -230,231 +269,83 @@ export default {
 </script>
 
 <style scoped>
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+.register-modal {
+    width: min(760px, 100%);
 }
 
-.invalid {
-    border-color: red;
+.fields {
+    display: grid;
+    gap: 10px;
+}
+
+.fields--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.fields--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Пара «тип аккаунта + пол» — две колонки, каждая со своей подписью */
+.pair {
+    gap: 16px;
+}
+
+.field-with-hint {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
 }
 
 .tooltip {
-    background-color: red;
-    color: white;
-    padding: 5px;
-    border-radius: 5px;
+    color: #dc2626;
     font-size: var(--text-caption);
-    text-align: center;
-    display: flex;
-    align-items: center;
-    font-weight: bold;
+    font-weight: 600;
+    line-height: 1.4;
 }
 
-.modal {
-    background: var(--background-color-white);
-    color: var(--text-color);
-    padding: 40px;
-    border-radius: 10px;
-    width: 70vw;
-    position: relative;
-    text-align: center;
-    padding-top: 0;
-    padding-bottom: 0;
-    overflow: visible;
-    transition: background-color 0.5s ease, color 0.5s ease;
+body.dark-theme .tooltip {
+    color: #fca5a5;
 }
 
-.modal select {
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid var(--button-border-color);
-    background-color: var(--background-color);
-    color: var(--text-color);
-    width: 100%;
-    margin-top: 5px;
-    z-index: 1000;
-    position: relative;
+.hint-enter-active,
+.hint-leave-active {
+    transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-.close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    color: #DD7548 !important;
-    font-size: var(--text-h4);
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
-
-.close i {
-    color: #DD7548 !important; /* ОРАНЖЕВЫЙ для самого крестика */
-    font-size: var(--text-h4);
-}
-
-.close:hover {
-    color: #e26536; /* Можно сделать чуть темнее при наведении */
-}
-
-h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    margin-top: 20px;
-    font-weight: bold;
-    font-size: x-large;
-    color: var(--text-color);
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-}
-
-form label {
-    align-items: flex-start;
-    margin-bottom: 15px;
-    font-size: var(--text-h8);
-    font-weight: bold;
-    text-align: left;
-    width: 100%;
-    color: var(--text-color);
-}
-
-.label-text {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.name-fields,
-.login-password-fields,
-.phone-email-fields {
-    display: flex;
-    gap: 10px;
-    margin-top: 5px;
-}
-
-.birth-date input,
-.name-fields input[type="text"],
-.login-password-fields input[type="text"],
-.login-password-fields input[type="password"],
-.phone-email-fields input[type="tel"],
-.phone-email-fields input[type="email"] {
-    flex: 1;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid var(--button-border-color);
-    background-color: var(--background-color);
-    color: var(--text-color);
-    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
-}
-
-.birth-date,
-.gender,
-.account-type {
-    margin-top: 5px;
-    display: flex;
-    gap: 10px;
-}
-
-.birth-date select {
-    flex: 1;
-}
-
-.gender label,
-.account-type label {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--background-color);
-    border-radius: 5px;
-    padding: 10px;
-    cursor: pointer;
-    margin-bottom: 0;
-    border: 1px solid var(--button-border-color);
-    color: var(--text-color);
-    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
-}
-
-.gender input[type="radio"],
-.account-type input[type="radio"] {
-    margin-right: 5px;
+.hint-enter,
+.hint-leave-to {
+    opacity: 0;
+    transform: translateY(-4px);
 }
 
 .buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
+    margin-top: 8px;
 }
 
-.login-button {
-    padding: 10px;
-    background: var(--button-hover-color-white);
-    border: 1px solid var(--button-hover-color);
-    color: var(--button-hover-color);
-    border-radius: 5px;
-    cursor: pointer;
-    width: 50%;
-    transition: background-color 0.5s ease, color 0.5s ease;
+.buttons .tt-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    transform: none;
+    box-shadow: none;
 }
 
-.login-button:hover {
-    background: var(--button-hover-color);
-    color: var(--button-hover-color-white);
-}
-
-.register-button {
-    padding: 10px;
-    background: var(--button-hover-color);
-    border: none;
-    color: var(--button-hover-color-white);
-    border-radius: 5px;
-    cursor: pointer;
-    width: 50%;
-    transition: background-color 0.5s ease, color 0.5s ease;
-}
-
-.register-button:hover {
-    background: var(--text-color);
-    color: var(--background-color);
-}
-
-@media (max-width: 815px) {
-    .login-password-fields,
-    .phone-email-fields {
-        flex-direction: column;
+@media (max-width: 720px) {
+    .tt-modal {
+        padding: 28px 20px;
     }
 
-    .name-fields,
-    .birth-date {
-        flex-direction: column;
+    .fields--2,
+    .fields--3,
+    .buttons {
+        grid-template-columns: minmax(0, 1fr);
     }
 
-    .name-fields input,
-    .birth-date select {
-        width: 100%;
-    }
-
-    .login-button,
-    .register-button {
-        width: 100%;
-    }
-
-    .tooltip {
-        font-size: var(--text-caption);
-        padding: 4px;
+    .pair {
+        gap: 0;
     }
 }
 </style>
-
