@@ -1,0 +1,8 @@
+{
+  "python": "3.10.9",
+  "implementation": "CPython",
+  "platform": "Windows-10-10.0.26300-SP0",
+  "dependencies": "только стандартная библиотека Python",
+  "command": "python -m navigator_lab run",
+  "params_hash": "dc07b034fae4698c"
+}

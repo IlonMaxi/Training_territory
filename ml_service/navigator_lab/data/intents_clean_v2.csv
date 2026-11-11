@@ -1,0 +1,315 @@
+query_id,text,label,label_a,label_b,group,split
+Q000,привет,other,other,other,приве,validation
+Q001,привет как дела,other,other,other,дела приве,train
+Q002,здравствуйте,other,other,other,здрав,train
+Q003,спасибо,other,other,other,спаси,train
+Q004,пока,other,other,other,пока,test
+Q005,как тебя зовут,other,other,other,зовут тебя,test
+Q006,кто ты,other,other,other,ты,train
+Q007,расскажи анекдот,other,other,other,анекд расск,validation
+Q008,погода завтра,other,other,other,завтр погод,validation
+Q009,какая сегодня погода,other,other,other,погод сегод,train
+Q010,сколько времени,other,other,other,време,train
+Q011,какой сегодня день,other,other,other,день сегод,train
+Q012,как приготовить борщ,other,other,nutrition,борщ приго,train
+Q013,рецепт пиццы,other,other,nutrition,пиццы рецеп,validation
+Q014,сколько стоит биткоин,other,other,other,битко стоит,train
+Q015,курс доллара,other,other,other,долла курс,train
+Q016,кто выиграл чемпионат мира,other,other,other,выигр мира чемпи,test
+Q017,результаты матча,other,other,other,матча резул,train
+Q018,какая столица франции,other,other,other,столи франц,validation
+Q019,сколько лет земле,other,other,other,земле лет,validation
+Q020,посоветуй фильм,other,other,other,посов фильм,train
+Q021,что посмотреть вечером,other,other,other,вечер посмо,train
+Q022,включи музыку,other,other,other,включ музык,test
+Q023,вызови такси,other,other,other,вызов такси,train
+Q024,где купить машину,other,other,other,купит машин,test
+Q025,закажи пиццу,other,other,other,закаж пиццу,test
+Q026,мне грустно,other,other,other,груст,train
+Q027,как дела у тебя,other,other,other,дела тебя,train
+Q028,новости,other,other,other,новос,train
+Q029,что нового в мире,other,other,other,мире новог,test
+Q030,переведи на английский,other,other,other,англи перев,train
+Q031,реши уравнение,other,other,other,реши уравн,test
+Q032,напиши код,other,other,other,код напиш,train
+Q033,сколько будет два плюс два,other,other,other,будет два плюс,train
+Q034,когда день рождения у пушкина,other,other,other,день пушки рожде,train
+Q035,расскажи о себе,other,other,other,расск себе,validation
+Q036,помоги с домашкой,other,other,other,домаш помог,test
+Q037,где ближайшая аптека,other,other,other,аптек ближа,validation
+Q038,как доехать до центра,other,other,other,до доеха центр,train
+Q039,забронируй столик,other,other,other,забро столи,train
+Q040,покажи мой прогресс,progress,progress,progress,прогр,train
+Q041,нужен прогресс в процентах,progress,progress,progress,прогр проце,train
+Q042,прогресс в процентах,progress,progress,progress,прогр проце,train
+Q043,мои замеры,progress,progress,progress,замер,validation
+Q044,показать замеры,progress,progress,progress,замер,validation
+Q045,динамика веса,progress,progress,progress,веса динам,train
+Q046,как меняется мой вес,progress,progress,progress,вес меняе,train
+Q047,график веса,progress,progress,progress,веса графи,train
+Q048,сколько я сбросил,progress,progress,progress,сброс,train
+Q049,процент жира,progress,progress,progress,жира проце,train
+Q050,жировая масса,progress,progress,progress,жиров масса,train
+Q051,мышечная масса,progress,progress,progress,масса мышеч,train
+Q052,сколько во мне мышц,progress,progress,progress,во мышц,test
+Q053,индекс массы тела,progress,progress,progress,индек массы тела,train
+Q054,мой имт,progress,progress,progress,имт,train
+Q055,обхваты тела,progress,progress,progress,обхва тела,train
+Q056,замеры в сантиметрах,progress,progress,progress,замер санти,train
+Q057,замеры в килограммах,progress,progress,progress,замер килог,test
+Q058,статистика тела,progress,progress,progress,стати тела,test
+Q059,результаты тренировок,progress,progress,progress,резул трени,train
+Q060,мои результаты,progress,progress,progress,резул,validation
+Q061,прогноз веса,progress,progress,progress,веса прогн,train
+Q062,что будет с весом через месяц,progress,progress,progress,будет весом месяц через,validation
+Q063,аналитика по замерам,progress,progress,progress,анали замер,test
+Q064,открой прогресс,progress,progress,progress,прогр,train
+Q065,хочу посмотреть свой прогресс,progress,progress,progress,посмо прогр свой,train
+Q066,показатели тела,progress,progress,progress,показ тела,validation
+Q067,мой метаболизм,progress,progress,progress,метаб,train
+Q068,возраст тела,progress,progress,progress,возра тела,test
+Q069,содержание воды в организме,progress,progress,progress,воды орган содер,train
+Q070,моё расписание,schedule,schedule,schedule,распи,train
+Q071,покажи расписание,schedule,schedule,schedule,распи,train
+Q072,когда следующая тренировка,schedule,schedule,schedule,следу трени,validation
+Q073,во сколько тренировка,schedule,schedule,schedule,во трени,validation
+Q074,какие у меня занятия,schedule,schedule,schedule,занят,train
+Q075,график тренировок,schedule,schedule,schedule,графи трени,validation
+Q076,расписание на неделю,schedule,schedule,schedule,недел распи,train
+Q077,расписание на завтра,schedule,schedule,schedule,завтр распи,test
+Q078,когда я тренируюсь,schedule,schedule,schedule,трени,train
+Q079,мои тренировки,schedule,schedule,schedule,трени,train
+Q081,занятия на этой неделе,schedule,schedule,schedule,занят недел этой,test
+Q082,во сколько я записан,schedule,schedule,schedule,во запис,test
+Q083,где будет тренировка,schedule,schedule,schedule,будет трени,test
+Q084,покажи календарь,schedule,schedule,schedule,кален,train
+Q085,открой расписание,schedule,schedule,schedule,распи,train
+Q086,что у меня сегодня,schedule,schedule,schedule,сегод,train
+Q087,есть ли тренировка сегодня,schedule,schedule,schedule,есть сегод трени,train
+Q088,перенести тренировку,schedule,schedule,schedule,перен трени,train
+Q089,отменить занятие,schedule,schedule,schedule,занят отмен,train
+Q090,записаться на тренировку,schedule,schedule,schedule,запис трени,train
+Q091,свободное время тренера,schedule,schedule,schedule,время свобо трене,test
+Q092,какие упражнения на тренировке,schedule,schedule,schedule,трени упраж,validation
+Q093,программа занятия,schedule,schedule,спорный,занят прогр,validation
+Q094,тренировки на неделю,schedule,schedule,schedule,недел трени,validation
+Q095,моё питание,nutrition,nutrition,nutrition,питан,validation
+Q096,покажи питание,nutrition,nutrition,nutrition,питан,validation
+Q097,что мне есть,nutrition,nutrition,nutrition,есть,train
+Q098,план питания,nutrition,nutrition,nutrition,питан план,test
+Q099,рацион на день,nutrition,nutrition,nutrition,день рацио,validation
+Q100,меню на неделю,nutrition,nutrition,nutrition,меню недел,train
+Q101,сколько калорий мне нужно,nutrition,nutrition,nutrition,калор нужно,train
+Q102,калорийность рациона,nutrition,nutrition,nutrition,калор рацио,train
+Q103,мои калории,nutrition,nutrition,nutrition,калор,validation
+Q104,белки жиры углеводы,nutrition,nutrition,nutrition,белки жиры углев,train
+Q105,бжу,nutrition,nutrition,nutrition,бжу,test
+Q106,что на завтрак,nutrition,nutrition,nutrition,завтр,train
+Q107,что на обед,nutrition,nutrition,nutrition,обед,train
+Q108,что на ужин,nutrition,nutrition,nutrition,ужин,train
+Q109,рецепты,nutrition,nutrition,nutrition,рецеп,train
+Q110,покажи рецепт,nutrition,nutrition,nutrition,рецеп,train
+Q111,диета,nutrition,nutrition,nutrition,диета,train
+Q112,сколько воды пить,nutrition,nutrition,nutrition,воды пить,train
+Q113,норма воды,nutrition,nutrition,nutrition,воды норма,validation
+Q114,открой питание,nutrition,nutrition,nutrition,питан,validation
+Q115,приёмы пищи,nutrition,nutrition,nutrition,пищи прием,train
+Q116,меню на сегодня,nutrition,nutrition,nutrition,меню сегод,test
+Q117,чем питаться после тренировки,nutrition,nutrition,nutrition,питат после трени чем,train
+Q118,список блюд,nutrition,nutrition,nutrition,блюд списо,validation
+Q119,сколько белка в день,nutrition,nutrition,nutrition,белка день,train
+Q120,написать тренеру,chat,chat,chat,напис трене,train
+Q121,чат с тренером,chat,chat,chat,трене чат,train
+Q122,открой чат,chat,chat,chat,чат,train
+Q123,хочу написать сообщение,chat,chat,chat,напис сообщ,test
+Q124,связаться с тренером,chat,chat,chat,связа трене,train
+Q125,переписка,chat,chat,chat,переп,test
+Q126,мои сообщения,chat,chat,chat,сообщ,train
+Q127,новые сообщения,chat,chat,chat,новые сообщ,test
+Q128,задать вопрос тренеру,chat,chat,chat,вопро задат трене,validation
+Q129,поговорить с тренером,chat,chat,chat,погов трене,train
+Q130,диалог с тренером,chat,chat,chat,диало трене,test
+Q131,отправить сообщение,chat,chat,chat,отпра сообщ,train
+Q132,открой переписку,chat,chat,chat,переп,test
+Q133,чат,chat,chat,chat,чат,train
+Q134,сообщения,chat,chat,chat,сообщ,train
+Q135,написать сообщение тренеру,chat,chat,chat,напис сообщ трене,validation
+Q136,как связаться с тренером,chat,chat,chat,связа трене,train
+Q137,напиши тренеру,chat,chat,chat,напиш трене,test
+Q138,переписка с тренером,chat,chat,chat,переп трене,train
+Q139,открыть диалог,chat,chat,chat,диало откры,validation
+Q140,настройки,settings,settings,settings,настр,train
+Q141,открой настройки,settings,settings,settings,настр,train
+Q142,изменить данные,settings,settings,settings,данны измен,train
+Q143,поменять пароль,settings,settings,settings,парол помен,train
+Q144,сменить пароль,settings,settings,settings,парол смени,train
+Q145,изменить профиль,settings,settings,settings,измен профи,validation
+Q146,редактировать профиль,settings,settings,settings,профи редак,test
+Q147,поменять почту,settings,settings,settings,помен почту,train
+Q148,изменить телефон,settings,settings,settings,измен телеф,train
+Q149,загрузить фото,settings,settings,settings,загру фото,train
+Q150,сменить аватар,settings,settings,settings,авата смени,validation
+Q151,поменять имя,settings,settings,settings,имя помен,train
+Q152,мои личные данные,settings,settings,settings,данны личны,train
+Q153,настройки аккаунта,settings,settings,settings,аккау настр,train
+Q154,настройки профиля,settings,settings,settings,настр профи,validation
+Q155,изменить email,settings,settings,settings,email измен,train
+Q156,обновить данные профиля,settings,settings,settings,данны обнов профи,validation
+Q157,поменять тему,settings,settings,settings,помен тему,test
+Q158,тёмная тема,settings,settings,settings,тема темна,test
+Q159,персональные данные,settings,settings,settings,данны персо,train
+Q160,мой тренер,trainer,trainer,trainer,трене,train
+Q161,кто мой тренер,trainer,trainer,trainer,трене,train
+Q162,информация о тренере,trainer,trainer,trainer,инфор трене,train
+Q163,выбрать тренера,trainer,trainer,trainer,выбра трене,validation
+Q164,сменить тренера,trainer,trainer,trainer,смени трене,train
+Q165,назначить тренера,trainer,trainer,trainer,назна трене,train
+Q166,убрать тренера,trainer,trainer,trainer,трене убрат,test
+Q167,отказаться от тренера,trainer,trainer,trainer,от отказ трене,train
+Q168,контакты тренера,trainer,trainer,trainer,конта трене,train
+Q169,опыт тренера,trainer,trainer,trainer,опыт трене,train
+Q170,специализация тренера,trainer,trainer,trainer,специ трене,train
+Q171,список тренеров,trainer,trainer,trainer,списо трене,train
+Q172,показать тренеров,trainer,trainer,trainer,трене,train
+Q173,найти тренера,trainer,trainer,trainer,найти трене,train
+Q174,какие есть тренеры,trainer,trainer,trainer,есть трене,validation
+Q175,профиль тренера,trainer,trainer,trainer,профи трене,test
+Q176,открой тренера,trainer,trainer,trainer,трене,train
+Q177,данные тренера,trainer,trainer,trainer,данны трене,test
+Q178,поменять наставника,trainer,trainer,trainer,наста помен,train
+Q179,хочу другого тренера,trainer,trainer,trainer,друго трене,test
+Q180,моя подписка,subscription,subscription,subscription,подпи,train
+Q181,абонемент,subscription,subscription,subscription,абоне,validation
+Q182,сколько тренировок осталось,subscription,subscription,subscription,остал трени,train
+Q183,остаток занятий,subscription,subscription,subscription,занят остат,train
+Q184,срок абонемента,subscription,subscription,subscription,абоне срок,train
+Q185,когда заканчивается подписка,subscription,subscription,subscription,закан подпи,train
+Q186,продлить абонемент,subscription,subscription,subscription,абоне продл,test
+Q187,купить абонемент,subscription,subscription,subscription,абоне купит,validation
+Q188,оплатить занятия,subscription,subscription,subscription,занят оплат,train
+Q189,оплата,subscription,subscription,subscription,оплат,test
+Q190,тарифы,subscription,subscription,subscription,тариф,train
+Q191,какие есть тарифы,subscription,subscription,subscription,есть тариф,train
+Q192,сколько стоит,subscription,subscription,subscription,стоит,validation
+Q193,цена абонемента,subscription,subscription,subscription,абоне цена,validation
+Q194,мой тариф,subscription,subscription,subscription,тариф,train
+Q195,оформить подписку,subscription,subscription,subscription,оформ подпи,validation
+Q196,история платежей,subscription,subscription,subscription,истор плате,test
+Q197,мои оплаты,subscription,subscription,subscription,оплат,test
+Q198,открой подписку,subscription,subscription,subscription,подпи,train
+Q199,продлить занятия,subscription,subscription,subscription,занят продл,validation
+Q200,поддержка,support,support,support,подде,train
+Q201,помощь,support,support,support,помощ,train
+Q202,нужна помощь,support,support,support,помощ,train
+Q203,у меня проблема,support,support,support,пробл,train
+Q204,не работает,support,support,support,не работ,test
+Q205,техподдержка,support,support,support,техпо,train
+Q206,связаться с поддержкой,support,support,support,подде связа,test
+Q207,написать в поддержку,support,support,support,напис подде,train
+Q208,как пользоваться сайтом,support,support,support,польз сайто,train
+Q209,не могу разобраться,support,support,support,могу не разоб,train
+Q210,куда нажать,support,support,support,куда нажат,validation
+Q211,инструкция,support,support,support,инстр,test
+Q212,часто задаваемые вопросы,support,support,support,вопро задав часто,train
+Q213,вопрос по сайту,support,support,support,вопро сайту,train
+Q214,сообщить об ошибке,support,support,support,об ошибк сообщ,train
+Q215,что-то сломалось,support,support,support,слома то,test
+Q216,help,support,support,support,help,train
+Q217,подскажите как,support,support,support,подск,validation
+Q218,не понимаю как это работает,support,support,support,не поним работ,train
+Q219,нужна подсказка,support,support,support,подск,validation
+Q220,оставить отзыв,feedback,feedback,feedback,остав отзыв,train
+Q221,написать отзыв,feedback,feedback,feedback,напис отзыв,validation
+Q222,оценить тренера,feedback,feedback,feedback,оцени трене,train
+Q223,поставить оценку,feedback,feedback,feedback,оценк поста,train
+Q224,мой отзыв,feedback,feedback,feedback,отзыв,train
+Q225,хочу оставить комментарий,feedback,feedback,feedback,комме остав,train
+Q226,оценка занятий,feedback,feedback,feedback,занят оценк,test
+Q227,обратная связь,feedback,feedback,feedback,обрат связь,train
+Q228,поделиться впечатлением,feedback,feedback,feedback,впеча подел,train
+Q229,написать комментарий,feedback,feedback,feedback,комме напис,validation
+Q230,отзыв о тренировках,feedback,feedback,feedback,отзыв трени,validation
+Q231,оценить сервис,feedback,feedback,feedback,оцени серви,train
+Q232,форма отзыва,feedback,feedback,feedback,отзыв форма,test
+Q233,оставить комментарий тренеру,feedback,feedback,feedback,комме остав трене,train
+Q234,рейтинг тренера,trainer,feedback,trainer,рейти трене,train
+Q235,хочу похвалить тренера,feedback,feedback,feedback,похва трене,train
+Q236,пожаловаться,feedback,feedback,feedback,пожал,validation
+Q237,оставить оценку,feedback,feedback,feedback,остав оценк,validation
+Q238,отзыв,feedback,feedback,feedback,отзыв,train
+Q239,написать благодарность,feedback,feedback,feedback,благо напис,train
+Q240,хочу потренироваться,workout,workout,workout,потре,train
+Q241,дай тренировку,workout,workout,workout,трени,train
+Q242,подбери тренировку,workout,workout,workout,подбе трени,train
+Q243,составь программу,workout,workout,workout,прогр соста,train
+Q244,нужна программа упражнений,workout,workout,workout,прогр упраж,validation
+Q245,какую тренировку выбрать,workout,workout,workout,выбра какую трени,train
+Q246,что потренировать сегодня,workout,workout,workout,потре сегод,train
+Q247,силовая тренировка,workout,workout,workout,силов трени,train
+Q248,тренировка на спину,workout,workout,workout,спину трени,train
+Q249,упражнения на спину,workout,workout,workout,спину упраж,test
+Q250,тренировка на бицепс,workout,workout,workout,бицеп трени,test
+Q251,упражнения на бицепс,workout,workout,workout,бицеп упраж,train
+Q252,прокачать руки,workout,workout,workout,прока руки,train
+Q253,тренировка на грудь,workout,workout,workout,грудь трени,train
+Q254,упражнения на грудь,workout,workout,workout,грудь упраж,validation
+Q255,тренировка на ноги,workout,workout,workout,ноги трени,test
+Q256,упражнения на ноги,workout,workout,workout,ноги упраж,train
+Q257,кардио тренировка,workout,workout,workout,карди трени,test
+Q258,как накачать спину,workout,workout,workout,накач спину,train
+Q259,как накачать бицепс,workout,workout,workout,бицеп накач,train
+Q260,программа на всё тело,workout,workout,workout,все прогр тело,test
+Q261,тренировка для новичка,workout,workout,workout,нович трени,validation
+Q262,с чего начать тренировки,workout,workout,workout,начат трени чего,train
+Q263,покажи упражнения,workout,workout,workout,упраж,train
+Q264,примеры тренировок,workout,workout,workout,приме трени,test
+Q265,план упражнений,workout,workout,workout,план упраж,train
+Q266,хочу качаться,workout,workout,workout,качат,validation
+Q267,тренировка дома,workout,workout,workout,дома трени,train
+Q268,разминка перед тренировкой,workout,workout,workout,перед разми трени,train
+Q269,какие упражнения делать,workout,workout,workout,делат упраж,train
+Q270,тренировка на плечи,workout,workout,workout,плечи трени,test
+Q271,упражнения на плечи,workout,workout,workout,плечи упраж,validation
+Q272,тренировка на пресс,workout,workout,workout,пресс трени,train
+Q273,упражнения на пресс,workout,workout,workout,пресс упраж,train
+Q274,качать пресс,workout,workout,workout,качат пресс,train
+Q275,тренировка на трицепс,workout,workout,workout,трени трице,train
+Q276,упражнения на трицепс,workout,workout,workout,трице упраж,train
+Q277,тренировка на ягодицы,workout,workout,workout,трени ягоди,test
+Q278,упражнения на ягодицы,workout,workout,workout,упраж ягоди,train
+Q279,тренировка на икры,workout,workout,workout,икры трени,train
+Q280,упражнения на голеностоп,workout,workout,workout,голен упраж,train
+Q281,тренировка на широчайшие,workout,workout,workout,трени широч,train
+Q282,упражнения на предплечья,workout,workout,workout,предп упраж,test
+Q283,тренировка на шею,workout,workout,workout,трени шею,validation
+Q284,упражнения на дельты,workout,workout,workout,дельт упраж,test
+Q285,тренировка на квадрицепс,workout,workout,workout,квадр трени,train
+Q286,упражнения на бёдра,workout,workout,workout,бедра упраж,train
+Q287,тренировка на кор,workout,workout,workout,кор трени,validation
+Q288,растяжка,workout,workout,workout,растя,train
+Q289,упражнения на выносливость,workout,workout,workout,вынос упраж,train
+Q290,напиши тренировку,workout,workout,workout,напиш трени,train
+Q291,напиши мне тренировку,workout,workout,workout,напиш трени,train
+Q292,составь тренировку,workout,workout,workout,соста трени,validation
+Q294,дай программу упражнений,workout,workout,workout,прогр упраж,validation
+Q295,нужна тренировка,workout,workout,workout,трени,train
+Q296,мои клиенты,clients,clients,clients,клиен,train
+Q297,список клиентов,clients,clients,clients,клиен списо,train
+Q298,показать клиентов,clients,clients,clients,клиен,train
+Q299,кто у меня занимается,clients,clients,clients,заним,validation
+Q300,мои подопечные,clients,clients,clients,подоп,validation
+Q301,карточки клиентов,clients,clients,clients,карто клиен,train
+Q302,прогресс клиентов,clients,clients,clients,клиен прогр,train
+Q303,открой клиентов,clients,clients,clients,клиен,train
+Q304,данные клиента,clients,clients,clients,данны клиен,train
+Q305,сколько у меня клиентов,clients,clients,clients,клиен,train
+Q306,назначить тренировку клиенту,clients,clients,clients,клиен назна трени,train
+Q307,добавить занятие клиенту,clients,clients,clients,добав занят клиен,validation
+Q308,клиенты,clients,clients,clients,клиен,train
+Q309,подопечные,clients,clients,clients,подоп,validation
+Q310,информация о клиенте,clients,clients,clients,инфор клиен,validation
+Q311,замеры клиента,clients,clients,clients,замер клиен,train
+Q312,кому назначить тренировку,clients,clients,clients,кому назна трени,test
+Q313,список подопечных,clients,clients,clients,подоп списо,train
+Q314,мои ученики,clients,clients,clients,учени,test
+Q315,работа с клиентами,clients,clients,clients,клиен работ,test

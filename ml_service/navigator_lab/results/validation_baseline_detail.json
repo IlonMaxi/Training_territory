@@ -1,0 +1,2088 @@
+{
+  "settings": {
+    "данные": "intents_clean_v2.csv, версия 60d80a7acb7eb7fa, источник intent_data.json коммита b973fb9",
+    "обучение": "train: словарь и IDF",
+    "оценка": "validation",
+    "признак": "текст запроса",
+    "токены": "нижний регистр, ё -> е, слова [a-zа-я0-9]+",
+    "вес слова": "число повторов * (ln((1 + N) / (1 + df)) + 1), N и df по train, L2-нормирование",
+    "решение": "намерение ближайшего запроса train по косинусному сходству",
+    "неизвестные слова": "игнорируются",
+    "нулевой вектор": "нет ответа, считается ошибкой",
+    "одинаковые оценки": "округление до 6 знаков, затем по возрастанию query_id",
+    "сохраняемые соседи": 3,
+    "интервал": "бутстреп внутри намерений, 1000 выборок, seed 42"
+  },
+  "params_hash": "dc07b034fae4698c",
+  "data_version": "60d80a7acb7eb7fa",
+  "split_sizes": {
+    "train": 193,
+    "validation": 63,
+    "test": 58
+  },
+  "labels": [
+    "chat",
+    "clients",
+    "feedback",
+    "nutrition",
+    "other",
+    "progress",
+    "schedule",
+    "settings",
+    "subscription",
+    "support",
+    "trainer",
+    "workout"
+  ],
+  "metrics": [
+    {
+      "model": "nearest_query_tfidf",
+      "queries": 63,
+      "correct": 29,
+      "no_answer": 8,
+      "accuracy": 0.460317,
+      "accuracy_ci_low": 0.365079,
+      "accuracy_ci_high": 0.555556,
+      "macro_f1": 0.424627,
+      "macro_f1_ci_low": 0.319002,
+      "macro_f1_ci_high": 0.50396
+    },
+    {
+      "model": "majority_workout",
+      "queries": 63,
+      "correct": 9,
+      "no_answer": 0,
+      "accuracy": 0.142857,
+      "accuracy_ci_low": 0.142857,
+      "accuracy_ci_high": 0.142857,
+      "macro_f1": 0.020833,
+      "macro_f1_ci_low": 0.020833,
+      "macro_f1_ci_high": 0.020833
+    }
+  ],
+  "per_class": [
+    {
+      "label": "chat",
+      "support": 3,
+      "predicted": 4,
+      "correct": 2,
+      "precision": 0.5,
+      "recall": 0.666667,
+      "f1": 0.571429
+    },
+    {
+      "label": "clients",
+      "support": 5,
+      "predicted": 3,
+      "correct": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "label": "feedback",
+      "support": 5,
+      "predicted": 3,
+      "correct": 3,
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1": 0.75
+    },
+    {
+      "label": "nutrition",
+      "support": 7,
+      "predicted": 2,
+      "correct": 1,
+      "precision": 0.5,
+      "recall": 0.142857,
+      "f1": 0.222222
+    },
+    {
+      "label": "other",
+      "support": 8,
+      "predicted": 7,
+      "correct": 4,
+      "precision": 0.571429,
+      "recall": 0.5,
+      "f1": 0.533333
+    },
+    {
+      "label": "progress",
+      "support": 5,
+      "predicted": 3,
+      "correct": 2,
+      "precision": 0.666667,
+      "recall": 0.4,
+      "f1": 0.5
+    },
+    {
+      "label": "schedule",
+      "support": 6,
+      "predicted": 6,
+      "correct": 2,
+      "precision": 0.333333,
+      "recall": 0.333333,
+      "f1": 0.333333
+    },
+    {
+      "label": "settings",
+      "support": 4,
+      "predicted": 3,
+      "correct": 3,
+      "precision": 1.0,
+      "recall": 0.75,
+      "f1": 0.857143
+    },
+    {
+      "label": "subscription",
+      "support": 6,
+      "predicted": 5,
+      "correct": 3,
+      "precision": 0.6,
+      "recall": 0.5,
+      "f1": 0.545455
+    },
+    {
+      "label": "support",
+      "support": 3,
+      "predicted": 1,
+      "correct": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "label": "trainer",
+      "support": 2,
+      "predicted": 4,
+      "correct": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "label": "workout",
+      "support": 9,
+      "predicted": 14,
+      "correct": 9,
+      "precision": 0.642857,
+      "recall": 1.0,
+      "f1": 0.782609
+    }
+  ],
+  "cases": [
+    {
+      "query_id": "Q000",
+      "text": "привет",
+      "label": "other",
+      "prediction": "other",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [],
+      "train_forms": [],
+      "shared_words": [
+        "привет"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q001",
+          "label": "other",
+          "text": "привет как дела",
+          "score": 0.653478
+        }
+      ]
+    },
+    {
+      "query_id": "Q007",
+      "text": "расскажи анекдот",
+      "label": "other",
+      "prediction": null,
+      "correct": false,
+      "error_type": "нет ответа",
+      "unknown_words": [
+        "расскажи",
+        "анекдот"
+      ],
+      "train_forms": [],
+      "shared_words": [],
+      "neighbors": []
+    },
+    {
+      "query_id": "Q008",
+      "text": "погода завтра",
+      "label": "other",
+      "prediction": "other",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "завтра"
+      ],
+      "train_forms": [
+        "завтра: завтрак"
+      ],
+      "shared_words": [
+        "погода"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q009",
+          "label": "other",
+          "text": "какая сегодня погода",
+          "score": 0.614911
+        }
+      ]
+    },
+    {
+      "query_id": "Q013",
+      "text": "рецепт пиццы",
+      "label": "other",
+      "prediction": "nutrition",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "пиццы"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "рецепт"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q110",
+          "label": "nutrition",
+          "text": "покажи рецепт",
+          "score": 0.779753
+        }
+      ]
+    },
+    {
+      "query_id": "Q018",
+      "text": "какая столица франции",
+      "label": "other",
+      "prediction": "other",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "столица",
+        "франции"
+      ],
+      "train_forms": [
+        "столица: столик"
+      ],
+      "shared_words": [
+        "какая"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q009",
+          "label": "other",
+          "text": "какая сегодня погода",
+          "score": 0.614911
+        }
+      ]
+    },
+    {
+      "query_id": "Q019",
+      "text": "сколько лет земле",
+      "label": "other",
+      "prediction": "other",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "лет",
+        "земле"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "сколько"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q010",
+          "label": "other",
+          "text": "сколько времени",
+          "score": 0.579624
+        },
+        {
+          "query_id": "Q048",
+          "label": "progress",
+          "text": "сколько я сбросил",
+          "score": 0.46245
+        },
+        {
+          "query_id": "Q112",
+          "label": "nutrition",
+          "text": "сколько воды пить",
+          "score": 0.46245
+        }
+      ]
+    },
+    {
+      "query_id": "Q035",
+      "text": "расскажи о себе",
+      "label": "other",
+      "prediction": "trainer",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "расскажи",
+        "себе"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "о"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q162",
+          "label": "trainer",
+          "text": "информация о тренере",
+          "score": 0.57735
+        }
+      ]
+    },
+    {
+      "query_id": "Q037",
+      "text": "где ближайшая аптека",
+      "label": "other",
+      "prediction": null,
+      "correct": false,
+      "error_type": "нет ответа",
+      "unknown_words": [
+        "где",
+        "ближайшая",
+        "аптека"
+      ],
+      "train_forms": [],
+      "shared_words": [],
+      "neighbors": []
+    },
+    {
+      "query_id": "Q043",
+      "text": "мои замеры",
+      "label": "progress",
+      "prediction": "clients",
+      "correct": false,
+      "error_type": "все слова известны",
+      "unknown_words": [],
+      "train_forms": [],
+      "shared_words": [
+        "замеры"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q311",
+          "label": "clients",
+          "text": "замеры клиента",
+          "score": 0.52528
+        },
+        {
+          "query_id": "Q079",
+          "label": "schedule",
+          "text": "мои тренировки",
+          "score": 0.462173
+        },
+        {
+          "query_id": "Q126",
+          "label": "chat",
+          "text": "мои сообщения",
+          "score": 0.448162
+        }
+      ]
+    },
+    {
+      "query_id": "Q044",
+      "text": "показать замеры",
+      "label": "progress",
+      "prediction": "clients",
+      "correct": false,
+      "error_type": "все слова известны",
+      "unknown_words": [],
+      "train_forms": [],
+      "shared_words": [
+        "показать"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q298",
+          "label": "clients",
+          "text": "показать клиентов",
+          "score": 0.542479
+        },
+        {
+          "query_id": "Q172",
+          "label": "trainer",
+          "text": "показать тренеров",
+          "score": 0.5
+        },
+        {
+          "query_id": "Q311",
+          "label": "clients",
+          "text": "замеры клиента",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "query_id": "Q060",
+      "text": "мои результаты",
+      "label": "progress",
+      "prediction": "progress",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [],
+      "train_forms": [],
+      "shared_words": [
+        "результаты"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q059",
+          "label": "progress",
+          "text": "результаты тренировок",
+          "score": 0.52528
+        },
+        {
+          "query_id": "Q017",
+          "label": "other",
+          "text": "результаты матча",
+          "score": 0.505097
+        },
+        {
+          "query_id": "Q079",
+          "label": "schedule",
+          "text": "мои тренировки",
+          "score": 0.462173
+        }
+      ]
+    },
+    {
+      "query_id": "Q062",
+      "text": "что будет с весом через месяц",
+      "label": "progress",
+      "prediction": "chat",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "весом",
+        "через",
+        "месяц"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "с"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q121",
+          "label": "chat",
+          "text": "чат с тренером",
+          "score": 0.287912
+        },
+        {
+          "query_id": "Q124",
+          "label": "chat",
+          "text": "связаться с тренером",
+          "score": 0.281479
+        },
+        {
+          "query_id": "Q106",
+          "label": "nutrition",
+          "text": "что на завтрак",
+          "score": 0.279749
+        }
+      ]
+    },
+    {
+      "query_id": "Q066",
+      "text": "показатели тела",
+      "label": "progress",
+      "prediction": "progress",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "показатели"
+      ],
+      "train_forms": [
+        "показатели: показать"
+      ],
+      "shared_words": [
+        "тела"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q055",
+          "label": "progress",
+          "text": "обхваты тела",
+          "score": 0.679937
+        },
+        {
+          "query_id": "Q053",
+          "label": "progress",
+          "text": "индекс массы тела",
+          "score": 0.548321
+        }
+      ]
+    },
+    {
+      "query_id": "Q072",
+      "text": "когда следующая тренировка",
+      "label": "schedule",
+      "prediction": "schedule",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "следующая"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "когда"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q078",
+          "label": "schedule",
+          "text": "когда я тренируюсь",
+          "score": 0.427076
+        },
+        {
+          "query_id": "Q185",
+          "label": "subscription",
+          "text": "когда заканчивается подписка",
+          "score": 0.427076
+        },
+        {
+          "query_id": "Q295",
+          "label": "workout",
+          "text": "нужна тренировка",
+          "score": 0.36175
+        }
+      ]
+    },
+    {
+      "query_id": "Q073",
+      "text": "во сколько тренировка",
+      "label": "schedule",
+      "prediction": "other",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "во"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "сколько"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q010",
+          "label": "other",
+          "text": "сколько времени",
+          "score": 0.419384
+        },
+        {
+          "query_id": "Q295",
+          "label": "workout",
+          "text": "нужна тренировка",
+          "score": 0.407656
+        },
+        {
+          "query_id": "Q247",
+          "label": "workout",
+          "text": "силовая тренировка",
+          "score": 0.387599
+        }
+      ]
+    },
+    {
+      "query_id": "Q075",
+      "text": "график тренировок",
+      "label": "schedule",
+      "prediction": "progress",
+      "correct": false,
+      "error_type": "все слова известны",
+      "unknown_words": [],
+      "train_forms": [],
+      "shared_words": [
+        "график"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q047",
+          "label": "progress",
+          "text": "график веса",
+          "score": 0.551661
+        },
+        {
+          "query_id": "Q059",
+          "label": "progress",
+          "text": "результаты тренировок",
+          "score": 0.480788
+        },
+        {
+          "query_id": "Q182",
+          "label": "subscription",
+          "text": "сколько тренировок осталось",
+          "score": 0.409909
+        }
+      ]
+    },
+    {
+      "query_id": "Q092",
+      "text": "какие упражнения на тренировке",
+      "label": "schedule",
+      "prediction": "workout",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "тренировке"
+      ],
+      "train_forms": [
+        "тренировке: тренировка, тренировки, тренировкой, тренировку, тренировок, тренируюсь"
+      ],
+      "shared_words": [
+        "какие",
+        "упражнения"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q269",
+          "label": "workout",
+          "text": "какие упражнения делать",
+          "score": 0.665757
+        },
+        {
+          "query_id": "Q273",
+          "label": "workout",
+          "text": "упражнения на пресс",
+          "score": 0.509859
+        },
+        {
+          "query_id": "Q251",
+          "label": "workout",
+          "text": "упражнения на бицепс",
+          "score": 0.495342
+        }
+      ]
+    },
+    {
+      "query_id": "Q093",
+      "text": "программа занятия",
+      "label": "schedule",
+      "prediction": "subscription",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "программа"
+      ],
+      "train_forms": [
+        "программа: программу, прогресс"
+      ],
+      "shared_words": [
+        "занятия"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q188",
+          "label": "subscription",
+          "text": "оплатить занятия",
+          "score": 0.679937
+        },
+        {
+          "query_id": "Q074",
+          "label": "schedule",
+          "text": "какие у меня занятия",
+          "score": 0.54209
+        }
+      ]
+    },
+    {
+      "query_id": "Q094",
+      "text": "тренировки на неделю",
+      "label": "schedule",
+      "prediction": "schedule",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [],
+      "train_forms": [],
+      "shared_words": [
+        "на",
+        "неделю"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q076",
+          "label": "schedule",
+          "text": "расписание на неделю",
+          "score": 0.616187
+        },
+        {
+          "query_id": "Q100",
+          "label": "nutrition",
+          "text": "меню на неделю",
+          "score": 0.571865
+        },
+        {
+          "query_id": "Q079",
+          "label": "schedule",
+          "text": "мои тренировки",
+          "score": 0.454551
+        }
+      ]
+    },
+    {
+      "query_id": "Q095",
+      "text": "моё питание",
+      "label": "nutrition",
+      "prediction": "schedule",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "питание"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "мое"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q070",
+          "label": "schedule",
+          "text": "моё расписание",
+          "score": 0.767352
+        }
+      ]
+    },
+    {
+      "query_id": "Q096",
+      "text": "покажи питание",
+      "label": "nutrition",
+      "prediction": "workout",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "питание"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "покажи"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q263",
+          "label": "workout",
+          "text": "покажи упражнения",
+          "score": 0.756468
+        },
+        {
+          "query_id": "Q071",
+          "label": "schedule",
+          "text": "покажи расписание",
+          "score": 0.692855
+        },
+        {
+          "query_id": "Q084",
+          "label": "schedule",
+          "text": "покажи календарь",
+          "score": 0.626087
+        }
+      ]
+    },
+    {
+      "query_id": "Q099",
+      "text": "рацион на день",
+      "label": "nutrition",
+      "prediction": "other",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "рацион"
+      ],
+      "train_forms": [
+        "рацион: рациона"
+      ],
+      "shared_words": [
+        "день"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q011",
+          "label": "other",
+          "text": "какой сегодня день",
+          "score": 0.474588
+        },
+        {
+          "query_id": "Q119",
+          "label": "nutrition",
+          "text": "сколько белка в день",
+          "score": 0.434742
+        },
+        {
+          "query_id": "Q034",
+          "label": "other",
+          "text": "когда день рождения у пушкина",
+          "score": 0.362444
+        }
+      ]
+    },
+    {
+      "query_id": "Q103",
+      "text": "мои калории",
+      "label": "nutrition",
+      "prediction": "schedule",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "калории"
+      ],
+      "train_forms": [
+        "калории: калорий, калорийность"
+      ],
+      "shared_words": [
+        "мои"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q079",
+          "label": "schedule",
+          "text": "мои тренировки",
+          "score": 0.690378
+        },
+        {
+          "query_id": "Q126",
+          "label": "chat",
+          "text": "мои сообщения",
+          "score": 0.669449
+        },
+        {
+          "query_id": "Q296",
+          "label": "clients",
+          "text": "мои клиенты",
+          "score": 0.669449
+        }
+      ]
+    },
+    {
+      "query_id": "Q113",
+      "text": "норма воды",
+      "label": "nutrition",
+      "prediction": "nutrition",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "норма"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "воды"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q112",
+          "label": "nutrition",
+          "text": "сколько воды пить",
+          "score": 0.602863
+        },
+        {
+          "query_id": "Q069",
+          "label": "progress",
+          "text": "содержание воды в организме",
+          "score": 0.498439
+        }
+      ]
+    },
+    {
+      "query_id": "Q114",
+      "text": "открой питание",
+      "label": "nutrition",
+      "prediction": "trainer",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "питание"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "открой"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q176",
+          "label": "trainer",
+          "text": "открой тренера",
+          "score": 0.742114
+        },
+        {
+          "query_id": "Q064",
+          "label": "progress",
+          "text": "открой прогресс",
+          "score": 0.695926
+        },
+        {
+          "query_id": "Q303",
+          "label": "clients",
+          "text": "открой клиентов",
+          "score": 0.695926
+        }
+      ]
+    },
+    {
+      "query_id": "Q118",
+      "text": "список блюд",
+      "label": "nutrition",
+      "prediction": "clients",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "блюд"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "список"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q297",
+          "label": "clients",
+          "text": "список клиентов",
+          "score": 0.748719
+        },
+        {
+          "query_id": "Q171",
+          "label": "trainer",
+          "text": "список тренеров",
+          "score": 0.686586
+        },
+        {
+          "query_id": "Q313",
+          "label": "clients",
+          "text": "список подопечных",
+          "score": 0.658787
+        }
+      ]
+    },
+    {
+      "query_id": "Q128",
+      "text": "задать вопрос тренеру",
+      "label": "chat",
+      "prediction": "chat",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "задать"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "тренеру"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q120",
+          "label": "chat",
+          "text": "написать тренеру",
+          "score": 0.494347
+        },
+        {
+          "query_id": "Q213",
+          "label": "support",
+          "text": "вопрос по сайту",
+          "score": 0.423354
+        },
+        {
+          "query_id": "Q233",
+          "label": "feedback",
+          "text": "оставить комментарий тренеру",
+          "score": 0.399839
+        }
+      ]
+    },
+    {
+      "query_id": "Q135",
+      "text": "написать сообщение тренеру",
+      "label": "chat",
+      "prediction": "chat",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [],
+      "train_forms": [],
+      "shared_words": [
+        "написать",
+        "тренеру"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q120",
+          "label": "chat",
+          "text": "написать тренеру",
+          "score": 0.786944
+        },
+        {
+          "query_id": "Q131",
+          "label": "chat",
+          "text": "отправить сообщение",
+          "score": 0.436302
+        },
+        {
+          "query_id": "Q239",
+          "label": "feedback",
+          "text": "написать благодарность",
+          "score": 0.355946
+        }
+      ]
+    },
+    {
+      "query_id": "Q139",
+      "text": "открыть диалог",
+      "label": "chat",
+      "prediction": null,
+      "correct": false,
+      "error_type": "нет ответа",
+      "unknown_words": [
+        "открыть",
+        "диалог"
+      ],
+      "train_forms": [],
+      "shared_words": [],
+      "neighbors": []
+    },
+    {
+      "query_id": "Q145",
+      "text": "изменить профиль",
+      "label": "settings",
+      "prediction": "settings",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "профиль"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "изменить"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q142",
+          "label": "settings",
+          "text": "изменить данные",
+          "score": 0.723448
+        },
+        {
+          "query_id": "Q148",
+          "label": "settings",
+          "text": "изменить телефон",
+          "score": 0.658787
+        },
+        {
+          "query_id": "Q155",
+          "label": "settings",
+          "text": "изменить email",
+          "score": 0.658787
+        }
+      ]
+    },
+    {
+      "query_id": "Q150",
+      "text": "сменить аватар",
+      "label": "settings",
+      "prediction": "trainer",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "аватар"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "сменить"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q164",
+          "label": "trainer",
+          "text": "сменить тренера",
+          "score": 0.806987
+        },
+        {
+          "query_id": "Q144",
+          "label": "settings",
+          "text": "сменить пароль",
+          "score": 0.707107
+        }
+      ]
+    },
+    {
+      "query_id": "Q154",
+      "text": "настройки профиля",
+      "label": "settings",
+      "prediction": "settings",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "профиля"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "настройки"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q140",
+          "label": "settings",
+          "text": "настройки",
+          "score": 1.0
+        },
+        {
+          "query_id": "Q141",
+          "label": "settings",
+          "text": "открой настройки",
+          "score": 0.758932
+        },
+        {
+          "query_id": "Q153",
+          "label": "settings",
+          "text": "настройки аккаунта",
+          "score": 0.658787
+        }
+      ]
+    },
+    {
+      "query_id": "Q156",
+      "text": "обновить данные профиля",
+      "label": "settings",
+      "prediction": "settings",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "обновить",
+        "профиля"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "данные"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q142",
+          "label": "settings",
+          "text": "изменить данные",
+          "score": 0.690378
+        },
+        {
+          "query_id": "Q304",
+          "label": "clients",
+          "text": "данные клиента",
+          "score": 0.669449
+        },
+        {
+          "query_id": "Q159",
+          "label": "settings",
+          "text": "персональные данные",
+          "score": 0.641226
+        }
+      ]
+    },
+    {
+      "query_id": "Q163",
+      "text": "выбрать тренера",
+      "label": "trainer",
+      "prediction": "workout",
+      "correct": false,
+      "error_type": "все слова известны",
+      "unknown_words": [],
+      "train_forms": [],
+      "shared_words": [
+        "выбрать"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q245",
+          "label": "workout",
+          "text": "какую тренировку выбрать",
+          "score": 0.519897
+        },
+        {
+          "query_id": "Q176",
+          "label": "trainer",
+          "text": "открой тренера",
+          "score": 0.376367
+        },
+        {
+          "query_id": "Q164",
+          "label": "trainer",
+          "text": "сменить тренера",
+          "score": 0.331612
+        }
+      ]
+    },
+    {
+      "query_id": "Q174",
+      "text": "какие есть тренеры",
+      "label": "trainer",
+      "prediction": "subscription",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "тренеры"
+      ],
+      "train_forms": [
+        "тренеры: тренер, тренера, тренере, тренеров, тренером, тренеру"
+      ],
+      "shared_words": [
+        "есть",
+        "какие"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q191",
+          "label": "subscription",
+          "text": "какие есть тарифы",
+          "score": 0.800469
+        },
+        {
+          "query_id": "Q097",
+          "label": "nutrition",
+          "text": "что мне есть",
+          "score": 0.434631
+        },
+        {
+          "query_id": "Q269",
+          "label": "workout",
+          "text": "какие упражнения делать",
+          "score": 0.412911
+        }
+      ]
+    },
+    {
+      "query_id": "Q181",
+      "text": "абонемент",
+      "label": "subscription",
+      "prediction": null,
+      "correct": false,
+      "error_type": "нет ответа",
+      "unknown_words": [
+        "абонемент"
+      ],
+      "train_forms": [
+        "абонемент: абонемента"
+      ],
+      "shared_words": [],
+      "neighbors": []
+    },
+    {
+      "query_id": "Q187",
+      "text": "купить абонемент",
+      "label": "subscription",
+      "prediction": null,
+      "correct": false,
+      "error_type": "нет ответа",
+      "unknown_words": [
+        "купить",
+        "абонемент"
+      ],
+      "train_forms": [
+        "абонемент: абонемента"
+      ],
+      "shared_words": [],
+      "neighbors": []
+    },
+    {
+      "query_id": "Q192",
+      "text": "сколько стоит",
+      "label": "subscription",
+      "prediction": "other",
+      "correct": false,
+      "error_type": "все слова известны",
+      "unknown_words": [],
+      "train_forms": [],
+      "shared_words": [
+        "сколько",
+        "стоит"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q014",
+          "label": "other",
+          "text": "сколько стоит биткоин",
+          "score": 0.775209
+        },
+        {
+          "query_id": "Q010",
+          "label": "other",
+          "text": "сколько времени",
+          "score": 0.335964
+        },
+        {
+          "query_id": "Q048",
+          "label": "progress",
+          "text": "сколько я сбросил",
+          "score": 0.268047
+        }
+      ]
+    },
+    {
+      "query_id": "Q193",
+      "text": "цена абонемента",
+      "label": "subscription",
+      "prediction": "subscription",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "цена"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "абонемента"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q184",
+          "label": "subscription",
+          "text": "срок абонемента",
+          "score": 0.707107
+        }
+      ]
+    },
+    {
+      "query_id": "Q195",
+      "text": "оформить подписку",
+      "label": "subscription",
+      "prediction": "subscription",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "оформить"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "подписку"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q198",
+          "label": "subscription",
+          "text": "открой подписку",
+          "score": 0.799491
+        }
+      ]
+    },
+    {
+      "query_id": "Q199",
+      "text": "продлить занятия",
+      "label": "subscription",
+      "prediction": "subscription",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "продлить"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "занятия"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q188",
+          "label": "subscription",
+          "text": "оплатить занятия",
+          "score": 0.679937
+        },
+        {
+          "query_id": "Q074",
+          "label": "schedule",
+          "text": "какие у меня занятия",
+          "score": 0.54209
+        }
+      ]
+    },
+    {
+      "query_id": "Q210",
+      "text": "куда нажать",
+      "label": "support",
+      "prediction": null,
+      "correct": false,
+      "error_type": "нет ответа",
+      "unknown_words": [
+        "куда",
+        "нажать"
+      ],
+      "train_forms": [],
+      "shared_words": [],
+      "neighbors": []
+    },
+    {
+      "query_id": "Q217",
+      "text": "подскажите как",
+      "label": "support",
+      "prediction": "workout",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "подскажите"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "как"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q258",
+          "label": "workout",
+          "text": "как накачать спину",
+          "score": 0.467863
+        },
+        {
+          "query_id": "Q259",
+          "label": "workout",
+          "text": "как накачать бицепс",
+          "score": 0.467863
+        },
+        {
+          "query_id": "Q001",
+          "label": "other",
+          "text": "привет как дела",
+          "score": 0.453644
+        }
+      ]
+    },
+    {
+      "query_id": "Q219",
+      "text": "нужна подсказка",
+      "label": "support",
+      "prediction": "workout",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "подсказка"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "нужна"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q295",
+          "label": "workout",
+          "text": "нужна тренировка",
+          "score": 0.806987
+        },
+        {
+          "query_id": "Q202",
+          "label": "support",
+          "text": "нужна помощь",
+          "score": 0.707107
+        }
+      ]
+    },
+    {
+      "query_id": "Q221",
+      "text": "написать отзыв",
+      "label": "feedback",
+      "prediction": "feedback",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [],
+      "train_forms": [],
+      "shared_words": [
+        "отзыв"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q238",
+          "label": "feedback",
+          "text": "отзыв",
+          "score": 0.707107
+        },
+        {
+          "query_id": "Q224",
+          "label": "feedback",
+          "text": "мой отзыв",
+          "score": 0.543069
+        },
+        {
+          "query_id": "Q220",
+          "label": "feedback",
+          "text": "оставить отзыв",
+          "score": 0.5
+        }
+      ]
+    },
+    {
+      "query_id": "Q229",
+      "text": "написать комментарий",
+      "label": "feedback",
+      "prediction": "chat",
+      "correct": false,
+      "error_type": "все слова известны",
+      "unknown_words": [],
+      "train_forms": [],
+      "shared_words": [
+        "написать"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q120",
+          "label": "chat",
+          "text": "написать тренеру",
+          "score": 0.471401
+        },
+        {
+          "query_id": "Q239",
+          "label": "feedback",
+          "text": "написать благодарность",
+          "score": 0.452314
+        },
+        {
+          "query_id": "Q225",
+          "label": "feedback",
+          "text": "хочу оставить комментарий",
+          "score": 0.442147
+        }
+      ]
+    },
+    {
+      "query_id": "Q230",
+      "text": "отзыв о тренировках",
+      "label": "feedback",
+      "prediction": "feedback",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "тренировках"
+      ],
+      "train_forms": [
+        "тренировках: тренировка, тренировки, тренировкой, тренировку, тренировок, тренируюсь"
+      ],
+      "shared_words": [
+        "отзыв"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q238",
+          "label": "feedback",
+          "text": "отзыв",
+          "score": 0.658787
+        },
+        {
+          "query_id": "Q224",
+          "label": "feedback",
+          "text": "мой отзыв",
+          "score": 0.505958
+        },
+        {
+          "query_id": "Q220",
+          "label": "feedback",
+          "text": "оставить отзыв",
+          "score": 0.465833
+        }
+      ]
+    },
+    {
+      "query_id": "Q236",
+      "text": "пожаловаться",
+      "label": "feedback",
+      "prediction": null,
+      "correct": false,
+      "error_type": "нет ответа",
+      "unknown_words": [
+        "пожаловаться"
+      ],
+      "train_forms": [],
+      "shared_words": [],
+      "neighbors": []
+    },
+    {
+      "query_id": "Q237",
+      "text": "оставить оценку",
+      "label": "feedback",
+      "prediction": "feedback",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [],
+      "train_forms": [],
+      "shared_words": [
+        "оценку"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q223",
+          "label": "feedback",
+          "text": "поставить оценку",
+          "score": 0.531977
+        },
+        {
+          "query_id": "Q220",
+          "label": "feedback",
+          "text": "оставить отзыв",
+          "score": 0.465833
+        },
+        {
+          "query_id": "Q225",
+          "label": "feedback",
+          "text": "хочу оставить комментарий",
+          "score": 0.378338
+        }
+      ]
+    },
+    {
+      "query_id": "Q244",
+      "text": "нужна программа упражнений",
+      "label": "workout",
+      "prediction": "workout",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "программа"
+      ],
+      "train_forms": [
+        "программа: программу, прогресс"
+      ],
+      "shared_words": [
+        "нужна"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q295",
+          "label": "workout",
+          "text": "нужна тренировка",
+          "score": 0.548701
+        },
+        {
+          "query_id": "Q265",
+          "label": "workout",
+          "text": "план упражнений",
+          "score": 0.5185
+        },
+        {
+          "query_id": "Q202",
+          "label": "support",
+          "text": "нужна помощь",
+          "score": 0.480788
+        }
+      ]
+    },
+    {
+      "query_id": "Q254",
+      "text": "упражнения на грудь",
+      "label": "workout",
+      "prediction": "workout",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [],
+      "train_forms": [],
+      "shared_words": [
+        "грудь",
+        "на"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q253",
+          "label": "workout",
+          "text": "тренировка на грудь",
+          "score": 0.736319
+        },
+        {
+          "query_id": "Q273",
+          "label": "workout",
+          "text": "упражнения на пресс",
+          "score": 0.475637
+        },
+        {
+          "query_id": "Q251",
+          "label": "workout",
+          "text": "упражнения на бицепс",
+          "score": 0.462095
+        }
+      ]
+    },
+    {
+      "query_id": "Q261",
+      "text": "тренировка для новичка",
+      "label": "workout",
+      "prediction": "workout",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "для",
+        "новичка"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "тренировка"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q295",
+          "label": "workout",
+          "text": "нужна тренировка",
+          "score": 0.590569
+        },
+        {
+          "query_id": "Q247",
+          "label": "workout",
+          "text": "силовая тренировка",
+          "score": 0.561513
+        },
+        {
+          "query_id": "Q267",
+          "label": "workout",
+          "text": "тренировка дома",
+          "score": 0.561513
+        }
+      ]
+    },
+    {
+      "query_id": "Q266",
+      "text": "хочу качаться",
+      "label": "workout",
+      "prediction": "workout",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "качаться"
+      ],
+      "train_forms": [
+        "качаться: качать"
+      ],
+      "shared_words": [
+        "хочу"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q240",
+          "label": "workout",
+          "text": "хочу потренироваться",
+          "score": 0.641226
+        },
+        {
+          "query_id": "Q235",
+          "label": "feedback",
+          "text": "хочу похвалить тренера",
+          "score": 0.568739
+        },
+        {
+          "query_id": "Q225",
+          "label": "feedback",
+          "text": "хочу оставить комментарий",
+          "score": 0.548043
+        }
+      ]
+    },
+    {
+      "query_id": "Q271",
+      "text": "упражнения на плечи",
+      "label": "workout",
+      "prediction": "workout",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "плечи"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "на",
+        "упражнения"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q273",
+          "label": "workout",
+          "text": "упражнения на пресс",
+          "score": 0.714044
+        },
+        {
+          "query_id": "Q251",
+          "label": "workout",
+          "text": "упражнения на бицепс",
+          "score": 0.693714
+        },
+        {
+          "query_id": "Q276",
+          "label": "workout",
+          "text": "упражнения на трицепс",
+          "score": 0.693714
+        }
+      ]
+    },
+    {
+      "query_id": "Q283",
+      "text": "тренировка на шею",
+      "label": "workout",
+      "prediction": "workout",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "шею"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "на",
+        "тренировка"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q272",
+          "label": "workout",
+          "text": "тренировка на пресс",
+          "score": 0.709262
+        },
+        {
+          "query_id": "Q248",
+          "label": "workout",
+          "text": "тренировка на спину",
+          "score": 0.688799
+        },
+        {
+          "query_id": "Q275",
+          "label": "workout",
+          "text": "тренировка на трицепс",
+          "score": 0.688799
+        }
+      ]
+    },
+    {
+      "query_id": "Q287",
+      "text": "тренировка на кор",
+      "label": "workout",
+      "prediction": "workout",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [
+        "кор"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "на",
+        "тренировка"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q272",
+          "label": "workout",
+          "text": "тренировка на пресс",
+          "score": 0.709262
+        },
+        {
+          "query_id": "Q248",
+          "label": "workout",
+          "text": "тренировка на спину",
+          "score": 0.688799
+        },
+        {
+          "query_id": "Q275",
+          "label": "workout",
+          "text": "тренировка на трицепс",
+          "score": 0.688799
+        }
+      ]
+    },
+    {
+      "query_id": "Q292",
+      "text": "составь тренировку",
+      "label": "workout",
+      "prediction": "workout",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [],
+      "train_forms": [],
+      "shared_words": [
+        "составь"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q243",
+          "label": "workout",
+          "text": "составь программу",
+          "score": 0.571068
+        },
+        {
+          "query_id": "Q290",
+          "label": "workout",
+          "text": "напиши тренировку",
+          "score": 0.377672
+        },
+        {
+          "query_id": "Q088",
+          "label": "schedule",
+          "text": "перенести тренировку",
+          "score": 0.347764
+        }
+      ]
+    },
+    {
+      "query_id": "Q294",
+      "text": "дай программу упражнений",
+      "label": "workout",
+      "prediction": "workout",
+      "correct": true,
+      "error_type": "",
+      "unknown_words": [],
+      "train_forms": [],
+      "shared_words": [
+        "дай"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q241",
+          "label": "workout",
+          "text": "дай тренировку",
+          "score": 0.466275
+        },
+        {
+          "query_id": "Q243",
+          "label": "workout",
+          "text": "составь программу",
+          "score": 0.408248
+        },
+        {
+          "query_id": "Q265",
+          "label": "workout",
+          "text": "план упражнений",
+          "score": 0.408248
+        }
+      ]
+    },
+    {
+      "query_id": "Q299",
+      "text": "кто у меня занимается",
+      "label": "clients",
+      "prediction": "support",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "занимается"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "меня",
+        "у"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q203",
+          "label": "support",
+          "text": "у меня проблема",
+          "score": 0.583147
+        },
+        {
+          "query_id": "Q305",
+          "label": "clients",
+          "text": "сколько у меня клиентов",
+          "score": 0.570035
+        },
+        {
+          "query_id": "Q086",
+          "label": "schedule",
+          "text": "что у меня сегодня",
+          "score": 0.558304
+        }
+      ]
+    },
+    {
+      "query_id": "Q300",
+      "text": "мои подопечные",
+      "label": "clients",
+      "prediction": "schedule",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "подопечные"
+      ],
+      "train_forms": [
+        "подопечные: подопечных"
+      ],
+      "shared_words": [
+        "мои"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q079",
+          "label": "schedule",
+          "text": "мои тренировки",
+          "score": 0.690378
+        },
+        {
+          "query_id": "Q126",
+          "label": "chat",
+          "text": "мои сообщения",
+          "score": 0.669449
+        },
+        {
+          "query_id": "Q296",
+          "label": "clients",
+          "text": "мои клиенты",
+          "score": 0.669449
+        }
+      ]
+    },
+    {
+      "query_id": "Q307",
+      "text": "добавить занятие клиенту",
+      "label": "clients",
+      "prediction": "schedule",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "добавить"
+      ],
+      "train_forms": [],
+      "shared_words": [
+        "занятие"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q089",
+          "label": "schedule",
+          "text": "отменить занятие",
+          "score": 0.5
+        },
+        {
+          "query_id": "Q306",
+          "label": "clients",
+          "text": "назначить тренировку клиенту",
+          "score": 0.457102
+        }
+      ]
+    },
+    {
+      "query_id": "Q309",
+      "text": "подопечные",
+      "label": "clients",
+      "prediction": null,
+      "correct": false,
+      "error_type": "нет ответа",
+      "unknown_words": [
+        "подопечные"
+      ],
+      "train_forms": [
+        "подопечные: подопечных"
+      ],
+      "shared_words": [],
+      "neighbors": []
+    },
+    {
+      "query_id": "Q310",
+      "text": "информация о клиенте",
+      "label": "clients",
+      "prediction": "trainer",
+      "correct": false,
+      "error_type": "есть неизвестные слова",
+      "unknown_words": [
+        "клиенте"
+      ],
+      "train_forms": [
+        "клиенте: клиента, клиентов, клиенту, клиенты"
+      ],
+      "shared_words": [
+        "информация",
+        "о"
+      ],
+      "neighbors": [
+        {
+          "query_id": "Q162",
+          "label": "trainer",
+          "text": "информация о тренере",
+          "score": 0.816497
+        }
+      ]
+    }
+  ]
+}
