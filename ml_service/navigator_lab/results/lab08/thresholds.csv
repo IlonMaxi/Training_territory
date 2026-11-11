@@ -1,0 +1,6 @@
+metric,value,condition,passed,source
+macro_f1,0.4246,>= 0.7,False,основная метрика: все разделы одинаково важны
+accuracy,0.4603,>= 0.75,False,"R1, план проекта"
+wrong_navigation,0.3651,<= 0.1,False,"R1, R3: лучше переспросить, чем открыть не то"
+zero_recall_intents,3,<= 0,False,ни один раздел не должен пропадать целиком
+offtopic_navigation,0.2500,<= 0.125,False,R2: не больше 1 из 8 посторонних запросов

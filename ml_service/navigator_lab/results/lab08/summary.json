@@ -1,0 +1,562 @@
+{
+  "data_version": "60d80a7acb7eb7fa",
+  "annotations_version": "6a87b4a2b6b32175",
+  "summary": {
+    "queries": 63,
+    "macro_f1": 0.424627,
+    "accuracy": 0.460317,
+    "wrong_navigation": 0.365079,
+    "wrong_navigation_count": 23,
+    "no_answer": 8,
+    "zero_recall_intents": 3,
+    "zero_recall_labels": [
+      "clients",
+      "support",
+      "trainer"
+    ],
+    "offtopic_navigation": 0.25,
+    "offtopic_navigation_count": 2,
+    "offtopic_queries": 8,
+    "buttons_hit3": 0.709091,
+    "platform_queries": 55,
+    "wrong_navigation_platform": 21,
+    "wrong_navigation_right_button": 12,
+    "role_only_wrong_answers": [
+      "Q013",
+      "Q043",
+      "Q044",
+      "Q118"
+    ]
+  },
+  "thresholds": [
+    {
+      "metric": "macro_f1",
+      "value": 0.42462696321391974,
+      "condition": ">= 0.7",
+      "passed": false,
+      "source": "основная метрика: все разделы одинаково важны"
+    },
+    {
+      "metric": "accuracy",
+      "value": 0.4603174603174603,
+      "condition": ">= 0.75",
+      "passed": false,
+      "source": "R1, план проекта"
+    },
+    {
+      "metric": "wrong_navigation",
+      "value": 0.36507936507936506,
+      "condition": "<= 0.1",
+      "passed": false,
+      "source": "R1, R3: лучше переспросить, чем открыть не то"
+    },
+    {
+      "metric": "zero_recall_intents",
+      "value": 3,
+      "condition": "<= 0",
+      "passed": false,
+      "source": "ни один раздел не должен пропадать целиком"
+    },
+    {
+      "metric": "offtopic_navigation",
+      "value": 0.25,
+      "condition": "<= 0.125",
+      "passed": false,
+      "source": "R2: не больше 1 из 8 посторонних запросов"
+    }
+  ],
+  "segments": [
+    {
+      "dimension": "покрытие словарём train",
+      "segment": "все слова известны",
+      "queries": 15,
+      "correct": 9,
+      "accuracy": 0.6,
+      "no_answer": 0,
+      "wrong_navigation": 5
+    },
+    {
+      "dimension": "покрытие словарём train",
+      "segment": "нет известных слов",
+      "queries": 8,
+      "correct": 0,
+      "accuracy": 0.0,
+      "no_answer": 8,
+      "wrong_navigation": 0
+    },
+    {
+      "dimension": "покрытие словарём train",
+      "segment": "часть слов неизвестна",
+      "queries": 40,
+      "correct": 20,
+      "accuracy": 0.5,
+      "no_answer": 0,
+      "wrong_navigation": 18
+    },
+    {
+      "dimension": "длина запроса",
+      "segment": "1 слово",
+      "queries": 4,
+      "correct": 1,
+      "accuracy": 0.25,
+      "no_answer": 3,
+      "wrong_navigation": 0
+    },
+    {
+      "dimension": "длина запроса",
+      "segment": "2 слова",
+      "queries": 34,
+      "correct": 13,
+      "accuracy": 0.38235294117647056,
+      "no_answer": 4,
+      "wrong_navigation": 16
+    },
+    {
+      "dimension": "длина запроса",
+      "segment": "3 слова и больше",
+      "queries": 25,
+      "correct": 15,
+      "accuracy": 0.6,
+      "no_answer": 1,
+      "wrong_navigation": 7
+    },
+    {
+      "dimension": "разметка ЛР 6",
+      "segment": "сложная: B сомневался или не согласен",
+      "queries": 11,
+      "correct": 4,
+      "accuracy": 0.36363636363636365,
+      "no_answer": 0,
+      "wrong_navigation": 6
+    },
+    {
+      "dimension": "разметка ЛР 6",
+      "segment": "уверенная",
+      "queries": 52,
+      "correct": 25,
+      "accuracy": 0.4807692307692308,
+      "no_answer": 8,
+      "wrong_navigation": 17
+    },
+    {
+      "dimension": "тема",
+      "segment": "посторонние (other)",
+      "queries": 8,
+      "correct": 4,
+      "accuracy": 0.5,
+      "no_answer": 2,
+      "wrong_navigation": 2
+    },
+    {
+      "dimension": "тема",
+      "segment": "разделы платформы",
+      "queries": 55,
+      "correct": 25,
+      "accuracy": 0.45454545454545453,
+      "no_answer": 6,
+      "wrong_navigation": 21
+    }
+  ],
+  "taxonomy": [
+    {
+      "type": "слово в другой форме",
+      "source": "validation",
+      "count": 10,
+      "denominator": 34,
+      "of_what": "ошибок",
+      "query_ids": "Q092 Q093 Q099 Q103 Q174 Q181 Q187 Q300 Q309 Q310"
+    },
+    {
+      "type": "новое слово",
+      "source": "validation",
+      "count": 18,
+      "denominator": 34,
+      "of_what": "ошибок",
+      "query_ids": "Q007 Q013 Q035 Q037 Q062 Q073 Q095 Q096 Q114 Q118 Q139 Q150 Q210 Q217 Q219 Q236 Q299 Q307"
+    },
+    {
+      "type": "граница при известных словах",
+      "source": "validation",
+      "count": 6,
+      "denominator": 34,
+      "of_what": "ошибок",
+      "query_ids": "Q043 Q044 Q075 Q163 Q192 Q229"
+    },
+    {
+      "type": "нет ответа",
+      "source": "validation",
+      "count": 8,
+      "denominator": 63,
+      "of_what": "запросов validation",
+      "query_ids": "Q007 Q037 Q139 Q181 Q187 Q210 Q236 Q309"
+    },
+    {
+      "type": "ответ только по стоп-словам",
+      "source": "validation",
+      "count": 7,
+      "denominator": 26,
+      "of_what": "неверных ответов",
+      "query_ids": "Q035 Q062 Q095 Q103 Q217 Q219 Q300"
+    },
+    {
+      "type": "сложная разметка",
+      "source": "validation",
+      "count": 7,
+      "denominator": 11,
+      "of_what": "запросов со сложной разметкой",
+      "query_ids": "Q013 Q044 Q092 Q093 Q192 Q299 Q307"
+    },
+    {
+      "type": "посторонний запрос открыл раздел",
+      "source": "validation",
+      "count": 2,
+      "denominator": 8,
+      "of_what": "посторонних запросов",
+      "query_ids": "Q013 Q035"
+    }
+  ],
+  "special_tests": [
+    {
+      "test": "опечатка",
+      "query_id": "Q000",
+      "query": "привет",
+      "variant": "приевт",
+      "expected": "other",
+      "answer": "",
+      "result": "нет ответа"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q008",
+      "query": "погода завтра",
+      "variant": "погдоа завтра",
+      "expected": "other",
+      "answer": "",
+      "result": "нет ответа"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q018",
+      "query": "какая столица франции",
+      "variant": "какая стоилца франции",
+      "expected": "other",
+      "answer": "other",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q019",
+      "query": "сколько лет земле",
+      "variant": "скоьлко лет земле",
+      "expected": "other",
+      "answer": "",
+      "result": "нет ответа"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q060",
+      "query": "мои результаты",
+      "variant": "мои резлуьтаты",
+      "expected": "progress",
+      "answer": "schedule",
+      "result": "неверно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q066",
+      "query": "показатели тела",
+      "variant": "покзаатели тела",
+      "expected": "progress",
+      "answer": "progress",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q072",
+      "query": "когда следующая тренировка",
+      "variant": "когда следующая треинровка",
+      "expected": "schedule",
+      "answer": "schedule",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q094",
+      "query": "тренировки на неделю",
+      "variant": "треинровки на неделю",
+      "expected": "schedule",
+      "answer": "schedule",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q113",
+      "query": "норма воды",
+      "variant": "норам воды",
+      "expected": "nutrition",
+      "answer": "nutrition",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q128",
+      "query": "задать вопрос тренеру",
+      "variant": "задать вопрос треенру",
+      "expected": "chat",
+      "answer": "support",
+      "result": "неверно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q135",
+      "query": "написать сообщение тренеру",
+      "variant": "написать соощбение тренеру",
+      "expected": "chat",
+      "answer": "chat",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q145",
+      "query": "изменить профиль",
+      "variant": "измнеить профиль",
+      "expected": "settings",
+      "answer": "",
+      "result": "нет ответа"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q154",
+      "query": "настройки профиля",
+      "variant": "насртойки профиля",
+      "expected": "settings",
+      "answer": "",
+      "result": "нет ответа"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q156",
+      "query": "обновить данные профиля",
+      "variant": "обнвоить данные профиля",
+      "expected": "settings",
+      "answer": "settings",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q193",
+      "query": "цена абонемента",
+      "variant": "цена абоенмента",
+      "expected": "subscription",
+      "answer": "",
+      "result": "нет ответа"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q195",
+      "query": "оформить подписку",
+      "variant": "офомрить подписку",
+      "expected": "subscription",
+      "answer": "subscription",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q199",
+      "query": "продлить занятия",
+      "variant": "пролдить занятия",
+      "expected": "subscription",
+      "answer": "subscription",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q221",
+      "query": "написать отзыв",
+      "variant": "напсиать отзыв",
+      "expected": "feedback",
+      "answer": "feedback",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q230",
+      "query": "отзыв о тренировках",
+      "variant": "отзыв о треинровках",
+      "expected": "feedback",
+      "answer": "feedback",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q237",
+      "query": "оставить оценку",
+      "variant": "остваить оценку",
+      "expected": "feedback",
+      "answer": "feedback",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q244",
+      "query": "нужна программа упражнений",
+      "variant": "нужна программа упржанений",
+      "expected": "workout",
+      "answer": "workout",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q254",
+      "query": "упражнения на грудь",
+      "variant": "упржанения на грудь",
+      "expected": "workout",
+      "answer": "workout",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q261",
+      "query": "тренировка для новичка",
+      "variant": "треинровка для новичка",
+      "expected": "workout",
+      "answer": "",
+      "result": "нет ответа"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q266",
+      "query": "хочу качаться",
+      "variant": "хочу качтаься",
+      "expected": "workout",
+      "answer": "workout",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q271",
+      "query": "упражнения на плечи",
+      "variant": "упржанения на плечи",
+      "expected": "workout",
+      "answer": "workout",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q283",
+      "query": "тренировка на шею",
+      "variant": "треинровка на шею",
+      "expected": "workout",
+      "answer": "workout",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q287",
+      "query": "тренировка на кор",
+      "variant": "треинровка на кор",
+      "expected": "workout",
+      "answer": "workout",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q292",
+      "query": "составь тренировку",
+      "variant": "составь треинровку",
+      "expected": "workout",
+      "answer": "workout",
+      "result": "верно"
+    },
+    {
+      "test": "опечатка",
+      "query_id": "Q294",
+      "query": "дай программу упражнений",
+      "variant": "дай программу упржанений",
+      "expected": "workout",
+      "answer": "workout",
+      "result": "верно"
+    },
+    {
+      "test": "латиница",
+      "query_id": "",
+      "query": "my schedule",
+      "variant": "",
+      "expected": "ответ по смыслу или явное «не понял»",
+      "answer": "",
+      "result": "нет ответа"
+    },
+    {
+      "test": "латиница",
+      "query_id": "",
+      "query": "settings",
+      "variant": "",
+      "expected": "ответ по смыслу или явное «не понял»",
+      "answer": "",
+      "result": "нет ответа"
+    },
+    {
+      "test": "латиница",
+      "query_id": "",
+      "query": "trainer chat",
+      "variant": "",
+      "expected": "ответ по смыслу или явное «не понял»",
+      "answer": "",
+      "result": "нет ответа"
+    },
+    {
+      "test": "латиница",
+      "query_id": "",
+      "query": "help",
+      "variant": "",
+      "expected": "ответ по смыслу или явное «не понял»",
+      "answer": "support",
+      "result": "есть ответ"
+    },
+    {
+      "test": "неверный ввод",
+      "query_id": "",
+      "query": "пустая строка",
+      "variant": "",
+      "expected": "нет ответа или явная ошибка",
+      "answer": "",
+      "result": "нет ответа"
+    },
+    {
+      "test": "неверный ввод",
+      "query_id": "",
+      "query": "только пробелы и знаки",
+      "variant": "",
+      "expected": "нет ответа или явная ошибка",
+      "answer": "",
+      "result": "нет ответа"
+    },
+    {
+      "test": "неверный ввод",
+      "query_id": "",
+      "query": "None",
+      "variant": "",
+      "expected": "нет ответа или явная ошибка",
+      "answer": "",
+      "result": "TypeError: Запрос должен быть строкой, получено NoneType"
+    },
+    {
+      "test": "неверный ввод",
+      "query_id": "",
+      "query": "число",
+      "variant": "",
+      "expected": "нет ответа или явная ошибка",
+      "answer": "",
+      "result": "TypeError: Запрос должен быть строкой, получено int"
+    },
+    {
+      "test": "неверный ввод",
+      "query_id": "",
+      "query": "длинный текст, 2000 символов",
+      "variant": "",
+      "expected": "нет ответа или явная ошибка",
+      "answer": "",
+      "result": "нет ответа"
+    }
+  ]
+}

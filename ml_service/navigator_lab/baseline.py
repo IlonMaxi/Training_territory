@@ -14,6 +14,9 @@ SCORE_DIGITS = 6  # сходство округляется, чтобы один
 
 
 def tokenize(text):
+    # явная ошибка контракта вместо AttributeError где-то внутри (найдено специальным тестом в ЛР 8)
+    if not isinstance(text, str):
+        raise TypeError(f'Запрос должен быть строкой, получено {type(text).__name__}')
     return TOKEN.findall(text.lower().replace('ё', 'е'))
 
 

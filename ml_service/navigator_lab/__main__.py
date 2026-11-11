@@ -1,7 +1,8 @@
 """Команды baseline навигатора (запускать из папки ml_service).
 
-python -m navigator_lab run                      - проверка данных, обучение на train, оценка на validation
+python -m navigator_lab run                      - ЛР 7: проверка данных, обучение на train, оценка на validation
 python -m navigator_lab predict --query "текст"  - ближайшие запросы train и намерение, метрики не пересчитываются
+python -m navigator_lab analyze                  - ЛР 8: пороги, сегменты, матрица ошибок, таксономия, спецтесты
 """
 import argparse
 import csv
@@ -11,6 +12,7 @@ import platform
 import sys
 from pathlib import Path
 
+from .analysis import analyze, error_type, train_forms
 from .baseline import SCORE_DIGITS, MajorityBaseline, NearestQueryBaseline, tokenize
 from .data import DATA_PATH, DATA_VERSION, SOURCE_COMMIT, load_clean, select
 from .metrics import accuracy, bootstrap_ci, macro_f1, per_class
@@ -52,25 +54,6 @@ def write_json(path, data):
 
 def file_sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()[:16]
-
-
-def train_forms(index, words):
-    # только для разбора ошибок, в модели не используется:
-    # слова train с теми же первыми 5 буквами, что у неизвестного слова (правило групп из ЛР 6)
-    forms = []
-    for word in words:
-        same = [known for known in index.idf if known[:5] == word[:5]]
-        if same:
-            forms.append(f"{word}: {', '.join(same)}")
-    return forms
-
-
-def error_type(prediction, label, unknown):
-    if prediction == label:
-        return ''
-    if prediction is None:
-        return 'нет ответа'
-    return 'есть неизвестные слова' if unknown else 'все слова известны'
 
 
 def summarize(name, y_true, y_pred, labels):
@@ -155,7 +138,7 @@ def run():
           f"accuracy {base['accuracy']:.3f}, верно {base['correct']} из {base['queries']}, "
           f"без ответа {base['no_answer']}")
     print(f"Самый частый класс ({majority.label}): macro-F1 {floor['macro_f1']:.3f}, accuracy {floor['accuracy']:.3f}")
-    for path in sorted(RESULTS.iterdir()):
+    for path in sorted(p for p in RESULTS.iterdir() if p.is_file()):  # папка results/lab08 - от ЛР 8
         print(f'  {path.relative_to(RESULTS.parent).as_posix()}  sha256 {file_sha(path)}')
 
 
@@ -179,9 +162,12 @@ def main(argv=None):
     commands.add_parser('run', help='оценить baseline на validation и записать файлы в results')
     ask = commands.add_parser('predict', help='ответ baseline на свои запросы')
     ask.add_argument('--query', action='append', required=True, help='текст запроса, можно указать несколько раз')
+    commands.add_parser('analyze', help='ЛР 8: пороги, сегменты, матрица ошибок, таксономия и специальные тесты')
     args = parser.parse_args(argv)
     if args.command == 'run':
         run()
+    elif args.command == 'analyze':
+        analyze()
     else:
         predict(args.query)
 

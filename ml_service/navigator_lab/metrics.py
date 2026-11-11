@@ -24,6 +24,28 @@ def accuracy(y_true, y_pred):
     return sum(t == p for t, p in zip(y_true, y_pred)) / len(y_true)
 
 
+def confusion_matrix(y_true, y_pred, labels):
+    """Строки - верное намерение, столбцы - ответ; последний столбец - нет ответа (None)."""
+    columns = list(labels) + [None]
+    matrix = [[0] * len(columns) for _ in labels]
+    for t, p in zip(y_true, y_pred):
+        matrix[labels.index(t)][columns.index(p)] += 1
+    return matrix
+
+
+def wrong_navigation_rate(y_true, y_pred, no_action=(None,)):
+    """Доля запросов, где навигатор выполнил не то действие: открыл другой раздел или показал программы.
+
+    Ответы из no_action (нет ответа, «прочее») ничего не открывают, поэтому ошибочным переходом не считаются.
+    """
+    return sum(p not in no_action and p != t for t, p in zip(y_true, y_pred)) / len(y_true)
+
+
+def hit_at_k(y_true, ranked, k=3):
+    """Доля запросов, у которых верное намерение есть среди первых k вариантов."""
+    return sum(t in r[:k] for t, r in zip(y_true, ranked)) / len(y_true)
+
+
 def bootstrap_ci(y_true, y_pred, metric, samples=1000, seed=42):
     """95% интервал. Выборки берутся внутри каждого намерения, состав классов как в исходной выборке."""
     rng = random.Random(seed)
