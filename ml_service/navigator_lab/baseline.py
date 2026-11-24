@@ -21,20 +21,23 @@ def tokenize(text):
 
 
 class TfidfIndex:
-    """TF-IDF по словам. Словарь и IDF строятся только по текстам, переданным в fit."""
+    """TF-IDF. Словарь и IDF строятся только по текстам, переданным в fit."""
+
+    def __init__(self, analyzer=tokenize):
+        self.analyzer = analyzer
 
     def fit(self, texts):
-        docs = [set(tokenize(text)) for text in texts]
+        docs = [set(self.analyzer(text)) for text in texts]
         df = Counter(word for doc in docs for word in doc)
         n = len(docs)
         self.idf = {word: math.log((1 + n) / (1 + count)) + 1 for word, count in sorted(df.items())}
         return self
 
     def known(self, text):
-        return [word for word in tokenize(text) if word in self.idf]
+        return [word for word in self.analyzer(text) if word in self.idf]
 
     def unknown(self, text):
-        return [word for word in tokenize(text) if word not in self.idf]
+        return [word for word in self.analyzer(text) if word not in self.idf]
 
     def vector(self, text):
         # слов не из словаря train просто нет в векторе; если не осталось ни одного, вектор нулевой
@@ -55,11 +58,12 @@ class NearestQueryBaseline:
 
     name = 'nearest_query_tfidf'
 
-    def __init__(self, k=3):
+    def __init__(self, k=3, analyzer=tokenize):
         self.k = k
+        self.analyzer = analyzer
 
     def fit(self, rows):
-        self.index = TfidfIndex().fit([row['text'] for row in rows])
+        self.index = TfidfIndex(self.analyzer).fit([row['text'] for row in rows])
         self.items = [(row['query_id'], row['label'], row['text'], self.index.vector(row['text']))
                       for row in rows]
         return self

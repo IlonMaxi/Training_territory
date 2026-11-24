@@ -1,0 +1,30 @@
+query_id,text,variant,label,baseline,candidate,baseline_correct,candidate_correct
+Q000,привет,приевт,other,,nutrition,False,False
+Q008,погода завтра,погдоа завтра,other,,nutrition,False,False
+Q018,какая столица франции,какая стоилца франции,other,other,other,True,True
+Q019,сколько лет земле,скоьлко лет земле,other,,nutrition,False,False
+Q060,мои результаты,мои резлуьтаты,progress,schedule,progress,False,True
+Q066,показатели тела,покзаатели тела,progress,progress,progress,True,True
+Q072,когда следующая тренировка,когда следующая треинровка,schedule,schedule,schedule,True,True
+Q094,тренировки на неделю,треинровки на неделю,schedule,schedule,nutrition,True,False
+Q113,норма воды,норам воды,nutrition,nutrition,nutrition,True,True
+Q128,задать вопрос тренеру,задать вопрос треенру,chat,support,support,False,False
+Q135,написать сообщение тренеру,написать соощбение тренеру,chat,chat,chat,True,True
+Q145,изменить профиль,измнеить профиль,settings,,settings,False,True
+Q154,настройки профиля,насртойки профиля,settings,,settings,False,True
+Q156,обновить данные профиля,обнвоить данные профиля,settings,settings,settings,True,True
+Q193,цена абонемента,цена абоенмента,subscription,,subscription,False,True
+Q195,оформить подписку,офомрить подписку,subscription,subscription,subscription,True,True
+Q199,продлить занятия,пролдить занятия,subscription,subscription,schedule,True,False
+Q221,написать отзыв,напсиать отзыв,feedback,feedback,feedback,True,True
+Q230,отзыв о тренировках,отзыв о треинровках,feedback,feedback,feedback,True,True
+Q237,оставить оценку,остваить оценку,feedback,feedback,feedback,True,True
+Q244,нужна программа упражнений,нужна программа упржанений,workout,workout,workout,True,True
+Q254,упражнения на грудь,упржанения на грудь,workout,workout,workout,True,True
+Q261,тренировка для новичка,треинровка для новичка,workout,,workout,False,True
+Q266,хочу качаться,хочу качтаься,workout,workout,workout,True,True
+Q271,упражнения на плечи,упржанения на плечи,workout,workout,workout,True,True
+Q283,тренировка на шею,треинровка на шею,workout,workout,workout,True,True
+Q287,тренировка на кор,треинровка на кор,workout,workout,workout,True,True
+Q292,составь тренировку,составь треинровку,workout,workout,workout,True,True
+Q294,дай программу упражнений,дай программу упржанений,workout,workout,workout,True,True

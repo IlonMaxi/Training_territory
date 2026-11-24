@@ -1,0 +1,178 @@
+{
+  "experiment": "E01",
+  "hypothesis": "H1",
+  "config": {
+    "data_version": "60d80a7acb7eb7fa",
+    "annotations_version": "6a87b4a2b6b32175",
+    "split_seed": 1,
+    "training_split": "train",
+    "selection_split": "validation",
+    "train_size": 193,
+    "validation_size": 63,
+    "training_randomness": false,
+    "score_digits": 6,
+    "exposed_buttons": 3,
+    "baseline": {
+      "analyzer": "word",
+      "idf_entries": 258,
+      "idf_sha256": "b522f434ec173b14985a6620213d7fad0c1bdf65a9f65aeff1d8da37fe038d0b"
+    },
+    "candidate": {
+      "analyzer": "char_wb",
+      "ngram_range": [
+        3,
+        5
+      ],
+      "idf_entries": 3020,
+      "idf_sha256": "6d3a2c92308f9f5bb176af4b05d35a785f2636538429f8017d8e68dc80cec5ef"
+    }
+  },
+  "environment": {
+    "python": "3.10.9",
+    "implementation": "CPython",
+    "system": "Windows",
+    "dependencies": "stdlib",
+    "command": "python -m navigator_lab.lab09"
+  },
+  "validation": {
+    "baseline": {
+      "queries": 63,
+      "macro_f1": 0.42462696321391974,
+      "accuracy": 0.4603174603174603,
+      "wrong_navigation": 0.36507936507936506,
+      "wrong_navigation_count": 23,
+      "no_answer": 8,
+      "zero_recall_intents": 3,
+      "zero_recall_labels": [
+        "clients",
+        "support",
+        "trainer"
+      ],
+      "offtopic_navigation": 0.25,
+      "offtopic_navigation_count": 2,
+      "offtopic_queries": 8,
+      "buttons_hit3": 0.7090909090909091,
+      "platform_queries": 55,
+      "wrong_navigation_platform": 21,
+      "wrong_navigation_right_button": 12,
+      "role_only_wrong_answers": [
+        "Q013",
+        "Q043",
+        "Q044",
+        "Q118"
+      ]
+    },
+    "candidate": {
+      "queries": 63,
+      "macro_f1": 0.4690533701403266,
+      "accuracy": 0.5079365079365079,
+      "wrong_navigation": 0.42857142857142855,
+      "wrong_navigation_count": 27,
+      "no_answer": 0,
+      "zero_recall_intents": 2,
+      "zero_recall_labels": [
+        "support",
+        "trainer"
+      ],
+      "offtopic_navigation": 0.75,
+      "offtopic_navigation_count": 6,
+      "offtopic_queries": 8,
+      "buttons_hit3": 0.8363636363636363,
+      "platform_queries": 55,
+      "wrong_navigation_platform": 21,
+      "wrong_navigation_right_button": 16,
+      "role_only_wrong_answers": [
+        "Q008",
+        "Q013",
+        "Q019",
+        "Q043",
+        "Q094"
+      ]
+    }
+  },
+  "word_forms": {
+    "cases": 10,
+    "fixed": 7
+  },
+  "typos": {
+    "cases": 29,
+    "baseline_correct": 20,
+    "candidate_correct": 23
+  },
+  "h1_checks": [
+    {
+      "metric": "macro_f1_gain",
+      "value": 0.04442640692640687,
+      "rule": ">= 0.10",
+      "passed": false
+    },
+    {
+      "metric": "word_forms_fixed",
+      "value": 7,
+      "rule": ">= 5 из 10",
+      "passed": true
+    },
+    {
+      "metric": "typos_correct",
+      "value": 23,
+      "rule": "> 20 из 29",
+      "passed": true
+    },
+    {
+      "metric": "wrong_navigation_count",
+      "value": 27,
+      "rule": "<= 23 из 63",
+      "passed": false
+    },
+    {
+      "metric": "zero_recall_intents",
+      "value": 2,
+      "rule": "<= 3",
+      "passed": true
+    },
+    {
+      "metric": "offtopic_navigation_count",
+      "value": 6,
+      "rule": "<= 2 из 8",
+      "passed": false
+    }
+  ],
+  "h1_passed": false,
+  "alpha_thresholds": [
+    {
+      "metric": "macro_f1",
+      "condition": ">=",
+      "limit": 0.7,
+      "baseline": false,
+      "candidate": false
+    },
+    {
+      "metric": "accuracy",
+      "condition": ">=",
+      "limit": 0.75,
+      "baseline": false,
+      "candidate": false
+    },
+    {
+      "metric": "wrong_navigation",
+      "condition": "<=",
+      "limit": 0.1,
+      "baseline": false,
+      "candidate": false
+    },
+    {
+      "metric": "zero_recall_intents",
+      "condition": "<=",
+      "limit": 0,
+      "baseline": false,
+      "candidate": false
+    },
+    {
+      "metric": "offtopic_navigation",
+      "condition": "<=",
+      "limit": 0.125,
+      "baseline": false,
+      "candidate": false
+    }
+  ]
+}

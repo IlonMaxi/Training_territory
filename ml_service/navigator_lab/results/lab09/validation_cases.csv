@@ -1,0 +1,64 @@
+query_id,text,label,baseline_error,baseline_prediction,baseline_correct,baseline_buttons,baseline_neighbor_id,baseline_neighbor_text,baseline_score,candidate_prediction,candidate_correct,candidate_buttons,candidate_neighbor_id,candidate_neighbor_text,candidate_score
+Q000,привет,other,,other,True,,Q001,привет как дела,0.6535,other,True,nutrition progress support,Q001,привет как дела,0.7764
+Q007,расскажи анекдот,other,новое слово,,False,,,,,schedule,False,schedule workout nutrition,Q071,покажи расписание,0.3681
+Q008,погода завтра,other,,other,True,,Q009,какая сегодня погода,0.6149,nutrition,False,nutrition chat feedback,Q106,что на завтрак,0.4909
+Q013,рецепт пиццы,other,новое слово,nutrition,False,nutrition,Q110,покажи рецепт,0.7798,nutrition,False,nutrition workout trainer,Q110,покажи рецепт,0.7212
+Q018,какая столица франции,other,,other,True,,Q009,какая сегодня погода,0.6149,other,True,workout subscription schedule,Q009,какая сегодня погода,0.3820
+Q019,сколько лет земле,other,,other,True,progress nutrition subscription,Q010,сколько времени,0.5796,nutrition,False,nutrition clients progress,Q112,сколько воды пить,0.5817
+Q035,расскажи о себе,other,новое слово,trainer,False,trainer,Q162,информация о тренере,0.5774,schedule,False,schedule workout nutrition,Q071,покажи расписание,0.3763
+Q037,где ближайшая аптека,other,новое слово,,False,,,,,workout,False,workout feedback progress,Q281,тренировка на широчайшие,0.1303
+Q043,мои замеры,progress,граница при известных словах,clients,False,clients schedule chat,Q311,замеры клиента,0.5253,clients,False,clients progress schedule,Q311,замеры клиента,0.6557
+Q044,показать замеры,progress,граница при известных словах,clients,False,clients trainer progress,Q298,показать клиентов,0.5425,trainer,False,trainer clients progress,Q172,показать тренеров,0.5588
+Q060,мои результаты,progress,,progress,True,progress schedule chat,Q059,результаты тренировок,0.5253,progress,True,progress clients schedule,Q059,результаты тренировок,0.7501
+Q062,что будет с весом через месяц,progress,новое слово,chat,False,chat nutrition workout,Q121,чат с тренером,0.2879,other,False,nutrition schedule workout,Q033,сколько будет два плюс два,0.3412
+Q066,показатели тела,progress,,progress,True,progress,Q055,обхваты тела,0.6799,trainer,False,trainer clients progress,Q172,показать тренеров,0.4669
+Q072,когда следующая тренировка,schedule,,schedule,True,schedule subscription workout,Q078,когда я тренируюсь,0.4271,schedule,True,schedule workout subscription,Q078,когда я тренируюсь,0.5174
+Q073,во сколько тренировка,schedule,новое слово,other,False,workout progress nutrition,Q010,сколько времени,0.4194,subscription,False,subscription nutrition workout,Q182,сколько тренировок осталось,0.5094
+Q075,график тренировок,schedule,граница при известных словах,progress,False,progress subscription,Q047,график веса,0.5517,progress,False,progress subscription schedule,Q047,график веса,0.6204
+Q092,какие упражнения на тренировке,schedule,слово в другой форме,workout,False,workout subscription schedule,Q269,какие упражнения делать,0.6658,workout,False,workout schedule subscription,Q269,какие упражнения делать,0.6902
+Q093,программа занятия,schedule,слово в другой форме,subscription,False,subscription schedule,Q188,оплатить занятия,0.6799,schedule,True,schedule workout subscription,Q074,какие у меня занятия,0.4775
+Q094,тренировки на неделю,schedule,,schedule,True,schedule nutrition workout,Q076,расписание на неделю,0.6162,nutrition,False,nutrition schedule workout,Q100,меню на неделю,0.6113
+Q095,моё питание,nutrition,новое слово,schedule,False,schedule,Q070,моё расписание,0.7674,schedule,False,schedule nutrition progress,Q070,моё расписание,0.4989
+Q096,покажи питание,nutrition,новое слово,workout,False,workout schedule nutrition,Q263,покажи упражнения,0.7565,schedule,False,schedule workout nutrition,Q071,покажи расписание,0.5776
+Q099,рацион на день,nutrition,слово в другой форме,other,False,nutrition workout schedule,Q011,какой сегодня день,0.4746,nutrition,True,nutrition schedule workout,Q102,калорийность рациона,0.3961
+Q103,мои калории,nutrition,слово в другой форме,schedule,False,schedule chat clients,Q079,мои тренировки,0.6904,nutrition,True,nutrition schedule clients,Q101,сколько калорий мне нужно,0.4210
+Q113,норма воды,nutrition,,nutrition,True,nutrition progress,Q112,сколько воды пить,0.6029,nutrition,True,nutrition progress trainer,Q112,сколько воды пить,0.4333
+Q114,открой питание,nutrition,новое слово,trainer,False,trainer progress clients,Q176,открой тренера,0.7421,schedule,False,schedule chat trainer,Q085,открой расписание,0.5609
+Q118,список блюд,nutrition,новое слово,clients,False,clients trainer,Q297,список клиентов,0.7487,trainer,False,trainer clients workout,Q171,список тренеров,0.6987
+Q128,задать вопрос тренеру,chat,,chat,True,chat support feedback,Q120,написать тренеру,0.4943,support,False,support chat feedback,Q213,вопрос по сайту,0.4802
+Q135,написать сообщение тренеру,chat,,chat,True,chat feedback support,Q120,написать тренеру,0.7869,chat,True,chat support feedback,Q120,написать тренеру,0.7355
+Q139,открыть диалог,chat,новое слово,,False,,,,,chat,True,chat trainer clients,Q122,открой чат,0.3437
+Q145,изменить профиль,settings,,settings,True,settings,Q142,изменить данные,0.7234,settings,True,settings trainer schedule,Q142,изменить данные,0.6091
+Q150,сменить аватар,settings,новое слово,trainer,False,trainer settings,Q164,сменить тренера,0.8070,trainer,False,trainer settings schedule,Q164,сменить тренера,0.7272
+Q154,настройки профиля,settings,,settings,True,settings,Q140,настройки,1.0000,settings,True,settings trainer progress,Q140,настройки,0.9394
+Q156,обновить данные профиля,settings,,settings,True,settings clients,Q142,изменить данные,0.6904,settings,True,settings clients feedback,Q142,изменить данные,0.5338
+Q163,выбрать тренера,trainer,граница при известных словах,workout,False,workout trainer feedback,Q245,какую тренировку выбрать,0.5199,workout,False,workout trainer feedback,Q245,какую тренировку выбрать,0.6085
+Q174,какие есть тренеры,trainer,слово в другой форме,subscription,False,subscription nutrition workout,Q191,какие есть тарифы,0.8005,subscription,False,subscription nutrition schedule,Q191,какие есть тарифы,0.6230
+Q181,абонемент,subscription,слово в другой форме,,False,,,,,subscription,True,subscription progress feedback,Q184,срок абонемента,0.7397
+Q187,купить абонемент,subscription,слово в другой форме,,False,,,,,subscription,True,subscription nutrition progress,Q184,срок абонемента,0.6689
+Q192,сколько стоит,subscription,граница при известных словах,other,False,progress nutrition subscription,Q014,сколько стоит биткоин,0.7752,other,False,nutrition clients progress,Q014,сколько стоит биткоин,0.7329
+Q193,цена абонемента,subscription,,subscription,True,subscription,Q184,срок абонемента,0.7071,subscription,True,subscription clients feedback,Q184,срок абонемента,0.8063
+Q195,оформить подписку,subscription,,subscription,True,subscription,Q198,открой подписку,0.7995,subscription,True,subscription trainer support,Q198,открой подписку,0.7268
+Q199,продлить занятия,subscription,,subscription,True,subscription schedule,Q188,оплатить занятия,0.6799,schedule,False,schedule subscription feedback,Q074,какие у меня занятия,0.5936
+Q210,куда нажать,support,новое слово,,False,,,,,chat,False,chat workout support,Q120,написать тренеру,0.1499
+Q217,подскажите как,support,новое слово,workout,False,workout support chat,Q258,как накачать спину,0.4679,other,False,workout progress chat,Q027,как дела у тебя,0.2152
+Q219,нужна подсказка,support,новое слово,workout,False,workout support,Q295,нужна тренировка,0.8070,workout,False,workout support nutrition,Q295,нужна тренировка,0.6538
+Q221,написать отзыв,feedback,,feedback,True,feedback chat support,Q238,отзыв,0.7071,feedback,True,feedback chat support,Q238,отзыв,0.6521
+Q229,написать комментарий,feedback,граница при известных словах,chat,False,chat feedback support,Q120,написать тренеру,0.4714,feedback,True,feedback chat support,Q225,хочу оставить комментарий,0.6050
+Q230,отзыв о тренировках,feedback,,feedback,True,feedback trainer,Q238,отзыв,0.6588,feedback,True,feedback workout schedule,Q238,отзыв,0.7193
+Q236,пожаловаться,feedback,новое слово,,False,,,,,workout,False,workout support chat,Q240,хочу потренироваться,0.4996
+Q237,оставить оценку,feedback,,feedback,True,feedback,Q223,поставить оценку,0.5320,feedback,True,feedback chat subscription,Q223,поставить оценку,0.8758
+Q244,нужна программа упражнений,workout,,workout,True,workout support,Q295,нужна тренировка,0.5487,workout,True,workout support progress,Q265,план упражнений,0.4974
+Q254,упражнения на грудь,workout,,workout,True,workout schedule nutrition,Q253,тренировка на грудь,0.7363,workout,True,workout chat nutrition,Q273,упражнения на пресс,0.5798
+Q261,тренировка для новичка,workout,,workout,True,workout schedule,Q295,нужна тренировка,0.5906,workout,True,workout schedule clients,Q272,тренировка на пресс,0.5755
+Q266,хочу качаться,workout,,workout,True,workout feedback progress,Q240,хочу потренироваться,0.6412,workout,True,workout feedback progress,Q240,хочу потренироваться,0.4725
+Q271,упражнения на плечи,workout,,workout,True,workout schedule nutrition,Q273,упражнения на пресс,0.7140,workout,True,workout chat nutrition,Q273,упражнения на пресс,0.7727
+Q283,тренировка на шею,workout,,workout,True,workout schedule nutrition,Q272,тренировка на пресс,0.7093,workout,True,workout schedule clients,Q272,тренировка на пресс,0.7361
+Q287,тренировка на кор,workout,,workout,True,workout schedule nutrition,Q272,тренировка на пресс,0.7093,workout,True,workout schedule clients,Q272,тренировка на пресс,0.7130
+Q292,составь тренировку,workout,,workout,True,workout schedule clients,Q243,составь программу,0.5711,workout,True,workout schedule clients,Q243,составь программу,0.5303
+Q294,дай программу упражнений,workout,,workout,True,workout,Q241,дай тренировку,0.4663,workout,True,workout progress clients,Q243,составь программу,0.5231
+Q299,кто у меня занимается,clients,новое слово,support,False,support clients schedule,Q203,у меня проблема,0.5831,other,False,progress schedule trainer,Q006,кто ты,0.3624
+Q300,мои подопечные,clients,слово в другой форме,schedule,False,schedule chat clients,Q079,мои тренировки,0.6904,clients,True,clients settings schedule,Q313,список подопечных,0.6159
+Q307,добавить занятие клиенту,clients,новое слово,schedule,False,schedule clients,Q089,отменить занятие,0.5000,schedule,False,schedule clients subscription,Q089,отменить занятие,0.5007
+Q309,подопечные,clients,слово в другой форме,,False,,,,,clients,True,clients settings support,Q313,список подопечных,0.6661
+Q310,информация о клиенте,clients,слово в другой форме,trainer,False,trainer,Q162,информация о тренере,0.8165,trainer,False,trainer clients progress,Q162,информация о тренере,0.7801
